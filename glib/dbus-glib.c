@@ -1,7 +1,7 @@
 /* -*- mode: C; c-file-style: "gnu" -*- */
-/* dbus-gtool-test.h  Declarations of test functions for dbus-glib-tool.
+/* dbus-glib.c General GLib binding stuff
  *
- * Copyright (C) 2003  Red Hat Inc.
+ * Copyright (C) 2004 Red Hat, Inc.
  *
  * Licensed under the Academic Free License version 2.0
  * 
@@ -21,11 +21,47 @@
  *
  */
 
-#ifndef DBUS_GLIB_TOOL_TEST_H
-#define DBUS_GLIB_TOOL_TEST_H
-
+#include <config.h>
 #include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+#include "dbus-gtest.h"
+#include "dbus-gutils.h"
 
-gboolean _dbus_gtool_test (const char *test_data_dir);
+#include <libintl.h>
+#define _(x) dgettext (GETTEXT_PACKAGE, x)
+#define N_(x) x
 
-#endif /* DBUS_GLIB_TEST_H */
+/**
+ * @ingroup DBusGLib
+ * @{
+ */
+
+/**
+ * Blocks until outgoing calls and signal emissions have been sent.
+ * 
+ * @param connection the connection to flush
+ */
+void
+dbus_g_connection_flush (DBusGConnection *connection)
+{
+  dbus_connection_flush (DBUS_CONNECTION_FROM_G_CONNECTION (connection));
+}
+
+/** @} */ /* end of public API */
+
+
+#ifdef DBUS_BUILD_TESTS
+
+/**
+ * @ingroup DBusGLibInternals
+ * Unit test for general glib stuff
+ * @returns #TRUE on success.
+ */
+gboolean
+_dbus_glib_test (const char *test_data_dir)
+{
+  
+  return TRUE;
+}
+
+#endif /* DBUS_BUILD_TESTS */
