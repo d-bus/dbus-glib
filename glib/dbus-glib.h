@@ -26,9 +26,9 @@
 #include <dbus/dbus.h>
 #include <glib.h>
 
-typedef void (*DBusMessageHandler) (DBusConnection *connection,
-				    DBusMessage    *message,
-				    gpointer        data);
+typedef void (*DBusMessageFunction) (DBusConnection *connection,
+                                     DBusMessage    *message,
+                                     gpointer        data);
 
 void dbus_gthread_init  (void);
 
