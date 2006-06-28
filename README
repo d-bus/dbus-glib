@@ -1,0 +1,101 @@
+D-BUS is a simple IPC library based on messages.
+
+See also the file HACKING for notes of interest to developers working on D-BUS.
+
+See http://www.freedesktop.org/software/dbus/ for lots of documentation, 
+mailing lists, etc.
+
+Note
+===
+
+A core concept of the D-BUS implementation is that "libdbus" is
+intended to be a low-level API, similar to Xlib. Most programmers are
+intended to use the bindings to GLib, Qt, Python, Mono, Java, or
+whatever. These bindings have varying levels of completeness.
+
+Configuration flags
+===
+
+These are the dbus-specific configuration flags that can be given to
+the ./configure program.
+
+  --enable-qt             enable Qt-friendly client library (note: Qt4)
+  --enable-qt-debug       enable Qt-friendly client library, linked to debug
+                          Qt libraries
+  --enable-qt3            enable Qt3-friendly client library
+  --enable-glib           enable GLib-friendly client library
+  --enable-gtk            enable GTK-requiring executables
+  --enable-tests          enable unit test code
+  --enable-ansi           enable -ansi -pedantic gcc flags
+  --enable-verbose-mode   support verbose debug mode
+  --enable-asserts        include assertion checks
+  --enable-checks         include sanity checks on public API
+  --enable-xml-docs       build XML documentation (requires xmlto)
+  --enable-doxygen-docs   build DOXYGEN documentation (requires Doxygen)
+  --enable-gcov           compile with coverage profiling instrumentation (gcc only)
+  --enable-abstract-sockets
+                          use abstract socket namespace (linux only)
+  --enable-gcj            build gcj bindings
+  --enable-mono           build mono bindings
+  --enable-mono-docs      build mono docs
+  --enable-python         build python bindings
+  --enable-selinux        build with SELinux support
+  --enable-dnotify        build with dnotify support (linux only)
+
+  --with-qt-moc=<path>              moc for Qt
+  --with-qt3-moc=<path>             moc for Qt3
+  --with-xml=libxml/expat           XML library to use
+  --with-init-scripts=redhat        Style of init scripts to install
+  --with-session-socket-dir=dirname Where to put sockets for the per-login-session message bus
+  --with-test-socket-dir=dirname    Where to put sockets for make check
+  --with-system-pid-file=pidfile    PID file for systemwide daemon
+  --with-system-socket=filename     UNIX domain socket for systemwide daemon
+  --with-console-auth-dir=dirname   directory to check for console ownerhip
+  --with-dbus-user=<user>           User for running the DBUS daemon (messagebus)
+  --with-gnu-ld                     assume the C compiler uses GNU ld [default=no]
+  --with-tags[=TAGS]                include additional configurations [automatic]
+  --with-x                          use the X Window System
+
+
+API/ABI Policy
+===
+
+D-BUS API/ABI and protocol necessarily remain in flux until we are
+sure it will meet the various needs it's intended to meet. This means
+we need to see some significant sample usage in the contexts of GNOME,
+KDE, desktop applications, and systemwide uses such as print queue
+monitoring, hotplug events, or whatever. We need the flexibility to
+incorporate feedback from this sample usage.
+
+Once we feel confident in the protocol and the API, we will release a 
+version 1.0. At that point, the intent is:
+
+ - The protocol will never be broken again; any message bus should 
+   work with any client forever. However, extensions are possible
+   where the protocol is extensible.
+
+ - If the library API is modified incompatibly, we will rename it 
+   as in http://ometer.com/parallel.html - in other words, 
+   it will always be possible to compile against and use the older 
+   API, and apps will always get the API they expect.
+
+Until 1.0 is released, feedback that requires API changes may be
+incorporated into D-BUS. This may break the API, the ABI, the
+protocol, or all three.
+
+To avoid a huge soname, the plan is to increment the soname only
+between official stable releases, not with every development snapshot.
+Versions numbered 0.x are considered development snapshots.
+
+Until 1.0 is released, you have to define -DDBUS_API_SUBJECT_TO_CHANGE
+just as a safety check to be sure everyone is aware of this API/ABI
+policy and has the right expectations.
+
+We do need people to test the APIs, so please do use the development
+snapshots of D-BUS. They are intended to work and we do actively
+address bugs.
+
+However, if you're shipping a commercial binary-only application that
+needs to keep running on M future versions of N operating systems, you
+might want to include your own copy of D-BUS rather than relying on
+the installed copy, for example.
