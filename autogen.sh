@@ -7,9 +7,9 @@ test -z "$srcdir" && srcdir=.
 ORIGDIR=`pwd`
 cd $srcdir
 
-PROJECT=dbus
+PROJECT=dbus-glib
 TEST_TYPE=-f
-FILE=dbus-1.pc.in
+FILE=dbus-glib-1.pc.in
 
 DIE=0
 
