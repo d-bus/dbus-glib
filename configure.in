@@ -805,7 +805,6 @@ AC_SUBST(TEST_SOCKET_DIR)
 AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test sockets])
 
 AC_OUTPUT([
-#Doxyfile
 Makefile
 glib/Makefile
 glib/examples/Makefile
