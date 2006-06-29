@@ -1,7 +1,7 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ(2.52)
 
-AC_INIT(glib/dbus-glib.h)
+AC_INIT(dbus/dbus-glib.h)
 
 AC_CANONICAL_TARGET
 
@@ -648,6 +648,14 @@ DBUS_TEST_LIBS=
 AC_SUBST(DBUS_TEST_CFLAGS)
 AC_SUBST(DBUS_TEST_LIBS)
 
+PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.60,
+	have_dbus=true, have_dbus=false)
+AC_SUBST(DBUS_CFLAGS)
+AC_SUBST(DBUS_LIBS)
+
+DBUS_INCLUDEDIR=`pkg-config dbus-1 --variable=includedir`
+AC_SUBST(DBUS_INCLUDEDIR)
+
 # Glib detection
 PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.4, have_glib=yes, have_glib=no)
 PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.4, have_glib_threads=yes, have_glib_threads=no)
@@ -790,7 +798,7 @@ AC_SUBST(TEST_$1)
 TEST_PATH(SERVICE_DIR, data/valid-service-files)
 TEST_PATH(SERVICE_BINARY, test-service)
 TEST_PATH(SHELL_SERVICE_BINARY, test-shell-service)
-TEST_PATH(GLIB_SERVICE_BINARY, glib/test-service-glib)
+TEST_PATH(GLIB_SERVICE_BINARY, dbus/test-service-glib)
 TEST_PATH(EXIT_BINARY, test-exit)
 TEST_PATH(SEGFAULT_BINARY, test-segfault)
 TEST_PATH(SLEEP_FOREVER_BINARY, test-sleep-forever)
@@ -806,9 +814,9 @@ AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test 
 
 AC_OUTPUT([
 Makefile
-glib/Makefile
-glib/examples/Makefile
-glib/examples/statemachine/Makefile
+dbus/Makefile
+dbus/examples/Makefile
+dbus/examples/statemachine/Makefile
 dbus-glib-1.pc
 ])
 

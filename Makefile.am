@@ -1,18 +1,18 @@
-GLIB_SUBDIR=glib
+GLIB_SUBDIR=dbus
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=glib
-DIST_SUBDIRS=glib
+SUBDIRS=dbus
+DIST_SUBDIRS=dbus
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
 
 DISTCLEANFILES = 		\
-	$(GLIB_PC)		\
+	$(GLIB_PC)
 
 EXTRA_DIST =			\
 	HACKING			\
-	dbus-glib-1.pc.in	\
+	dbus-glib-1.pc.in
 
 #all-local: Doxyfile
 

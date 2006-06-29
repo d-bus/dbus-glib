@@ -119,7 +119,7 @@ GObject *  dbus_g_connection_lookup_g_object   (DBusGConnection       *connectio
 						const char            *at_path);
 
 #ifdef DBUS_COMPILATION
-#include "glib/dbus-gtype-specialized.h"
+#include "dbus/dbus-gtype-specialized.h"
 #else
 #include <dbus/dbus-gtype-specialized.h>
 #endif
