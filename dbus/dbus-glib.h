@@ -60,7 +60,7 @@ GQuark dbus_g_error_quark (void);
 
 typedef enum
 {
-#include <dbus/dbus-glib-error-enum.h>    
+#include "dbus-glib-error-enum.h" 
 } DBusGError;
 
 gboolean         dbus_g_error_has_name    (GError      *error,

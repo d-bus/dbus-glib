@@ -1,13 +1,16 @@
 SUBDIRS = . examples
 
-INCLUDES=-I$(top_srcdir) $(DBUS_CLIENT_CFLAGS) $(DBUS_GLIB_CFLAGS) $(DBUS_GLIB_TOOL_CFLAGS) -DDBUS_COMPILATION=1 -DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\"
+INCLUDES=-I$(top_srcdir) $(DBUS_CFLAGS) $(DBUS_GLIB_CFLAGS) $(DBUS_GLIB_TOOL_CFLAGS) -DDBUS_COMPILATION=1 -DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\" 
 
 lib_LTLIBRARIES=libdbus-glib-1.la
 
-dbus-glib-error-switch.h: $(top_srcdir)/dbus/dbus-protocol.h make-dbus-glib-error-switch.sh
-	$(LIBTOOL) --mode=execute $(srcdir)/make-dbus-glib-error-switch.sh $(top_srcdir)/dbus/dbus-protocol.h $@
+dbus-glib-error-enum.h: make-dbus-glib-error-enum.sh
+	$(srcdir)/make-dbus-glib-error-enum.sh $(DBUS_INCLUDEDIR)/dbus-1.0/dbus/dbus-protocol.h $@
 
-BUILT_SOURCES = dbus-glib-error-switch.h
+dbus-glib-error-switch.h: make-dbus-glib-error-switch.sh
+	$(LIBTOOL) --mode=execute $(srcdir)/make-dbus-glib-error-switch.sh $(DBUS_INCLUDEDIR)/dbus-1.0/dbus/dbus-protocol.h $@
+
+BUILT_SOURCES = dbus-glib-error-switch.h dbus-glib-error-enum.h
 
 CLEANFILES = $(BUILT_SOURCES)
 
@@ -35,6 +38,9 @@ libdbus_glib_1_la_SOURCES = 			\
 	dbus-gvalue.c				\
 	dbus-gvalue.h				\
 	dbus-gthread.c				\
+	dbus-glib.h				\
+	dbus-glib-lowlevel.h			\
+	dbus-glib-error-enum.h			\
 	$(DBUS_GLIB_INTERNALS)
 
 libdbus_glib_HEADERS =                  \
@@ -42,7 +48,7 @@ libdbus_glib_HEADERS =                  \
 
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 
-libdbus_glib_1_la_LIBADD= $(top_builddir)/dbus/libdbus-1.la $(DBUS_GLIB_LIBS)
+libdbus_glib_1_la_LIBADD= $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
 ## don't export symbols that start with "_" (we use this 
 ## convention for internal symbols)
 libdbus_glib_1_la_LDFLAGS= -export-symbols-regex "^[^_].*" -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -no-undefined
@@ -57,7 +63,7 @@ libdbus_gtool_la_SOURCES = $(DBUS_GLIB_INTERNALS) \
 	dbus-gparser.c				\
 	dbus-gparser.h
 
-libdbus_gtool_la_LIBADD = libdbus-glib-1.la
+libdbus_gtool_la_LIBADD = $(DBUS_LIBS) 
 
 bin_PROGRAMS=dbus-binding-tool
 
@@ -67,7 +73,7 @@ dbus_binding_tool_SOURCES =			\
 	dbus-glib-tool.h			\
 	dbus-glib-tool.c
 
-dbus_binding_tool_LDADD= libdbus-gtool.la $(DBUS_GLIB_LIBS) -lexpat
+dbus_binding_tool_LDADD= libdbus-gtool.la libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS) -lexpat
 
 ## we just rebuilt these manually and check them into cvs; easier than
 ## convincing automake/make to do this properly
@@ -78,28 +84,28 @@ regenerate-built-sources:
 
 EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh
 
-if DBUS_BUILD_TESTS
+#if DBUS_BUILD_TESTS
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
-noinst_PROGRAMS= $(TESTS)
+#noinst_PROGRAMS= $(TESTS)
 
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 
 ## TESTS
-TESTS_ENVIRONMENT=DBUS_TEST_DATA=$(top_builddir)/test/data DBUS_TEST_HOMEDIR=$(top_builddir)/dbus
-TESTS=dbus-glib-test
+#TESTS_ENVIRONMENT=DBUS_TEST_DATA=$(top_builddir)/test/data DBUS_TEST_HOMEDIR=$(top_builddir)/dbus
+#TESTS=dbus-glib-test
 
 ## FIXME we aren't running dbus-glib-tool --self-test
 
-dbus_glib_test_SOURCES=			\
-	dbus-gtest-main.c
+#dbus_glib_test_SOURCES=			\
+#	dbus-gtest-main.c
 
-dbus_glib_test_LDADD= $(top_builddir)/glib/libdbus-glib-1.la
+#dbus_glib_test_LDADD= $(top_builddir)/glib/libdbus-glib-1.la
 
-else
+#else
 ### not building tests
-TESTS=
+#TESTS=
 
-endif
+#endif
 

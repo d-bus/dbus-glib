@@ -22,8 +22,8 @@
  */
 
 #include <config.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include "dbus-glib.h"
+#include "dbus-glib-lowlevel.h"
 #include "dbus-gtest.h"
 #include "dbus-gutils.h"
 #include "dbus-gobject.h"
