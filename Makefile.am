@@ -1,8 +1,7 @@
-GLIB_SUBDIR=dbus
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=dbus
-DIST_SUBDIRS=dbus
+SUBDIRS=dbus test tools
+DIST_SUBDIRS=dbus test tools
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
