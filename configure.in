@@ -833,6 +833,7 @@ test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
 tools/Makefile
 dbus-glib-1.pc
+Doxyfile
 ])
 
 dnl ==========================================================================

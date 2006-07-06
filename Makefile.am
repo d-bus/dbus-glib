@@ -13,7 +13,7 @@ EXTRA_DIST =			\
 	HACKING			\
 	dbus-glib-1.pc.in
 
-#all-local: Doxyfile
+all-local: Doxyfile
 
 if DBUS_GCOV_ENABLED
 clean-gcov:
