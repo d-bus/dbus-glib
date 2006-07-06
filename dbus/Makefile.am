@@ -84,28 +84,28 @@ regenerate-built-sources:
 
 EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh
 
-#if DBUS_BUILD_TESTS
+if DBUS_BUILD_TESTS
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
-#noinst_PROGRAMS= $(TESTS)
+noinst_PROGRAMS= $(TESTS)
 
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 
 ## TESTS
-#TESTS_ENVIRONMENT=DBUS_TEST_DATA=$(top_builddir)/test/data DBUS_TEST_HOMEDIR=$(top_builddir)/dbus
-#TESTS=dbus-glib-test
+TESTS_ENVIRONMENT=DBUS_TEST_DATA=$(top_builddir)/test/data DBUS_TEST_HOMEDIR=$(top_builddir)/dbus
+TESTS=dbus-glib-test
 
 ## FIXME we aren't running dbus-glib-tool --self-test
 
-#dbus_glib_test_SOURCES=			\
-#	dbus-gtest-main.c
+dbus_glib_test_SOURCES=			\
+	dbus-gtest-main.c
 
-#dbus_glib_test_LDADD= $(top_builddir)/glib/libdbus-glib-1.la
+dbus_glib_test_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
-#else
+else
 ### not building tests
-#TESTS=
+TESTS=
 
-#endif
+endif
 
