@@ -1,0 +1,18 @@
+D-Bus GLib Bindings 0.70 (17 July 2006)
+===
+- First release after bindings split
+- dbus-binding-tool heeds org.freedesktop.DBus.GLib.ClientCSymbol C symbol
+  name annotations when generating glib client bindings
+- DBusGProxy can now be inherited from
+- Support added for generating bindings to arrays that are represented as 
+  GPtrArrays rather than GArrays (ie size-variable things, such as strings, 
+  objects, structs, etc).
+- Modification of the existing specialised types to have N type parameters 
+  (rather than the current 1 or 2 for arrays and dictionaries respectively).
+  You can then use this to get a glib type to represent any arbitrary
+  D-Bus struct type using dbus_g_type_get_struct. The only implementation of 
+  these types is with GValueArrays as before, but it's now possible to store 
+  these in arrays, emit them in signals, etc.
+- New methodbus_g_connection_open provides a way to open connections to an 
+  arbitrary address
+- Various bugs and memory leaks fixed
