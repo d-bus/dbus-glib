@@ -11,6 +11,7 @@ DISTCLEANFILES = 		\
 
 EXTRA_DIST =			\
 	HACKING			\
+	NEWS			\
 	dbus-glib-1.pc.in
 
 all-local: Doxyfile
