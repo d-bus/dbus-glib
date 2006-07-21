@@ -1,7 +1,7 @@
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=dbus test tools
-DIST_SUBDIRS=dbus test tools
+SUBDIRS=dbus tools test 
+DIST_SUBDIRS=dbus tools test
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
@@ -13,6 +13,28 @@ EXTRA_DIST =			\
 	HACKING			\
 	NEWS			\
 	dbus-glib-1.pc.in
+
+# Creating ChangeLog from git log:
+
+MAINTAINERCLEANFILES = ChangeLog
+
+EXTRA_DIST += ChangeLog
+
+.PHONY: ChangeLog $(srcdir)/ChangeLog
+ChangeLog: $(srcdir)/ChangeLog
+$(srcdir)/ChangeLog:
+	@if test -d "$(srcdir)/.git"; then \
+	  (cd "$(srcdir)" && \
+	  ./missing --run git-log --stat) | fmt --split-only > $@.tmp \
+	  && mv -f $@.tmp $@ \
+	  || ($(RM) $@.tmp; \
+	      echo Failed to generate ChangeLog, your ChangeLog may be outdated >&2; \
+	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
+	else \
+	  test -f $@ || \
+	  (echo A git checkout and git-log is required to generate ChangeLog >&2 && \
+	  echo A git checkout and git-log is required to generate this file >> $@); \
+	fi
 
 all-local: Doxyfile
 

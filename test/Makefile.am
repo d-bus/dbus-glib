@@ -15,8 +15,6 @@ else
 GCOV_BINARIES=
 endif
 
-INCLUDES=-I$(top_srcdir) $(DBUS_TEST_CFLAGS) $(DBUS_CFLAGS)
-
 noinst_PROGRAMS= $(TEST_BINARIES) $(GCOV_BINARIES)
 
 decode_gcov_SOURCES=				\

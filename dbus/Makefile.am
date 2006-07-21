@@ -38,13 +38,13 @@ libdbus_glib_1_la_SOURCES = 			\
 	dbus-gvalue.c				\
 	dbus-gvalue.h				\
 	dbus-gthread.c				\
-	dbus-glib.h				\
-	dbus-glib-lowlevel.h			\
-	dbus-glib-error-enum.h			\
 	$(DBUS_GLIB_INTERNALS)
 
 libdbus_glib_HEADERS =                  \
-	dbus-gtype-specialized.h
+	dbus-gtype-specialized.h	\
+	dbus-glib.h			\
+        dbus-glib-lowlevel.h		\
+        dbus-glib-error-enum.h
 
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 
