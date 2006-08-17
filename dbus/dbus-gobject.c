@@ -295,28 +295,37 @@ dbus_g_object_type_dbus_metadata_quark (void)
   return quark;
 }
 
-static const DBusGObjectInfo *
+static GList *
 lookup_object_info (GObject *object)
 {
-  const DBusGObjectInfo *ret;
+  GType *interfaces, *p;
+  GList *info_list = NULL;
+  const DBusGObjectInfo *info;
   GType classtype;
-  
-  ret = NULL;
-  
-  for (classtype = G_TYPE_FROM_INSTANCE (object); classtype != 0; classtype = g_type_parent (classtype))
+
+  interfaces = g_type_interfaces (G_TYPE_FROM_INSTANCE (object), NULL);
+
+  for (p = interfaces; *p != 0; p++)
     {
-      const DBusGObjectInfo *info;
-
-      info = g_type_get_qdata (classtype, dbus_g_object_type_dbus_metadata_quark ()); 
-
+      info = g_type_get_qdata (*p, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-	{
-	  ret = info;
-	  break;
-	}
+          info_list = g_list_prepend (info_list, (gpointer) info);
     }
 
-  return ret;
+  g_free (interfaces);
+
+  for (classtype = G_TYPE_FROM_INSTANCE (object); classtype != 0; classtype = g_type_parent (classtype))
+    {
+      info = g_type_get_qdata (classtype, dbus_g_object_type_dbus_metadata_quark ());
+      if (info != NULL && info->format_version >= 0)
+          info_list = g_list_prepend (info_list, (gpointer) info);
+    }
+
+  /* if needed only:
+  return g_list_reverse (info_list);
+  */
+  
+  return info_list;
 }
 
 static void
@@ -509,6 +518,8 @@ lookup_values (GHashTable *interfaces, const char *method_interface)
 static void
 introspect_interfaces (GObject *object, GString *xml)
 {
+  GList *info_list;
+  const GList *info_list_walk;
   const DBusGObjectInfo *info;
   DBusGLibWriteIterfaceData data;
   int i;
@@ -516,60 +527,69 @@ introspect_interfaces (GObject *object, GString *xml)
   DBusGLibWriteInterfaceValues *values;
   const char *propsig;
 
-  info = lookup_object_info (object);
+  info_list = lookup_object_info (object);
 
-  g_assert (info != NULL);
+  g_assert (info_list != NULL);
 
   /* Gather a list of all interfaces, indexed into their methods */
-  interfaces = g_hash_table_new (g_str_hash, g_str_equal);
-  for (i = 0; i < info->n_method_infos; i++)
+  for (info_list_walk = info_list; info_list_walk != NULL; info_list_walk = g_list_next (info_list_walk))
     {
-      const char *method_name;
-      const char *method_interface;
-      const char *method_args;
-      const DBusGMethodInfo *method;
+      info = (DBusGObjectInfo *) info_list_walk->data;
+      interfaces = g_hash_table_new (g_str_hash, g_str_equal);
+      
+      g_assert (info != NULL);
 
-      method = &(info->method_infos[i]);
+      for (i = 0; i < info->n_method_infos; i++)
+        {
+          const char *method_name;
+          const char *method_interface;
+          const char *method_args;
+          const DBusGMethodInfo *method;
 
-      method_interface = method_interface_from_object_info (info, method);
-      method_name = method_name_from_object_info (info, method);
-      method_args = method_arg_info_from_object_info (info, method);
+          method = &(info->method_infos[i]);
 
-      values = lookup_values (interfaces, method_interface);
-      values->methods = g_slist_prepend (values->methods, (gpointer) method);
+          method_interface = method_interface_from_object_info (info, method);
+          method_name = method_name_from_object_info (info, method);
+          method_args = method_arg_info_from_object_info (info, method);
+
+          values = lookup_values (interfaces, method_interface);
+          values->methods = g_slist_prepend (values->methods, (gpointer) method);
+        }
+
+      propsig = info->exported_signals;
+      while (*propsig)
+        {
+          const char *iface;
+          const char *signame;
+
+          propsig = propsig_iterate (propsig, &iface, &signame);
+
+          values = lookup_values (interfaces, iface);
+          values->signals = g_slist_prepend (values->signals, (gpointer) signame);
+        }
+
+      propsig = info->exported_properties;
+      while (*propsig)
+        {
+          const char *iface;
+          const char *propname;
+
+          propsig = propsig_iterate (propsig, &iface, &propname);
+
+          values = lookup_values (interfaces, iface);
+          values->properties = g_slist_prepend (values->properties, (gpointer) propname);
+        }
+      
+      memset (&data, 0, sizeof (data));
+      data.xml = xml;
+      data.gtype = G_TYPE_FROM_INSTANCE (object);
+      data.object_info = info;
+
+      g_hash_table_foreach (interfaces, write_interface, &data);
+      g_hash_table_destroy (interfaces);
     }
 
-  propsig = info->exported_signals;
-  while (*propsig)
-    {
-      const char *iface;
-      const char *signame;
-
-      propsig = propsig_iterate (propsig, &iface, &signame);
-
-      values = lookup_values (interfaces, iface);
-      values->signals = g_slist_prepend (values->signals, (gpointer) signame);
-    }
-
-  propsig = info->exported_properties;
-  while (*propsig)
-    {
-      const char *iface;
-      const char *propname;
-
-      propsig = propsig_iterate (propsig, &iface, &propname);
-
-      values = lookup_values (interfaces, iface);
-      values->properties = g_slist_prepend (values->properties, (gpointer) propname);
-    }
-  
-  memset (&data, 0, sizeof (data));
-  data.xml = xml;
-  data.gtype = G_TYPE_FROM_INSTANCE (object);
-  data.object_info = info;
-  g_hash_table_foreach (interfaces, write_interface, &data);
-  
-  g_hash_table_destroy (interfaces);
+  g_list_free (info_list);
 }
 
 static DBusHandlerResult
@@ -749,45 +769,54 @@ lookup_object_and_method (GObject      *object,
   const char *interface;
   const char *member;
   const char *signature;
-  gboolean ret;
+  GList *info_list;
+  const GList *info_list_walk;
   const DBusGObjectInfo *info;
   int i;
 
   interface = dbus_message_get_interface (message);
   member = dbus_message_get_member (message);
   signature = dbus_message_get_signature (message);
-  ret = FALSE;
 
-  info = lookup_object_info (object);
-  *object_ret = info;
+  info_list = lookup_object_info (object);
   
-  for (i = 0; i < info->n_method_infos; i++)
+  for (info_list_walk = info_list; info_list_walk != NULL; info_list_walk = g_list_next (info_list_walk))
     {
-      const char *expected_member;
-      const char *expected_interface;
-      char *expected_signature;
-      const DBusGMethodInfo *method;
+      info = (DBusGObjectInfo *) info_list_walk->data;
+      *object_ret = info;
 
-      method = &(info->method_infos[i]);
+      for (i = 0; i < info->n_method_infos; i++)
+        {
+          const char *expected_member;
+          const char *expected_interface;
+          char *expected_signature;
+          const DBusGMethodInfo *method;
 
-      /* Check method interface/name and input signature */ 
-      expected_interface = method_interface_from_object_info (*object_ret, method);
-      expected_member = method_name_from_object_info (*object_ret, method);
-      expected_signature = method_input_signature_from_object_info (*object_ret, method);
+          method = &(info->method_infos[i]);
 
-      if ((interface == NULL
-	   || strcmp (expected_interface, interface) == 0)
-	  && strcmp (expected_member, member) == 0
-	  && strcmp (expected_signature, signature) == 0)
-	{
-	  g_free (expected_signature);
-	  *method_ret = method;
-	  return TRUE;
-	}
-      g_free (expected_signature);
+          /* Check method interface/name and input signature */ 
+          expected_interface = method_interface_from_object_info (*object_ret, method);
+          expected_member = method_name_from_object_info (*object_ret, method);
+          expected_signature = method_input_signature_from_object_info (*object_ret, method);
+
+          if ((interface == NULL
+              || strcmp (expected_interface, interface) == 0)
+              && strcmp (expected_member, member) == 0
+              && strcmp (expected_signature, signature) == 0)
+            {
+              g_free (expected_signature);
+              *method_ret = method;
+              g_list_free (info_list);
+              return TRUE;
+            }
+            g_free (expected_signature);
+        }
     }
 
-  return ret;
+  if (info_list)
+    g_list_free (info_list);
+
+  return FALSE;
 }
 
 static char *
@@ -1442,59 +1471,65 @@ signal_emitter_marshaller (GClosure        *closure,
 }
 
 static void
-export_signals (DBusGConnection *connection, const DBusGObjectInfo *info, GObject *object)
+export_signals (DBusGConnection *connection, const GList *info_list, GObject *object)
 {
   GType gtype;
   const char *sigdata;
   const char *iface;
   const char *signame;
+  const DBusGObjectInfo *info;
 
   gtype = G_TYPE_FROM_INSTANCE (object);
 
-  sigdata = info->exported_signals;
-  
-  while (*sigdata != '\0')
+  for (; info_list != NULL; info_list = g_list_next (info_list))
     {
-      guint id;
-      GSignalQuery query;
-      GClosure *closure;
-      char *s;
-
-      sigdata = propsig_iterate (sigdata, &iface, &signame);
+      info = (DBusGObjectInfo *) info_list->data;
       
-      s = _dbus_gutils_wincaps_to_uscore (signame);
-
-      id = g_signal_lookup (s, gtype);
-      if (id == 0)
-	{
-	  g_warning ("signal \"%s\" (from \"%s\") exported but not found in object class \"%s\"",
-		     s, signame, g_type_name (gtype));
-	  g_free (s);
-	  continue;
-	}
-
-      g_signal_query (id, &query);
-
-      if (query.return_type != G_TYPE_NONE)
-	{
-	  g_warning ("Not exporting signal \"%s\" for object class \"%s\" as it has a return type \"%s\"",
-		     s, g_type_name (gtype), g_type_name (query.return_type));
-	  g_free (s);
-	  continue; /* FIXME: these could be listed as methods ? */
-	}
+      sigdata = info->exported_signals;
       
-      closure = dbus_g_signal_closure_new (connection, object, signame, (char*) iface);
-      g_closure_set_marshal (closure, signal_emitter_marshaller);
+      while (*sigdata != '\0')
+        {
+          guint id;
+          GSignalQuery query;
+          GClosure *closure;
+          char *s;
 
-      g_signal_connect_closure_by_id (object,
-				      id,
-				      0,
-				      closure,
-				      FALSE);
+          sigdata = propsig_iterate (sigdata, &iface, &signame);
+          
+          s = _dbus_gutils_wincaps_to_uscore (signame);
 
-      g_closure_add_finalize_notifier (closure, NULL,
-				       dbus_g_signal_closure_finalize);
-      g_free (s);
+          id = g_signal_lookup (s, gtype);
+          if (id == 0)
+            {
+              g_warning ("signal \"%s\" (from \"%s\") exported but not found in object class \"%s\"",
+                     s, signame, g_type_name (gtype));
+              g_free (s);
+              continue;
+            }
+
+          g_signal_query (id, &query);
+
+          if (query.return_type != G_TYPE_NONE)
+            {
+              g_warning ("Not exporting signal \"%s\" for object class \"%s\" as it has a return type \"%s\"",
+                     s, g_type_name (gtype), g_type_name (query.return_type));
+              g_free (s);
+              continue; /* FIXME: these could be listed as methods ? */
+            }
+          
+          closure = dbus_g_signal_closure_new (connection, object, signame, (char*) iface);
+          g_closure_set_marshal (closure, signal_emitter_marshaller);
+
+          g_signal_connect_closure_by_id (object,
+                          id,
+                          0,
+                          closure,
+                          FALSE);
+
+          g_closure_add_finalize_notifier (closure, NULL,
+                           dbus_g_signal_closure_finalize);
+          g_free (s);
+        }
     }
 }
 
@@ -1557,7 +1592,7 @@ void
 dbus_g_object_type_install_info (GType                  object_type,
 				 const DBusGObjectInfo *info)
 {
-  g_return_if_fail (G_TYPE_IS_CLASSED (object_type));
+  g_return_if_fail (G_TYPE_IS_CLASSED (object_type) || G_TYPE_IS_INTERFACE (object_type));
 
   _dbus_g_value_types_init ();
 
@@ -1640,13 +1675,13 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      const char            *at_path,
                                      GObject               *object)
 {
-  const DBusGObjectInfo *info;
+  GList *info_list;
   g_return_if_fail (connection != NULL);
   g_return_if_fail (at_path != NULL);
   g_return_if_fail (G_IS_OBJECT (object));
 
-  info = lookup_object_info (object);
-  if (info == NULL)
+  info_list = lookup_object_info (object);
+  if (info_list == NULL)
     {
       g_warning ("No introspection data registered for object class \"%s\"",
 		 g_type_name (G_TYPE_FROM_INSTANCE (object)));
@@ -1662,7 +1697,8 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       return;
     }
 
-  export_signals (connection, info, object);
+  export_signals (connection, info_list, object);
+  g_list_free (info_list);
 
   g_object_set_data (object, "dbus_glib_object_path", g_strdup (at_path));
   g_object_weak_ref (object, (GWeakNotify)unregister_gobject, connection);
