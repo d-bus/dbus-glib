@@ -38,19 +38,6 @@
 #define N_(x) x
 
 /**
- * @defgroup DBusGLib GLib bindings
- * @brief API for using D-BUS with GLib
- *
- * libdbus proper is a low-level API, these GLib bindings wrap libdbus
- * with a much higher-level approach. The higher level approach is
- * possible because GLib defines a main loop, an object/type system,
- * and an out-of-memory handling policy (it exits the program).
- * See http://www.gtk.org for GLib information.
- *
- * To manipulate remote objects, use #DBusGProxy.
- */
-
-/**
  * @defgroup DBusGLibInternals GLib bindings implementation details
  * @ingroup  DBusInternals
  * @brief Implementation details of GLib bindings
@@ -59,6 +46,7 @@
  */
 
 /**
+ * DBusGMessageQueue:
  * A GSource subclass for dispatching DBusConnection messages.
  * We need this on top of the IO handlers, because sometimes
  * there are messages to dispatch queued up but no IO pending.
@@ -548,6 +536,10 @@ connection_setup_new_from_old (GMainContext    *context,
  */
 
 /**
+ * dbus_connection_setup_with_g_main:
+ * @connection: the connection
+ * @context: the #GMainContext or #NULL for default context
+ *
  * Sets the watch and timeout functions of a #DBusConnection
  * to integrate the connection with the GLib main loop.
  * Pass in #NULL for the #GMainContext unless you're
@@ -557,9 +549,6 @@ connection_setup_new_from_old (GMainContext    *context,
  * time. If called once with context A and once with context B,
  * context B replaces context A as the context monitoring the
  * connection.
- *
- * @param connection the connection
- * @param context the #GMainContext or #NULL for default context
  */
 void
 dbus_connection_setup_with_g_main (DBusConnection *connection,
@@ -625,6 +614,10 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
 }
 
 /**
+ * dbus_server_setup_with_g_main:
+ * @server: the server
+ * @context: the #GMainContext or #NULL for default
+ *
  * Sets the watch and timeout functions of a #DBusServer
  * to integrate the server with the GLib main loop.
  * In most cases the context argument should be #NULL.
@@ -633,9 +626,6 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
  * time. If called once with context A and once with context B,
  * context B replaces context A as the context monitoring the
  * connection.
- *
- * @param server the server
- * @param context the #GMainContext or #NULL for default
  */
 void
 dbus_server_setup_with_g_main (DBusServer   *server,
@@ -697,14 +687,16 @@ dbus_server_setup_with_g_main (DBusServer   *server,
 }
 
 /**
+ * dbus_g_connection_open:
+ * @address: address of the connection to open
+ * @error: address where an error can be returned.
+ *
  * Returns a connection to the given address.
  *
  * (Internally, calls dbus_connection_open() then calls
  * dbus_connection_setup_with_g_main() on the result.)
  *
- * @param address address of the connection to open
- * @param error address where an error can be returned.
- * @returns a DBusConnection
+ * Returns: a DBusConnection
  */
 DBusGConnection*
 dbus_g_connection_open (const gchar  *address,
@@ -734,15 +726,17 @@ dbus_g_connection_open (const gchar  *address,
 }
 
 /**
+ * dbus_g_bus_get:
+ * @type: bus type
+ * @error: address where an error can be returned.
+ *
  * Returns a connection to the given bus. The connection is a global variable
  * shared with other callers of this function.
  * 
  * (Internally, calls dbus_bus_get() then calls
  * dbus_connection_setup_with_g_main() on the result.)
  *
- * @param type bus type
- * @param error address where an error can be returned.
- * @returns a DBusConnection
+ * Returns: a DBusConnection
  */
 DBusGConnection*
 dbus_g_bus_get (DBusBusType     type,
@@ -778,7 +772,7 @@ dbus_g_bus_get (DBusBusType     type,
 /**
  * @ingroup DBusGLibInternals
  * Unit test for GLib main loop integration
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 gboolean
 _dbus_gmain_test (const char *test_data_dir)

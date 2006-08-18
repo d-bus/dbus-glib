@@ -116,7 +116,7 @@ _dbus_gutils_wincaps_to_uscore (const char *caps)
 /**
  * @ingroup DBusGLibInternals
  * Unit test for GLib utils internals
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 gboolean
 _dbus_gutils_test (const char *test_data_dir)

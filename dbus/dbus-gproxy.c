@@ -1779,9 +1779,19 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  */
 
 /**
+ * SECTION:dbus-gproxy
+ * @short_description: DBus Proxy
+ * @see_also: #DBusProxy
+ * @stability: Stable
+ *
+ * A #DBusGProxy is a boxed type abstracting a #DBusProxy.
+ */
+
+/**
+ * dbus_g_proxy_get_type:
  * Standard GObject get_type() function for DBusGProxy.
  *
- * @returns type ID for DBusGProxy class
+ * Returns: type ID for DBusGProxy class
  */
 GType
 dbus_g_proxy_get_type (void)
@@ -1831,6 +1841,12 @@ dbus_g_proxy_new (DBusGConnection *connection,
 }
 
 /**
+ * dbus_g_proxy_new_for_name:
+ * @connection: the connection to the remote bus
+ * @name: any name on the message bus
+ * @path_name: name of the object instance to call methods on
+ * @interface_name: name of the interface to call methods on
+ *
  * Creates a new proxy for a remote interface exported by a connection
  * on a message bus. Method calls and signal connections over this
  * proxy will go to the name owner; the name's owner is expected to
@@ -1850,11 +1866,7 @@ dbus_g_proxy_new (DBusGConnection *connection,
  * disappears. If a well-known name changes owner, the proxy will
  * still be alive.
  *
- * @param connection the connection to the remote bus
- * @param name any name on the message bus
- * @param path_name name of the object instance to call methods on
- * @param interface_name name of the interface to call methods on
- * @returns new proxy object
+ * Returns: new proxy object
  */
 DBusGProxy*
 dbus_g_proxy_new_for_name (DBusGConnection *connection,
@@ -1872,6 +1884,13 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
 }
 
 /**
+ * dbus_g_proxy_new_for_name_owner:
+ * @connection: the connection to the remote bus
+ * @name: any name on the message bus
+ * @path_name: name of the object inside the service to call methods on
+ * @interface_name: name of the interface to call methods on
+ * @error: return location for an error
+ *
  * Similar to dbus_g_proxy_new_for_name(), but makes a round-trip
  * request to the message bus to get the current name owner, then
  * binds the proxy to the unique name of the current owner, rather
@@ -1887,12 +1906,7 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
  * dbus_g_proxy_new_for_name_owner() will bind to the unique name
  * of that owner rather than the generic name.
  * 
- * @param connection the connection to the remote bus
- * @param name any name on the message bus
- * @param path_name name of the object inside the service to call methods on
- * @param interface_name name of the interface to call methods on
- * @param error return location for an error
- * @returns new proxy object, or #NULL on error
+ * Returns: new proxy object, or #NULL on error
  */
 DBusGProxy*
 dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
@@ -1919,14 +1933,15 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
 }
 
 /**
+ * dbus_g_proxy_new_from_proxy:
+ * @proxy: the proxy to use as a template
+ * @path: of the object inside the peer to call methods on
+ * @interface: name of the interface to call methods on
+ *
  * Creates a proxy using an existing proxy as a template, substituting
  * the specified interface and path.  Either or both may be NULL.
  *
- * @param proxy the proxy to use as a template
- * @param path of the object inside the peer to call methods on
- * @param interface name of the interface to call methods on
- * @returns new proxy object
- * 
+ * Returns: new proxy object
  */
 DBusGProxy*
 dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
@@ -1950,18 +1965,18 @@ dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_new_for_peer:
+ * @connection: the connection to the peer
+ * @path_name: name of the object inside the peer to call methods on
+ * @interface_name: name of the interface to call methods on
+ *
  * Creates a proxy for an object in peer application (one
  * we're directly connected to). That is, this function is
  * intended for use when there's no message bus involved,
  * we're doing a simple 1-to-1 communication between two
  * applications.
  *
- *
- * @param connection the connection to the peer
- * @param path_name name of the object inside the peer to call methods on
- * @param interface_name name of the interface to call methods on
- * @returns new proxy object
- * 
+ * Returns: new proxy object
  */
 DBusGProxy*
 dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
@@ -1981,6 +1996,9 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
 }
 
 /**
+ * dbus_g_proxy_get_bus_name:
+ * @proxy: the proxy
+ *
  * Gets the bus name a proxy is bound to (may be #NULL in some cases).
  * If you created the proxy with dbus_g_proxy_new_for_name(), then
  * the name you passed to that will be returned.
@@ -1988,8 +2006,7 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
  * unique connection name will be returned. If you created it
  * with dbus_g_proxy_new_for_peer() then #NULL will be returned.
  *
- * @param proxy the proxy
- * @returns the bus name the proxy sends messages to
+ * Returns: the bus name the proxy sends messages to
  */
 const char*
 dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
@@ -2005,10 +2022,12 @@ dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
 }
 
 /**
+ * dbus_g_proxy_get_interface:
+ * @proxy: the proxy
+ *
  * Gets the object interface proxy is bound to (may be #NULL in some cases).
  *
- * @param proxy the proxy
- * @returns an object interface 
+ * Returns: an object interface 
  */
 const char*
 dbus_g_proxy_get_interface (DBusGProxy        *proxy)
@@ -2024,10 +2043,11 @@ dbus_g_proxy_get_interface (DBusGProxy        *proxy)
 }
 
 /**
- * Sets the object interface proxy is bound to
+ * dbus_g_proxy_set_interface:
+ * @proxy: the proxy
+ * @interface_name: an object interface 
  *
- * @param proxy the proxy
- * @param interface_name an object interface 
+ * Sets the object interface proxy is bound to
  */
 void
 dbus_g_proxy_set_interface (DBusGProxy        *proxy,
@@ -2044,10 +2064,11 @@ dbus_g_proxy_set_interface (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_get_path:
  * Gets the path this proxy is bound to
+ * @proxy: the proxy
  *
- * @param proxy the proxy
- * @returns an object path
+ * Returns: an object path
  */
 const char*
 dbus_g_proxy_get_path (DBusGProxy        *proxy)
@@ -2297,6 +2318,14 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_begin_call:
+ * @proxy: a proxy for a remote interface
+ * @method: the name of the method to invoke
+ * @notify: callback to be invoked when method returns
+ * @user_data: user data passed to callback
+ * @destroy: function called to destroy user_data
+ * @first_arg_type: type of the first argument
+ *
  * Asynchronously invokes a method on a remote interface. The method
  * call will not be sent over the wire until the application returns
  * to the main loop, or blocks in dbus_connection_flush() to write out
@@ -2305,18 +2334,11 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
  * will be invoked; you can then collect the results of the call
  * (which may be an error, or a reply), use dbus_g_proxy_end_call().
  *
- * @todo this particular function shouldn't die on out of memory,
+ * TODO this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
  * 
- * @param proxy a proxy for a remote interface
- * @param method the name of the method to invoke
- * @param notify callback to be invoked when method returns
- * @param user_data user data passed to callback
- * @param destroy function called to destroy user_data
- * @param first_arg_type type of the first argument
- *
- * @returns call identifier
- *  */
+ * Returns: call identifier.
+ */
 DBusGProxyCall *
 dbus_g_proxy_begin_call (DBusGProxy          *proxy,
 			 const char          *method,
@@ -2347,6 +2369,12 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
 }
 
 /**
+ * dbus_g_proxy_end_call:
+ * @proxy: a proxy for a remote interface
+ * @call: the pending call ID from dbus_g_proxy_begin_call()
+ * @error: return location for an error
+ * @first_arg_type: type of first "out" argument
+ *
  * Collects the results of a method call. The method call was normally
  * initiated with dbus_g_proxy_end_call(). You may use this function
  * outside of the callback given to dbus_g_proxy_begin_call; in that
@@ -2360,11 +2388,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  * method are stored in the provided varargs list.
  * The list should be terminated with G_TYPE_INVALID.
  *
- * @param proxy a proxy for a remote interface
- * @param call the pending call ID from dbus_g_proxy_begin_call()
- * @param error return location for an error
- * @param first_arg_type type of first "out" argument
- * @returns #FALSE if an error is set
+ * Returns: #FALSE if an error is set.
  */
 gboolean
 dbus_g_proxy_end_call (DBusGProxy          *proxy,
@@ -2386,6 +2410,12 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
 }
 
 /**
+ * dbus_g_proxy_call:
+ * @proxy: a proxy for a remote interface
+ * @method: method to invoke
+ * @error: return location for an error
+ * @first_arg_type: type of first "in" argument
+ *
  * Function for synchronously invoking a method and receiving reply
  * values.  This function is equivalent to dbus_g_proxy_begin_call
  * followed by dbus_g_proxy_end_call.  All of the input arguments are
@@ -2393,11 +2423,7 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
  * output values, followed by a second G_TYPE_INVALID.  Note that  
  * this means you must always specify G_TYPE_INVALID twice.
  *
- * @param proxy a proxy for a remote interface
- * @param method method to invoke
- * @param error return location for an error
- * @param first_arg_type type of first "in" argument
- * @returns #FALSE if an error is set, TRUE otherwise
+ * Returns: #FALSE if an error is set, #TRUE otherwise.
  */
 gboolean
 dbus_g_proxy_call (DBusGProxy        *proxy,
@@ -2431,15 +2457,16 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_call_no_reply:
+ * @proxy: a proxy for a remote interface
+ * @method: the name of the method to invoke
+ * @first_arg_type: type of the first argument
+ *
  * Sends a method call message as with dbus_g_proxy_begin_call(), but
  * does not ask for a reply or allow you to receive one.
  *
- * @todo this particular function shouldn't die on out of memory,
+ * TODO: this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
- * 
- * @param proxy a proxy for a remote interface
- * @param method the name of the method to invoke
- * @param first_arg_type type of the first argument
  */
 void
 dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
@@ -2482,13 +2509,14 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
 }
 
 /**
+ * dbus_g_proxy_cancel_call
+ * @proxy: a proxy for a remote interface
+ * @call: the pending call ID from dbus_g_proxy_begin_call()
+ *
  * Cancels a pending method call. The method call was normally
  * initiated with dbus_g_proxy_begin_call().  This function
  * may not be used on pending calls that have already been
  * ended with dbus_g_proxy_end_call.
- *
- * @param proxy a proxy for a remote interface
- * @param call the pending call ID from dbus_g_proxy_begin_call()
  */
 void
 dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
@@ -2514,6 +2542,11 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_send:
+ * @proxy: a proxy for a remote interface
+ * @message: the message to address and send
+ * @client_serial: return location for message's serial, or #NULL 
+ *
  * Sends a message to the interface we're proxying for.  Does not
  * block or wait for a reply. The message is only actually written out
  * when you return to the main loop or block in
@@ -2527,10 +2560,7 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
  *
  * This function adds a reference to the message, so the caller
  * still owns its original reference.
- * 
- * @param proxy a proxy for a remote interface
- * @param message the message to address and send
- * @param client_serial return location for message's serial, or #NULL */
+ */
 void
 dbus_g_proxy_send (DBusGProxy          *proxy,
                    DBusMessage         *message,
@@ -2570,13 +2600,14 @@ array_free_all (gpointer array)
 }
 
 /**
+ * dbus_g_proxy_add_signal:
+ * @proxy: the proxy for a remote interface
+ * @signal_name: the name of the signal
+ * @first_type: the first argument type, or G_TYPE_INVALID if none
+ *
  * Specifies the argument signature of a signal;.only necessary
  * if the remote object does not support introspection.  The arguments
  * specified are the GLib types expected.
- *
- * @param proxy the proxy for a remote interface
- * @param signal_name the name of the signal
- * @param first_type the first argument type, or G_TYPE_INVALID if none
  */
 void
 dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
@@ -2628,15 +2659,16 @@ dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
 }
 
 /**
+ * dbus_g_proxy_connect_signal:
+ * @proxy: a proxy for a remote interface
+ * @signal_name: the DBus signal name to listen for
+ * @handler: the handler to connect
+ * @data: data to pass to handler
+ * @free_data_func: callback function to destroy data
+ *
  * Connect a signal handler to a proxy for a remote interface.  When
  * the remote interface emits the specified signal, the proxy will
  * emit a corresponding GLib signal.
- *
- * @param proxy a proxy for a remote interface
- * @param signal_name the DBus signal name to listen for
- * @param handler the handler to connect
- * @param data data to pass to handler
- * @param free_data_func callback function to destroy data
  */
 void
 dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
@@ -2680,13 +2712,14 @@ dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
 }
 
 /**
+ * dbus_g_proxy_disconnect_signal:
+ * @proxy: a proxy for a remote interface
+ * @signal_name: the DBus signal name to disconnect
+ * @handler: the handler to disconnect
+ * @data: the data that was registered with handler
+ *
  * Disconnect all signal handlers from a proxy that match the given
  * criteria.
- *
- * @param proxy a proxy for a remote interface
- * @param signal_name the DBus signal name to disconnect
- * @param handler the handler to disconnect
- * @param data the data that was registered with handler
  */
 void
 dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
@@ -2735,7 +2768,7 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
 /**
  * @ingroup DBusGLibInternals
  * Unit test for GLib proxy functions
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 gboolean
 _dbus_g_proxy_test (void)

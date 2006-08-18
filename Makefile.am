@@ -1,7 +1,7 @@
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=dbus tools test 
-DIST_SUBDIRS=dbus tools test
+SUBDIRS=dbus tools test doc
+DIST_SUBDIRS=dbus tools test doc
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
@@ -18,6 +18,7 @@ EXTRA_DIST =			\
 
 MAINTAINERCLEANFILES = ChangeLog
 
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 EXTRA_DIST += ChangeLog
 
 .PHONY: ChangeLog $(srcdir)/ChangeLog

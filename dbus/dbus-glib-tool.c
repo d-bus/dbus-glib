@@ -459,7 +459,7 @@ test_die (const char *failure)
 /**
  * @ingroup DBusGTool
  * Unit test for GLib utility tool
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 static gboolean
 _dbus_gtool_test (const char *test_data_dir)

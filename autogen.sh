@@ -38,6 +38,7 @@ ACLOCAL=aclocal-1.9
 }
 
 (libtoolize --version) < /dev/null > /dev/null 2>&1 || {
+
 	echo
 	echo "You must have libtoolize installed to compile $PROJECT."
 	echo "Install the libtool package from ftp.gnu.org or a mirror."
@@ -60,6 +61,8 @@ fi
 
 libtoolize --copy --force
 
+gtkdocize || echo "gtkdocize failed"
+
 echo $ACLOCAL $ACLOCAL_FLAGS
 $ACLOCAL $ACLOCAL_FLAGS
 
@@ -68,6 +71,7 @@ $ACLOCAL $ACLOCAL_FLAGS
 
 $AUTOMAKE -a $am_opt
 autoconf || echo "autoconf failed - version 2.5x is probably required"
+
 
 cd $ORIGDIR
 
