@@ -1,7 +1,7 @@
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=dbus tools test 
-DIST_SUBDIRS=dbus tools test
+SUBDIRS=dbus tools test doc
+DIST_SUBDIRS=dbus tools test doc
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
@@ -18,9 +18,9 @@ EXTRA_DIST =			\
 
 MAINTAINERCLEANFILES = ChangeLog
 
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 EXTRA_DIST += ChangeLog
 
-.PHONY: ChangeLog $(srcdir)/ChangeLog
 ChangeLog: $(srcdir)/ChangeLog
 $(srcdir)/ChangeLog:
 	@if test -d "$(srcdir)/.git"; then \
@@ -47,8 +47,6 @@ clean-bbg:
 
 GCOV_DIRS=$(GLIB_SUBDIR)
 
-## .PHONY so it always rebuilds it
-.PHONY: coverage-report.txt
 coverage-report.txt:
 	BBG_FILES=`find $(GCOV_DIRS) -name "*.bbg" -o -name "*.gcno"` ;			\
 	C_FILES= ;									\
@@ -77,3 +75,5 @@ check-coverage:
 	echo "Need to reconfigure with --enable-gcov"
 
 endif
+
+.PHONY: ChangeLog $(srcdir)/ChangeLog coverage-report.txt

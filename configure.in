@@ -11,6 +11,7 @@ AM_CONFIG_HEADER(config.h)
 
 # Honor aclocal flags
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+AC_CONFIG_MACRO_DIR(m4)
 
 GETTEXT_PACKAGE=dbus-glib-1
 AC_SUBST(GETTEXT_PACKAGE)
@@ -687,6 +688,9 @@ DBUS_GLIB_TOOL_LIBS="$XML_LIBS $INTLLIBS"
 AC_SUBST(DBUS_GLIB_TOOL_CFLAGS)
 AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 
+### gtk-doc Documentation
+GTK_DOC_CHECK(1.4)
+
 ### Doxygen Documentation
 
 AC_PATH_PROG(DOXYGEN, doxygen, no)
@@ -824,6 +828,9 @@ AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test 
 
 AC_OUTPUT([
 Makefile
+doc/Makefile
+doc/reference/Makefile
+doc/reference/version.xml
 dbus/Makefile
 dbus/examples/Makefile
 dbus/examples/statemachine/Makefile
@@ -867,6 +874,7 @@ echo "
         Building assertions:      ${enable_asserts}
         Building checks:          ${enable_checks}
         Building Doxygen docs:    ${enable_doxygen_docs}
+        Building Gtk-doc docs:    ${enable_gtk_doc}
         Building XML docs:        ${enable_xml_docs}
         Gettext libs (empty OK):  ${INTLLIBS}
         Using XML parser:         ${with_xml}

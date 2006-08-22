@@ -339,7 +339,7 @@ _dbus_g_value_types_init (void)
 /**
  * Get the GLib type ID for a DBusGObjectPath boxed type.
  *
- * @returns GLib type
+ * Returns: GLib type
  */
 GType
 dbus_g_object_path_get_g_type (void)
@@ -1827,8 +1827,10 @@ assert_bidirectional_mapping (GType gtype, const char *expected_sig)
 
 /**
  * @ingroup DBusGLibInternals
+ * @test_data_dir:
+ *
  * Unit test for general glib stuff
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 gboolean
 _dbus_gvalue_test (const char *test_data_dir)

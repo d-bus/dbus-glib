@@ -29,7 +29,7 @@ External software dependancies
 
  Optional:
 
-  - doxygen     (for API documentation)
+  - gtk-doc (for API documentation)
 
 ====================================================================
 

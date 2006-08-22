@@ -26,6 +26,14 @@
 #include <string.h>
 #include <gobject/gvaluecollector.h>
 
+/**
+ * SECTION:dbus-gtype-specialized
+ * @short_description: Non-DBus-specific functions for specialized GTypes
+ * @stability: Unstable
+ *
+ * Non-DBus-specific functions for specialized #GType.
+ */
+
 typedef enum {
   DBUS_G_SPECTYPE_COLLECTION,
   DBUS_G_SPECTYPE_MAP,
@@ -662,16 +670,16 @@ dbus_g_type_struct_set_member (GValue       *value,
 
 /**
  * dbus_g_type_struct_get:
- * @value: a GValue containing a DBusGTypeStruct type
+ * @value: a #GValue containing a #DBusGTypeStruct type
  * @member: struct member to get
  * @...: location in which to return the value of this member,
  *       followed optionally by more member/return locations pairs, followed by
- *       by G_MAXUINT
+ *       by #G_MAXUINT
  *
  * Collects the selected values of this struct into the return locations
  * provided.
  *
- * Returns: FALSE on failure
+ * Returns: #FALSE on failure
  */
 
 gboolean
@@ -720,14 +728,14 @@ error:
 
 /**
  * dbus_g_type_struct_set:
- * @value: a GValue containing a DBusGTypeStruct type
+ * @value: a #GValue containing a #DBusGTypeStruct type
  * @member: struct member to set
  * @...: value for the first member, followed optionally by
- *       more member/value pairs, followed by G_MAXUINT
+ *       more member/value pairs, followed by #G_MAXUINT
  *
  * Sets the selected members of the struct in @value.
  *
- * Returns: FALSE on failure
+ * Returns: #FALSE on failure
  */
 
 gboolean

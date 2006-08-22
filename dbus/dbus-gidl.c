@@ -774,7 +774,7 @@ arg_info_add_annotation (ArgInfo             *info,
 /**
  * @ingroup DBusGIDL
  * Unit test for GLib IDL internals
- * @returns #TRUE on success.
+ * Returns: #TRUE on success.
  */
 gboolean
 _dbus_gidl_test (void)
