@@ -1,4 +1,10 @@
-INCLUDES=-I$(top_srcdir) $(DBUS_CFLAGS) $(DBUS_GLIB_CFLAGS) -DDBUS_COMPILATION
+INCLUDES = \
+	-I$(top_srcdir)				\
+	-I$(top_builddir)			\
+	-I$(top_builddir)/dbus			\
+	$(DBUS_CFLAGS)				\
+	$(DBUS_GLIB_CFLAGS)			\
+	-DDBUS_COMPILATION
 
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 
