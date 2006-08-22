@@ -1,6 +1,13 @@
 SUBDIRS = . examples
 
-INCLUDES=-I$(top_srcdir) $(DBUS_CFLAGS) $(DBUS_GLIB_CFLAGS) $(DBUS_GLIB_TOOL_CFLAGS) -DDBUS_COMPILATION=1 -DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\" 
+INCLUDES = \
+	-I$(top_srcdir)						\
+	-I$(top_builddir)					\
+	$(DBUS_CFLAGS)						\
+	$(DBUS_GLIB_CFLAGS)					\
+	$(DBUS_GLIB_TOOL_CFLAGS)				\
+	-DDBUS_COMPILATION=1					\
+	-DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\" 
 
 lib_LTLIBRARIES=libdbus-glib-1.la
 
@@ -10,7 +17,9 @@ dbus-glib-error-enum.h: make-dbus-glib-error-enum.sh
 dbus-glib-error-switch.h: make-dbus-glib-error-switch.sh
 	$(LIBTOOL) --mode=execute $(srcdir)/make-dbus-glib-error-switch.sh $(DBUS_INCLUDEDIR)/dbus-1.0/dbus/dbus-protocol.h $@
 
-BUILT_SOURCES = dbus-glib-error-switch.h dbus-glib-error-enum.h
+BUILT_SOURCES = \
+	dbus-glib-error-switch.h		\
+	dbus-glib-error-enum.h
 
 CLEANFILES = $(BUILT_SOURCES)
 
