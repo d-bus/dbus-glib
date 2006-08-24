@@ -827,14 +827,8 @@ main (int argc, char **argv)
   run_mainloop ();
 
   {
-    char **strs;
+    const char *strs[] = { "hello", "HellO", "HELLO", NULL };
     char **strs_ret;
-
-    strs = g_new0 (char *, 4);
-    strs[0] = "hello";
-    strs[1] = "HellO";
-    strs[2] = "HELLO";
-    strs[3] = NULL;
 
     strs_ret = NULL;
     g_print ("Calling (wrapped) many_uppercase\n");
@@ -848,7 +842,6 @@ main (int argc, char **argv)
     if (strcmp ("HELLO", strs_ret[2]) != 0)
       lose ("(wrapped) ManyUppercase call returned unexpected string %s", strs_ret[2]);
 
-    g_free (strs);
     g_strfreev (strs_ret);
   }
 

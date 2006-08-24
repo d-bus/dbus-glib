@@ -149,7 +149,7 @@ connection_setup_new (GMainContext   *context,
     {
       cs->connection = connection;
 
-      cs->message_queue_source = g_source_new (&message_queue_funcs,
+      cs->message_queue_source = g_source_new ((GSourceFuncs *) &message_queue_funcs,
                                                sizeof (DBusGMessageQueue));
       ((DBusGMessageQueue*)cs->message_queue_source)->connection = connection;
       g_source_attach (cs->message_queue_source, cs->context);

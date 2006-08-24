@@ -17,6 +17,9 @@ function die()
 if test -z "$DBUS_TOP_BUILDDIR" ; then
     die "Must set DBUS_TOP_BUILDDIR"
 fi
+if test -z "$DBUS_TOP_SRCDIR" ; then
+    die "Must set DBUS_TOP_SRCDIR"
+fi
 
 ## convenient to be able to ctrl+C without leaking the message bus process
 trap 'die "Received SIGINT"' SIGINT
@@ -27,7 +30,7 @@ ESCAPED_SERVICE_DIR=`echo $SERVICE_DIR | sed -e 's/\//\\\\\\//g'`
 echo "escaped service dir is: $ESCAPED_SERVICE_DIR" >&2
 
 ## create a configuration file based on the standard session.conf
-cat $DBUS_TOP_BUILDDIR/tools/session.conf |  \
+cat $DBUS_TOP_SRCDIR/tools/session.conf |  \
     sed -e 's/<servicedir>.*$/<servicedir>'$ESCAPED_SERVICE_DIR'<\/servicedir>/g' |  \
     sed -e 's/<include.*$//g'                \
   > $CONFIG_FILE
