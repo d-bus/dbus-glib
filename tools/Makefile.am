@@ -11,7 +11,7 @@ BUILT_SOURCES = dbus-glib-bindings.h dbus-bus-introspect.xml
 dbus-bus-introspect.xml:
 	DBUS_TOP_BUILDDIR=$(top_builddir) dbus-send --system --print-reply=literal --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Introspectable.Introspect > dbus-bus-introspect.xml.tmp && mv dbus-bus-introspect.xml.tmp dbus-bus-introspect.xml
 
-EXTRA_DIST = run-with-tmp-session-bus.sh
+EXTRA_DIST = run-with-tmp-session-bus.sh session.conf
 
 CLEANFILES = 				\
 	run-with-tmp-session-bus.conf   \
