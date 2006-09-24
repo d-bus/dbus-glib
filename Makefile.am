@@ -1,7 +1,7 @@
 GLIB_PC=dbus-glib-1.pc
 
 SUBDIRS=dbus tools test doc
-DIST_SUBDIRS=dbus tools test doc
+DIST_SUBDIRS=dbus tools test doc m4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)
@@ -22,7 +22,7 @@ DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 EXTRA_DIST += ChangeLog
 
 ChangeLog: $(srcdir)/ChangeLog
-$(srcdir)/ChangeLog:
+$(srcdir)/ChangeLog: FORCE
 	@if test -d "$(srcdir)/.git"; then \
 	  (cd "$(srcdir)" && \
 	  ./missing --run git-log --stat) | fmt --split-only > $@.tmp \
@@ -47,7 +47,7 @@ clean-bbg:
 
 GCOV_DIRS=$(GLIB_SUBDIR)
 
-coverage-report.txt:
+coverage-report.txt: FORCE
 	BBG_FILES=`find $(GCOV_DIRS) -name "*.bbg" -o -name "*.gcno"` ;			\
 	C_FILES= ;									\
 	for F in $$BBG_FILES ; do							\
@@ -76,4 +76,5 @@ check-coverage:
 
 endif
 
-.PHONY: ChangeLog $(srcdir)/ChangeLog coverage-report.txt
+FORCE:
+

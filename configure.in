@@ -828,6 +828,7 @@ AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test 
 
 AC_OUTPUT([
 Makefile
+m4/Makefile
 doc/Makefile
 doc/reference/Makefile
 doc/reference/version.xml

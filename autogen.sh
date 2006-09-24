@@ -146,7 +146,11 @@ for arg in $*; do
 done
 
 if $run_configure; then
-    $srcdir/configure --enable-maintainer-mode "$@"
+    if test -z "$*"; then
+        $srcdir/configure --enable-maintainer-mode --enable-gtk-doc --enable-tests --enable-verbose-mode --enable-checks --enable-asserts 
+    else
+        $srcdir/configure --enable-maintainer-mode  "$@"
+    fi
     echo 
     echo "Now type 'make' to compile $PROJECT."
 else
