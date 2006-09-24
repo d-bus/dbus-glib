@@ -365,8 +365,7 @@ lookup_or_register_specialized (const char  *container,
 					   num_types,
 					   types);
     }
-  else
-    g_free (name);
+  g_free (name);
   return ret;
 }
 
