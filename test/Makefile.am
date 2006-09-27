@@ -1,5 +1,5 @@
-SUBDIRS=glib
-DIST_SUBDIRS=glib
+SUBDIRS=core
+DIST_SUBDIRS=core
 
 INCLUDES = \
 	-I$(top_srcdir)				\

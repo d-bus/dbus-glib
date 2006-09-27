@@ -812,7 +812,7 @@ AC_SUBST(TEST_$1)
 TEST_PATH(SERVICE_DIR, data/valid-service-files)
 TEST_PATH(SERVICE_BINARY, test-service)
 TEST_PATH(SHELL_SERVICE_BINARY, test-shell-service)
-TEST_PATH(GLIB_SERVICE_BINARY, glib/test-service-glib)
+TEST_PATH(GLIB_SERVICE_BINARY, core/test-service-glib)
 TEST_PATH(EXIT_BINARY, test-exit)
 TEST_PATH(SEGFAULT_BINARY, test-segfault)
 TEST_PATH(SLEEP_FOREVER_BINARY, test-sleep-forever)
@@ -836,7 +836,7 @@ dbus/Makefile
 dbus/examples/Makefile
 dbus/examples/statemachine/Makefile
 test/Makefile
-test/glib/Makefile
+test/core/Makefile
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
 tools/Makefile
