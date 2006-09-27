@@ -1,0 +1,11 @@
+The mainline git tree for this code is at
+git://anongit.freedesktop.org/git/dbus/dbus-glib.
+
+if you are making major changes which you wish to be incorporated upstream,
+please do as small commits to your local git tree, so there is a good
+history of your changes.
+
+When you consider changes ready for merging to mainline: host the repo somwhere
+accessible with http and sumbit an enchancement bug to the dbus project in
+http://bugs.freedesktop.org, notifying the mailing list.
+
