@@ -1,5 +1,5 @@
-SUBDIRS = core interfaces
-DIST_SUBDIRS = core interfaces
+SUBDIRS = core
+DIST_SUBDIRS = core
 
 INCLUDES = \
 	-I$(top_srcdir)				\
