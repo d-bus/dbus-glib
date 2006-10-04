@@ -11,6 +11,8 @@ PROJECT=dbus-glib
 TEST_TYPE=-f
 FILE=dbus-glib-1.pc.in
 
+DEFAULT_CONFIGURE_ARGS="--enable-maintainer-mode --enable-gtk-doc --enable-tests --enable-verbose-mode --enable-checks --enable-asserts"
+
 # Not all echo versions allow -n, so we check what is possible. This test is
 # based on the one in autoconf.
 case `echo "testing\c"; echo 1,2,3`,`echo -n testing; echo 1,2,3` in
@@ -119,9 +121,11 @@ test $TEST_TYPE $FILE || {
 }
 
 if test -z "$*"; then
-        printbold 
-	printbold "I am going to run ./configure with no arguments - if you wish "
-        printbold "to pass any to it, please specify them on the $0 command line."
+        printbold
+	printbold "I am going to run ./configure with default arguments:"
+        printbold "$DEFAULT_CONFIGURE_ARGS"
+        printbold "If you wish to pass any others to it, please specify them on the"
+        printbold "$0 command line."
         printbold
 fi
 
@@ -147,7 +151,7 @@ done
 
 if $run_configure; then
     if test -z "$*"; then
-        $srcdir/configure --enable-maintainer-mode --enable-gtk-doc --enable-tests --enable-verbose-mode --enable-checks --enable-asserts 
+        $srcdir/configure $DEFAULT_CONFIGURE_ARGS
     else
         $srcdir/configure --enable-maintainer-mode  "$@"
     fi
