@@ -39,7 +39,7 @@ filter_test_message (DBusConnection     *connection,
   GString *counter_str;
   int i;
 
-  if (!dbus_message_is_method_call (message, "org.freedesktop.ThreadTest",
+  if (!dbus_message_is_method_call (message, "org.freedesktop.DBus.GLib.ThreadTest",
                                     "TestMethod"))
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   

@@ -53,9 +53,9 @@
 /* Don't make PAYLOAD_SIZE too huge because it gets used as a static buffer size */
 #define PAYLOAD_SIZE 0
 
-#define ECHO_SERVICE "org.freedesktop.EchoTestServer"
-#define ECHO_PATH "/org/freedesktop/EchoTest"
-#define ECHO_INTERFACE "org.freedesktop.EchoTest"
+#define ECHO_SERVICE "org.freedesktop.DBus.GLib.EchoTestServer"
+#define ECHO_PATH "/org/freedesktop/DBus/GLib/EchoTest"
+#define ECHO_INTERFACE "org.freedesktop.DBus.GLib.EchoTest"
 #define ECHO_PING_METHOD "Ping"
 
 static const char *messages_address;

@@ -91,7 +91,7 @@ check_hello_from_self_reply (DBusPendingCall *pcall,
 
       if (strcmp (error.name, DBUS_ERROR_NO_MEMORY) != 0)
         {
-            echo_reply = dbus_message_new_error (echo_reply,
+            echo_reply = dbus_message_new_error (echo_message,
                                       error.name,
                                       error.message);
 
@@ -145,9 +145,9 @@ handle_run_hello_from_self (DBusConnection     *connection,
     }
     printf ("Sending HelloFromSelf\n");
 
- self_message = dbus_message_new_method_call ("org.freedesktop.DBus.TestSuiteEchoService",
-                                          "/org/freedesktop/TestSuite",
-                                          "org.freedesktop.TestSuite",
+ self_message = dbus_message_new_method_call ("org.freedesktop.DBus.GLib.TestEchoService",
+                                          "/org/freedesktop/DBus/GLib/TestSuite",
+                                          "org.freedesktop.DBus.GLib.TestSuite",
                                           "HelloFromSelf");
   
   if (self_message == NULL)
@@ -226,11 +226,11 @@ path_message_func (DBusConnection  *connection,
                    void            *user_data)
 {
   if (dbus_message_is_method_call (message,
-                                   "org.freedesktop.TestSuite",
+                                   "org.freedesktop.DBus.GLib.TestSuite",
                                    "Echo"))
     return handle_echo (connection, message);
   else if (dbus_message_is_method_call (message,
-                                        "org.freedesktop.TestSuite",
+                                        "org.freedesktop.DBus.GLib.TestSuite",
                                         "Exit"))
     {
       dbus_connection_close (connection);
@@ -238,15 +238,15 @@ path_message_func (DBusConnection  *connection,
       return DBUS_HANDLER_RESULT_HANDLED;
     }
   else if (dbus_message_is_method_call (message,
-                                        "org.freedesktop.TestSuite",
+                                        "org.freedesktop.DBus.GLib.TestSuite",
                                         "EmitFoo"))
     {
       /* Emit the Foo signal */
       DBusMessage *signal;
       double v_DOUBLE;
 
-      signal = dbus_message_new_signal ("/org/freedesktop/TestSuite",
-                                        "org.freedesktop.TestSuite",
+      signal = dbus_message_new_signal ("/org/freedesktop/DBus/GLib/TestSuite",
+                                        "org.freedesktop.DBus.GLib.TestSuite",
                                         "Foo");
       if (signal == NULL)
         die ("No memory\n");
@@ -264,13 +264,13 @@ path_message_func (DBusConnection  *connection,
     }
     
   else if (dbus_message_is_method_call (message,
-                                   "org.freedesktop.TestSuite",
+                                   "org.freedesktop.DBus.GLib.TestSuite",
                                    "RunHelloFromSelf"))
     {
       return handle_run_hello_from_self (connection, message);
     }
   else if (dbus_message_is_method_call (message,
-                                        "org.freedesktop.TestSuite",
+                                        "org.freedesktop.DBus.GLib.TestSuite",
                                         "HelloFromSelf"))
     {
         DBusMessage *reply;
@@ -283,7 +283,7 @@ path_message_func (DBusConnection  *connection,
         if (!dbus_connection_send (connection, reply, NULL))
           die ("No memory");
     }
-  else
+  
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
@@ -295,7 +295,7 @@ echo_vtable = {
 };
 
 
-static const char* echo_path = "/org/freedesktop/TestSuite" ;
+static const char* echo_path = "/org/freedesktop/DBus/GLib/TestSuite" ;
 
 static DBusHandlerResult
 filter_func (DBusConnection     *connection,
@@ -352,7 +352,7 @@ main (int    argc,
       die ("dbus_connection_get_object_path_data() doesn't seem to work right\n");
   }
   
-  result = dbus_bus_request_name (connection, "org.freedesktop.DBus.TestSuiteEchoService",
+  result = dbus_bus_request_name (connection, "org.freedesktop.DBus.GLib.TestEchoService",
                                   0, &error);
   if (dbus_error_is_set (&error))
     {

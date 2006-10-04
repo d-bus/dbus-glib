@@ -20,8 +20,8 @@ thread_func (gpointer data)
   while (1)
     {
       message = dbus_message_new_method_call (NULL,
-                                              "/org/freedesktop/ThreadTest",
-                                              "org.freedesktop.ThreadTest",
+                                              "/org/freedesktop/DBus/GLib/ThreadTest",
+                                              "org.freedesktop.DBus.GLib.ThreadTest",
                                               "TestMethod");
 
       dbus_message_iter_init_append (message, &iter);

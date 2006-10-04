@@ -567,7 +567,7 @@ my_object_rec_arrays (MyObject *obj, GPtrArray *in, GPtrArray **ret, GError **er
 gboolean
 my_object_objpath (MyObject *obj, const char *incoming, const char **outgoing, GError **error)
 {
-  if (strcmp (incoming, "/org/freedesktop/DBus/Tests/MyTestObject"))
+  if (strcmp (incoming, "/org/freedesktop/DBus/GLib/Tests/MyTestObject"))
     {
       g_set_error (error,
 		   MY_OBJECT_ERROR,
@@ -575,7 +575,7 @@ my_object_objpath (MyObject *obj, const char *incoming, const char **outgoing, G
 		   "invalid incoming object");
       return FALSE;
     }
-  *outgoing = "/org/freedesktop/DBus/Tests/MyTestObject2";
+  *outgoing = "/org/freedesktop/DBus/GLib/Tests/MyTestObject2";
   return TRUE;
 }
 
@@ -584,8 +584,8 @@ my_object_get_objs (MyObject *obj, GPtrArray **objs, GError **error)
 {
   *objs = g_ptr_array_new ();
 
-  g_ptr_array_add (*objs, g_strdup ("/org/freedesktop/DBus/Tests/MyTestObject"));
-  g_ptr_array_add (*objs, g_strdup ("/org/freedesktop/DBus/Tests/MyTestObject2"));
+  g_ptr_array_add (*objs, g_strdup ("/org/freedesktop/DBus/GLib/Tests/MyTestObject"));
+  g_ptr_array_add (*objs, g_strdup ("/org/freedesktop/DBus/GLib/Tests/MyTestObject2"));
 
   return TRUE;
 }
@@ -631,7 +631,7 @@ my_object_send_car (MyObject *obj, GValueArray *invals, GValueArray **outvals, G
   g_value_array_append (*outvals, NULL);
   g_value_init (g_value_array_get_nth (*outvals, (*outvals)->n_values - 1), DBUS_TYPE_G_OBJECT_PATH);
   g_value_set_boxed (g_value_array_get_nth (*outvals, (*outvals)->n_values - 1),
-		     g_strdup ("/org/freedesktop/DBus/Tests/MyTestObject2"));
+		     g_strdup ("/org/freedesktop/DBus/GLib/Tests/MyTestObject2"));
   return TRUE;
 }
 
@@ -842,7 +842,7 @@ my_object_terminate (MyObject *obj, GError **error)
   return TRUE;
 }
 
-#define TEST_SERVICE_NAME "org.freedesktop.DBus.TestSuiteGLibService"
+#define TEST_SERVICE_NAME "org.freedesktop.DBus.GLib.TestService"
 
 int
 main (int argc, char **argv)
@@ -889,10 +889,10 @@ main (int argc, char **argv)
   obj2 = g_object_new (MY_TYPE_OBJECT, NULL);
 
   dbus_g_connection_register_g_object (connection,
-                                       "/org/freedesktop/DBus/Tests/MyTestObject",
+                                       "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
                                        obj);
   dbus_g_connection_register_g_object (connection,
-                                       "/org/freedesktop/DBus/Tests/MyTestObject2",
+                                       "/org/freedesktop/DBus/GLib/Tests/MyTestObject2",
                                        obj2);
 
   driver_proxy = dbus_g_proxy_new_for_name (connection,
