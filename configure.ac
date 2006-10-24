@@ -837,6 +837,7 @@ dbus/examples/Makefile
 dbus/examples/statemachine/Makefile
 test/Makefile
 test/core/Makefile
+test/interfaces/Makefile
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
 tools/Makefile
