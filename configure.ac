@@ -665,8 +665,8 @@ DBUS_INCLUDEDIR=`pkg-config dbus-1 --variable=includedir`
 AC_SUBST(DBUS_INCLUDEDIR)
 
 # Glib detection
-PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.4, have_glib=yes, have_glib=no)
-PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.4, have_glib_threads=yes, have_glib_threads=no)
+PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.6, have_glib=yes, have_glib=no)
+PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.6, have_glib_threads=yes, have_glib_threads=no)
 
 if test x$have_glib = xno ; then
     AC_MSG_ERROR([GLib development libraries not found])
