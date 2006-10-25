@@ -1793,6 +1793,13 @@ funcsig_equal (gconstpointer aval,
   return TRUE;
 }
 
+static void
+funcsig_free (DBusGFuncSignature *sig)
+{
+  g_free (sig->params);
+  g_free (sig);
+}
+
 GClosureMarshal
 _dbus_gobject_lookup_marshaller (GType        rettype,
 				 guint        n_params,
@@ -1928,7 +1935,7 @@ dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
   if (marshal_table == NULL)
     marshal_table = g_hash_table_new_full (funcsig_hash,
 					   funcsig_equal,
-					   g_free,
+					   (GDestroyNotify) funcsig_free,
 					   NULL);
   sig = g_new0 (DBusGFuncSignature, 1);
   sig->rettype = G_TYPE_FUNDAMENTAL (rettype);
