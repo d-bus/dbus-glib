@@ -79,7 +79,28 @@ fi
 
 #### gcc warning flags
 
+AC_DEFUN([AC_CC_TRY_FLAG], [
+  AC_MSG_CHECKING([whether gcc understands $1])
+
+  ac_save_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $1"
+
+  AC_COMPILE_IFELSE([ ], [ac_cc_flag=yes], [ac_cc_flag=no])
+  CFLAGS="$ac_save_CFLAGS"
+
+  if test "x$ac_cc_flag" = "xyes"; then
+    ifelse([$2], , :, [$2])
+  else
+    ifelse([$3], , :, [$3])
+  fi
+  AC_MSG_RESULT([$ac_cc_flag])
+])
+
 if test "x$GCC" = "xyes"; then
+  AC_CC_TRY_FLAG([-Wfloat-equal],
+                 [ac_flag_float_equal=yes],
+                 [ac_flag_float_equal=no])
+
   changequote(,)dnl
   case " $CFLAGS " in
   *[\ \	]-Wall[\ \	]*) ;;
@@ -116,10 +137,12 @@ if test "x$GCC" = "xyes"; then
   *) CFLAGS="$CFLAGS -Wcast-align" ;;
   esac
 
-  case " $CFLAGS " in
-  *[\ \	]-Wfloat-equal[\ \	]*) ;;
-  *) CFLAGS="$CFLAGS -Wfloat-equal" ;;
-  esac
+  if test "x$ac_flag_float_equal" = "xyes"; then
+    case " $CFLAGS " in
+    *[\ \	]-Wfloat-equal[\ \	]*) ;;
+    *) CFLAGS="$CFLAGS -Wfloat-equal" ;;
+    esac
+  fi
 
   case " $CFLAGS " in
   *[\ \	]-Wsign-compare[\ \	]*) ;;
