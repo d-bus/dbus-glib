@@ -1,7 +1,7 @@
 #include "test-objects.h"
 #include "test-interfaces.h"
 
-gboolean
+static gboolean
 test_song_dbus_get_title (TestSong  *song,
 			  gchar    **title,
 			  GError   **error)
@@ -10,9 +10,9 @@ test_song_dbus_get_title (TestSong  *song,
 	return TRUE;
 }
 
-#include "test-song-dbus-glue.h"
+#include "test-song-glue.h"
 
-gchar *
+static gchar *
 test_song_say_hello (TestHello *hello)
 {
 	return g_strdup ("Hello, hello...");
@@ -40,7 +40,7 @@ test_song_class_init (TestSongClass *klass)
 G_DEFINE_TYPE_WITH_CODE (TestSong, test_song, G_TYPE_OBJECT,
 			 G_IMPLEMENT_INTERFACE (TEST_TYPE_HELLO, test_song_hello_init))
 
-gchar *
+static gchar *
 test_beatles_song_say_goodbye (TestGoodbye *goodbye)
 {
 	return g_strdup ("I don't know why you say goodbye, I say hello.");

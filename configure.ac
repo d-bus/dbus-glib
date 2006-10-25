@@ -656,7 +656,7 @@ DBUS_TEST_LIBS=
 AC_SUBST(DBUS_TEST_CFLAGS)
 AC_SUBST(DBUS_TEST_LIBS)
 
-PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.60,
+PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.94,
 	have_dbus=true, have_dbus=false)
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
@@ -812,7 +812,8 @@ AC_SUBST(TEST_$1)
 TEST_PATH(SERVICE_DIR, data/valid-service-files)
 TEST_PATH(SERVICE_BINARY, test-service)
 TEST_PATH(SHELL_SERVICE_BINARY, test-shell-service)
-TEST_PATH(GLIB_SERVICE_BINARY, core/test-service-glib)
+TEST_PATH(CORE_SERVICE_BINARY, core/test-service-glib)
+TEST_PATH(INTERFACES_SERVICE_BINARY, interfaces/test-service)
 TEST_PATH(EXIT_BINARY, test-exit)
 TEST_PATH(SEGFAULT_BINARY, test-segfault)
 TEST_PATH(SLEEP_FOREVER_BINARY, test-sleep-forever)
@@ -840,6 +841,7 @@ test/core/Makefile
 test/interfaces/Makefile
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
+test/data/valid-service-files/interfaces-test.service
 tools/Makefile
 dbus-glib-1.pc
 Doxyfile

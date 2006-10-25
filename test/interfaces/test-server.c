@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-bindings.h>
+#include "dbus/dbus-glib.h"
+#include "tools/dbus-glib-bindings.h"
 #include "test-objects.h"
 
-#define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Tests"
-#define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Tests"
+#define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Test.Interfaces"
+#define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/Interfaces"
 
 static GMainLoop *loop = NULL;
 

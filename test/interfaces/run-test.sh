@@ -15,24 +15,5 @@ if test -z "$DBUS_TEST_GLIB_IN_RUN_TEST"; then
   exec $DBUS_TOP_SRCDIR/tools/run-with-tmp-session-bus.sh $SCRIPTNAME $MODE
 fi  
 
-if test x$MODE = xprofile ; then
-  echo "profiling type $PROFILE_TYPE"
-  sleep 2 ## this lets the bus get started so its startup time doesn't affect the profile too much
-  if test x$PROFILE_TYPE = x ; then
-      PROFILE_TYPE=all
-  fi
-  libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-profile $PROFILE_TYPE || die "test-profile failed"
-elif test x$MODE = xviewer ; then
-  echo "Launching dbus-viewer"
-  ARGS=
-  if test x$DEBUG = x ; then
-      ARGS="--services org.freedesktop.DBus org.freedesktop.DBus.GLib.TestService"
-  fi
-  libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/tools/dbus-viewer $ARGS || die "could not run dbus-viewer"
-elif test x$MODE = xwait ; then
-  echo "Waiting DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS"
-  sleep 86400
-else
-  echo "running test-dbus-glib"
-  libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-dbus-glib || die "test-dbus-glib failed"
-fi
+echo "running test-client"
+libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/interfaces/test-client || die "test-client failed"

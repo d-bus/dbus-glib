@@ -21,8 +21,8 @@ test_goodbye_dbus_say_goodbye (TestGoodbye  *goodbye,
 	return TRUE;
 }
 
-#include "test-hello-dbus-glue.h"
-#include "test-goodbye-dbus-glue.h"
+#include "test-hello-glue.h"
+#include "test-goodbye-glue.h"
 
 enum {
 	GREETINGS,

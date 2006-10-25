@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include "test-song-dbus-binding.h"
-#include "test-hello-dbus-binding.h"
-#include "test-goodbye-dbus-binding.h"
+#include "test-song-bindings.h"
+#include "test-hello-bindings.h"
+#include "test-goodbye-bindings.h"
 
-#define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Tests"
-#define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Tests"
+#define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Test.Interfaces"
+#define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/Interfaces"
 
 int
 main (int    argc,
@@ -27,8 +27,8 @@ main (int    argc,
     }
 
   proxy = dbus_g_proxy_new_for_name (connection, TEST_NAMESPACE, TEST_OBJECT_PATH,
-                                     "org.freedesktop.DBus.GLib.Tests.Song");
-  success = org_freedesktop_DBus_GLib_Tests_Song_get_title (proxy, &str, &error);
+                                     "org.freedesktop.DBus.GLib.Test.Interfaces.Song");
+  success = org_freedesktop_DBus_GLib_Test_Interfaces_Song_get_title (proxy, &str, &error);
   g_object_unref (proxy);
 
   if (!success)
@@ -44,9 +44,9 @@ main (int    argc,
     }
 
   proxy = dbus_g_proxy_new_for_name (connection, TEST_NAMESPACE, TEST_OBJECT_PATH,
-                                     "org.freedesktop.DBus.GLib.Tests.Hello");
+                                     "org.freedesktop.DBus.GLib.Test.Interfaces.Hello");
   g_assert (proxy != NULL);
-  success = org_freedesktop_DBus_GLib_Tests_Hello_say_hello (proxy, &str, &error);
+  success = org_freedesktop_DBus_GLib_Test_Interfaces_Hello_say_hello (proxy, &str, &error);
   g_object_unref (proxy);
 
   if (!success)
@@ -62,8 +62,8 @@ main (int    argc,
     }
 
   proxy = dbus_g_proxy_new_for_name (connection, TEST_NAMESPACE, TEST_OBJECT_PATH,
-                                     "org.freedesktop.DBus.GLib.Tests.Goodbye");
-  success = org_freedesktop_DBus_GLib_Tests_Goodbye_say_goodbye (proxy, &str, &error);
+                                     "org.freedesktop.DBus.GLib.Test.Interfaces.Goodbye");
+  success = org_freedesktop_DBus_GLib_Test_Interfaces_Goodbye_say_goodbye (proxy, &str, &error);
   g_object_unref (proxy);
 
   if (!success)

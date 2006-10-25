@@ -16,71 +16,62 @@ else
 TESTS=
 endif
 
-EXTRA_DIST=run-test.sh test-service-glib.xml my-object-marshal.list test-service-glib.xml
+EXTRA_DIST=run-test.sh test-goodbye.xml  test-hello.xml  test-song.xml
 
 if DBUS_BUILD_TESTS
 
-if HAVE_GLIB_THREADS
-THREAD_APPS=test-thread-server test-thread-client test-profile
-
-test_thread_server_SOURCES=				\
-	test-thread-server.c				\
-	test-thread.h
-
-test_thread_server_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
-
-test_thread_client_SOURCES=				\
-	test-thread-client.c				\
-	test-thread.h
-
-test_thread_client_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
-endif
-
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
-noinst_PROGRAMS= test-dbus-glib test-service-glib $(THREAD_APPS)
+noinst_PROGRAMS = test-service test-client
 
-test_dbus_glib_SOURCES=				\
-	my-object-marshal.c                             \
-	test-dbus-glib.c
+test_service_SOURCES = \
+	test-interfaces.c \
+	test-interfaces.h \
+	test-objects.c \
+	test-objects.h \
+	test-server.c
 
-test_dbus_glib_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
+test_service_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
 
-BUILT_SOURCES = test-service-glib-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
+test_client_SOURCES = \
+	test-client.c
 
-test_service_glib_SOURCES=				\
-	my-object-marshal.c                             \
-	test-service-glib.c 
+test_client_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
 
-test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object --mode=glib-server --output=test-service-glib-glue.h $(srcdir)/test-service-glib.xml
+BUILT_SOURCES = \
+	test-song-glue.h		\
+	test-hello-glue.h		\
+	test-goodbye-glue.h	\
+	test-song-bindings.h	\
+	test-hello-bindings.h	\
+	test-goodbye-bindings.h
 
-test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object --mode=glib-client --output=test-service-glib-bindings.h $(srcdir)/test-service-glib.xml
+test-song-glue.h: test-song.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_song --mode=glib-server --output=test-song-glue.h $(srcdir)/test-song.xml
 
-my-object-marshal.c: Makefile my-object-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header --body > my-object-marshal.c
+test-song-bindings.h: test-song.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_song --mode=glib-client --output=test-song-bindings.h $(srcdir)/test-song.xml
 
-my-object-marshal.h: Makefile my-object-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header > my-object-marshal.h
+test-hello-glue.h: test-hello.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_hello --mode=glib-server --output=test-hello-glue.h $(srcdir)/test-hello.xml
+
+test-hello-bindings.h: test-hello.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_hello --mode=glib-client --output=test-hello-bindings.h $(srcdir)/test-hello.xml
+
+test-goodbye-glue.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_goodbye --mode=glib-server --output=test-goodbye-glue.h $(srcdir)/test-goodbye.xml
+
+test-goodbye-bindings.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_goodbye --mode=glib-client --output=test-goodbye-bindings.h $(srcdir)/test-goodbye.xml
 
 
-CLEANFILES = $(BUILT_SOURCES)
-
-test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
+CLEANFILES = \
+	$(BUILT_SOURCES) \
+	run-with-tmp-session-bus.conf
 
 else
 ### not building tests
 
-if HAVE_GLIB_THREADS
-noinst_PROGRAMS=test-profile
-endif
 
 endif
 
-if HAVE_GLIB_THREADS
-test_profile_SOURCES=				\
-	test-profile.c
-
-test_profile_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
-endif
