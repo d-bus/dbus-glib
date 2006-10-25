@@ -1,11 +1,11 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ(2.52)
 
-AC_INIT(dbus/dbus-glib.h)
+AC_INIT(dbus-glib, 0.72, [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(dbus-glib, 0.71)
+AM_INIT_AUTOMAKE([1.9])
 
 AM_CONFIG_HEADER(config.h)
 
