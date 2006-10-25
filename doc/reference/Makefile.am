@@ -48,6 +48,7 @@ CFILE_GLOB=$(top_srcdir)/dbus/*.c
 # Header files to ignore when scanning.
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h
 IGNORE_HFILES= \
+	dbus-gidl.h 				\
 	dbus-gparser.h				\
 	dbus-gutils.h				\
 	dbus-gsignature.h			\
