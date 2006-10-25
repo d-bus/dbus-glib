@@ -664,6 +664,10 @@ unassociate_proxies (gpointer key, gpointer val, gpointer user_data)
 	  else
 	    {
 	      data->destroyed = g_slist_prepend (data->destroyed, proxy);
+              /* make contents of list into weak pointers in case the objects
+               * unref each other when disposing */
+              g_object_add_weak_pointer (G_OBJECT (proxy),
+                  &(data->destroyed->data));
 	    }
 	}
     }
@@ -740,8 +744,16 @@ dbus_g_proxy_manager_replace_name_owner (DBusGProxyManager  *manager,
 
 	  UNLOCK_MANAGER (manager);
 
+          /* the destroyed list's data pointers are weak pointers, so that we
+           * don't end up calling destroy on proxies which have already been
+           * freed up as a result of other ones being destroyed */
 	  for (tmp = data.destroyed; tmp; tmp = tmp->next)
-	    dbus_g_proxy_destroy (tmp->data);
+            if (tmp->data != NULL)
+              {
+                g_object_remove_weak_pointer (G_OBJECT (tmp->data),
+                    &(tmp->data));
+                dbus_g_proxy_destroy (tmp->data);
+              }
 	  g_slist_free (data.destroyed);
 
 	  LOCK_MANAGER (manager);

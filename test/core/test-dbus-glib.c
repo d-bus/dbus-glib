@@ -23,6 +23,9 @@ static gboolean proxy_destroyed = FALSE;
 static gboolean proxy_destroy_and_nameowner = FALSE;
 static gboolean proxy_destroy_and_nameowner_complete = FALSE;
 
+static DBusGProxy *test_terminate_proxy1 = NULL;
+static DBusGProxy *test_terminate_proxy2 = NULL;
+
 static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 
@@ -50,8 +53,23 @@ proxy_destroyed_cb (DBusGProxy *proxy, gpointer user_data)
       g_source_remove (exit_timeout);
       g_main_loop_quit (loop);
       proxy_destroy_and_nameowner_complete = TRUE;
-    } 
+    }
 }
+
+static void
+test_terminate_proxy1_destroyed_cb (DBusGProxy *proxy, gpointer user_data)
+{
+   proxy_destroyed = TRUE;
+  if (proxy_destroy_and_nameowner && !proxy_destroy_and_nameowner_complete && await_terminating_service == NULL)
+    {
+      g_object_unref(test_terminate_proxy2);
+      test_terminate_proxy2 = NULL;
+      g_source_remove (exit_timeout);
+      g_main_loop_quit (loop);
+      proxy_destroy_and_nameowner_complete = TRUE;
+    }
+}
+
 
 static void
 name_owner_changed (DBusGProxy *proxy,
@@ -1606,9 +1624,54 @@ main (int argc, char **argv)
   }
   g_free (v_STRING_2);
   
+
+  test_terminate_proxy1 = dbus_g_proxy_new_for_name_owner (connection,
+                            "org.freedesktop.DBus.GLib.TestService",
+                            "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
+                            "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            &error);
+
+  if (test_terminate_proxy1 == NULL)
+    lose_gerror ("Failed to create proxy for name owner", error);
+
+  test_terminate_proxy2 = dbus_g_proxy_new_for_name_owner (connection,
+                            "org.freedesktop.DBus.GLib.TestService",
+                            "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
+                            "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            &error);
+
+  if (test_terminate_proxy2 == NULL)
+    lose_gerror ("Failed to create proxy for name owner", error);
+
+  g_print ("Testing duplicate proxy destruction\n");
+  await_terminating_service = "org.freedesktop.DBus.GLib.TestService";
+  dbus_g_proxy_call_no_reply (test_terminate_proxy1, "Terminate", G_TYPE_INVALID);
+
+  proxy_destroyed = FALSE;
+  proxy_destroy_and_nameowner = TRUE;
+  proxy_destroy_and_nameowner_complete = FALSE;
+
+  g_signal_connect (G_OBJECT (test_terminate_proxy1),
+		    "destroy",
+		    G_CALLBACK (test_terminate_proxy1_destroyed_cb),
+		    NULL);
+
+  dbus_g_connection_flush (connection);
+  exit_timeout = g_timeout_add (5000, timed_exit, loop);
+  g_main_loop_run (loop);
+
+  if (await_terminating_service != NULL)
+    lose ("Didn't see name loss for \"org.freedesktop.DBus.GLib.TestService\"");
+  if (!proxy_destroyed)
+    lose ("Didn't get proxy_destroyed");
+  if (test_terminate_proxy2)
+    lose ("Duplicate proxy wasn'tdestroyed");
+
+  g_print ("Proxy and duplicate destroyed successfully\n");
+
   g_object_unref (G_OBJECT (driver));
 
   g_print ("Successfully completed %s\n", argv[0]);
-  
+
   return 0;
 }
