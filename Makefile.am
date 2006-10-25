@@ -18,7 +18,7 @@ EXTRA_DIST =			\
 
 MAINTAINERCLEANFILES = ChangeLog
 
-DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-checks --enable-tests
 EXTRA_DIST += ChangeLog
 
 ChangeLog: $(srcdir)/ChangeLog
