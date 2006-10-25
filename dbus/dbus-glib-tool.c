@@ -246,7 +246,8 @@ lose_gerror (const char *prefix, GError *error)
 static void
 usage (int ecode)
 {
-  fprintf (stderr, "dbus-binding-tool [--version] [--help] --mode=[pretty|glib-server|glib-client] [--ignore-unsupported] [--force] [--output=FILE] [--prefix=SYMBOL_PREFIX]\n");
+  fprintf (stderr, "dbus-binding-tool [--version] [--help]\n");
+  fprintf (stderr, "dbus-binding-tool ---mode=[pretty|glib-server|glib-client] -prefix=SYMBOL_PREFIX [--ignore-unsupported] [--force] [--output=FILE] [\n");
   exit (ecode);
 }
 
@@ -279,6 +280,7 @@ main (int argc, char **argv)
   struct stat targetbuf;
   gboolean force;
   gboolean ignore_unsupported;
+  gboolean has_prefix = FALSE;
 
   setlocale (LC_ALL, "");
   bindtextdomain (GETTEXT_PACKAGE, DBUS_LOCALEDIR);
@@ -333,6 +335,7 @@ main (int argc, char **argv)
 	    }
           else if (strncmp (arg, "--prefix=", 9) == 0)
             {
+              has_prefix = TRUE;
               prefix = arg + 9;
             }
           else if (arg[0] == '-' &&
@@ -353,6 +356,9 @@ main (int argc, char **argv)
       
       ++i;
     }
+
+  if (!has_prefix)
+    usage (1);
 
   error = NULL;
 
