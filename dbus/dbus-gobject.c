@@ -453,7 +453,7 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
       propname = properties->data;
       spec = NULL;
 
-      s = _dbus_gutils_wincaps_to_uscore (spec->name);
+      s = _dbus_gutils_wincaps_to_uscore (propname);
 
       spec = g_object_class_find_property (g_type_class_peek (data->gtype), s);
       g_assert (spec != NULL);
@@ -488,7 +488,6 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
 	}
       
       g_free (dbus_type);
-      g_free (s);
 
       g_string_append (xml, "    </property>\n");
     }
