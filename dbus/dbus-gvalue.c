@@ -1139,18 +1139,18 @@ _dbus_gvalue_demarshal_message  (DBusGValueMarshalCtx    *context,
   GValueArray *ret;
   DBusMessageIter iter;
   int current_type;
-  guint index;
+  guint index_;
   
   ret = g_value_array_new (6);  /* 6 is a typical maximum for arguments */
 
   dbus_message_iter_init (message, &iter);
-  index = 0;
+  index_ = 0;
   while ((current_type = dbus_message_iter_get_arg_type (&iter)) != DBUS_TYPE_INVALID)
     {
       GValue *value;
       GType gtype;
 
-      if (index >= n_types)
+      if (index_ >= n_types)
 	{
 	  g_set_error (error, DBUS_GERROR,
 		       DBUS_GERROR_INVALID_ARGS,
@@ -1159,17 +1159,17 @@ _dbus_gvalue_demarshal_message  (DBusGValueMarshalCtx    *context,
 	}
       
       g_value_array_append (ret, NULL);
-      value = g_value_array_get_nth (ret, index);
+      value = g_value_array_get_nth (ret, index_);
 
-      gtype = types[index]; 
+      gtype = types[index_]; 
       g_value_init (value, gtype);
 
       if (!_dbus_gvalue_demarshal (context, &iter, value, error))
 	goto lose;
       dbus_message_iter_next (&iter);
-      index++;
+      index_++;
     }
-  if (index < n_types)
+  if (index_ < n_types)
     {
       g_set_error (error, DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,

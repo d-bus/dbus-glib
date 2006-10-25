@@ -487,10 +487,10 @@ dbus_g_type_get_map_value_specialization (GType gtype)
 }
 
 GType
-dbus_g_type_get_struct_member_type (GType gtype, guint index)
+dbus_g_type_get_struct_member_type (GType gtype, guint index_)
 {
   g_return_val_if_fail (dbus_g_type_is_struct (gtype), G_TYPE_INVALID);
-  return get_specialization_index (gtype, index);
+  return get_specialization_index (gtype, index_);
 }
 
 guint
@@ -629,7 +629,7 @@ dbus_g_type_map_value_iterate (const GValue                           *value,
 
 gboolean
 dbus_g_type_struct_get_member (const GValue *value,
-			       guint         index,
+			       guint         index_,
 			       GValue       *dest)
 {
   DBusGTypeSpecializedData *data;
@@ -644,12 +644,12 @@ dbus_g_type_struct_get_member (const GValue *value,
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->get_member(gtype,
 											   g_value_get_boxed (value),
-											   index, dest);
+											   index_, dest);
 }
 
 gboolean
 dbus_g_type_struct_set_member (GValue       *value,
-			       guint         index,
+			       guint         index_,
 			       const GValue *src)
 {
   DBusGTypeSpecializedData *data;
@@ -664,7 +664,7 @@ dbus_g_type_struct_set_member (GValue       *value,
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->set_member(gtype,
 											   g_value_get_boxed (value),
-											   index, src);
+											   index_, src);
 }
 
 /**
