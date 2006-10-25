@@ -2364,8 +2364,8 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
   va_list args;
   GValueArray *arg_values;
   
-  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
-  g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), FALSE);
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
+  g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
 
   va_start (args, first_arg_type);
 
