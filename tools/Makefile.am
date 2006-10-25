@@ -4,7 +4,7 @@ nodist_libdbus_glib_HEADERS = dbus-glib-bindings.h
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 
 dbus-glib-bindings.h: dbus-bus-introspect.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
-	$(top_builddir)/dbus/dbus-binding-tool --mode=glib-client --output=dbus-glib-bindings.h dbus-bus-introspect.xml
+	$(top_builddir)/dbus/dbus-binding-tool --mode=glib-client --prefix=dbus_bus --output=dbus-glib-bindings.h dbus-bus-introspect.xml
 
 BUILT_SOURCES = dbus-glib-bindings.h dbus-bus-introspect.xml
 
