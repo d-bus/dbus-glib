@@ -1,38 +1,47 @@
-D-Bus GLib Bindings 0.72 (25 Oct 2006)
+D-Bus GLib Bindings 0.72 (26 Oct 2006)
 ==
-
- - Only use -Wfloat-equal if compiler supports it (Closes #7658. Thanks to Jens Granseuer <jensgr@gmx.net> for the patch).
- - Return NULL from g_return_val_if_fail in dbus_g_proxy_begin_call (Closes #4159.)
+ - Only use -Wfloat-equal if compiler supports it (Closes #7658. Thanks
+to Jens Granseuer <jensgr@gmx.net> for the patch).
+ - Return NULL from g_return_val_if_fail in dbus_g_proxy_begin_call
+(Closes #4159.)
  - Add dbus-gidl.h to IGNORE_HFILES for doxygen docs
  - Update tools/Makefile.am for new dbus-binding-tool behaviour
  - Remove bashism in make-dbus-glib-error-enum.sh (Closes #6700).
- - Fix introspection when object has exported properties. (dbus-gobject:write_interface was completely broken)
+ - Fix introspection when object has exported properties.
+(dbus-gobject:write_interface was completely broken)
  - Fix thanks to mccann@jhu.edu. (Closes #8607).
  - Require --prefix in dbus-binding-tool (Closes #4185).
- - Dont shadow index. Rename useage of index to index_. Thanks stdlib... (Closes #8353).
- - Fix small leak when marshal_table is destroyed (Closes #6870 with patch from Richard Hult <richard@imendio.com>).
- - Fixes crash if disposing one DBusGProxy causes another for the same service to be unrefed in a destoyed callback.
+ - Don't shadow index. Rename usage of index to index_. Thanks stdlib...
+(Closes #8353).
+ - Fix small leak when marshal_table is destroyed (Closes #6870 with
+patch from Richard Hult <richard@imendio.com>).
+ - Fixes crash if disposing one DBusGProxy causes another for the same
+service to be unrefed in a destroyed callback.
  - Use modern AC_INIT, AM_INIT_AUTOMAKE
  - Clean generated run-with-tmp-session-bus.conf on make clean
  - Actually run unit tests and checks when doing make distcheck
  - Use TEST_CORE_SERVICE_BINARY path for core test service file
  - Use dbus-daemon --introspect to generate DBus service introspect xml
  - Add tests for new interfaces functionaility
- - Bump GLib dependancy to 2.6 (Closes #4390).
+ - Bump GLib dependency to 2.6 (Closes #4390).
  - Add gobject-2.0 to dbus-glib-1.pc.in
- - Puts all exposed servies in the org.freedesktop.DBus.GLib namespace
+ - Puts all exposed services in the org.freedesktop.DBus.GLib namespace
  - Update COPYING and HACKING to be correct for dbus-glib
  - Move tests/glib to test/core
  - Rename configure.in to configure.ac for modernity
- - Fix memleak in lookup_or_register_specialized (Applies fix from Daniel d'Andrada Tenório de Carvalho, closing bug #7352).
- - Add an m4 directory and add gtk-doc.m4, which is installed in the tree by gtkdocize.
- - tools/Makefile.am: Add tools/session.conf to EXTRA_DIST so make check works from tarballs
+ - Fix memleak in lookup_or_register_specialized (Applies fix from
+Daniel d'Andrada Tenório de Carvalho, closing bug #7352).
+ - Add an m4 directory and add gtk-doc.m4, which is installed in the
+tree by gtkdocize.
+ - tools/Makefile.am: Add tools/session.conf to EXTRA_DIST so make check
+works from tarballs
  - Fix compilation with -Werror
  - Make test scripts run during out-of-tree compilation
  - Fix out-of-tree compilation
  - Replace doxygen with gtk-doc in INSTALL
  - Commit patch to switch to gtk-doc with gtype-specialized doc and
- - Updates from Marc-Andre Lureau <marcandre.lureau@gmail.com>, with minor cleanup. (Closes #7726.)
+ - Updates from Marc-Andre Lureau <marcandre.lureau@gmail.com>, with
+minor cleanup. (Closes #7726.)
 
 D-Bus GLib Bindings 0.71 (24 July 2006)
 ==
