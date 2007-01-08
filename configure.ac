@@ -679,8 +679,13 @@ DBUS_TEST_LIBS=
 AC_SUBST(DBUS_TEST_CFLAGS)
 AC_SUBST(DBUS_TEST_LIBS)
 
-PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.94,
-	have_dbus=true, have_dbus=false)
+PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.93, have_dbus=yes, have_dbus=no)
+
+if test x$have_dbus = xno ; then
+    AC_MSG_ERROR([DBus development libraries not found])
+fi
+AM_CONDITIONAL(HAVE_DBUS, test x$have_dbus = xyes)
+
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
