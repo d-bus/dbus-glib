@@ -107,7 +107,8 @@ static guint dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
 					       DBusGProxyCallNotify notify,
 					       gpointer             data,
 					       GDestroyNotify       destroy,
-					       GValueArray         *args);
+					       GValueArray         *args,
+					       int timeout );
 static gboolean dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 						guint              call_id,
 						GError           **error,
@@ -1775,7 +1776,7 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
   
-  call = DBUS_G_PROXY_ID_TO_CALL (dbus_g_proxy_begin_call_internal (manager->bus_proxy, method, notify, user_data, destroy, arg_values));
+  call = DBUS_G_PROXY_ID_TO_CALL (dbus_g_proxy_begin_call_internal (manager->bus_proxy, method, notify, user_data, destroy, arg_values,-1));
 
   g_value_array_free (arg_values);
 
@@ -2133,7 +2134,8 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
 				  DBusGProxyCallNotify notify,
 				  gpointer             user_data,
 				  GDestroyNotify       destroy,
-				  GValueArray         *args)
+				  GValueArray         *args,
+				  int timeout)
 {
   DBusMessage *message;
   DBusPendingCall *pending;
@@ -2146,11 +2148,11 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
   message = dbus_g_proxy_marshal_args_to_message (proxy, method, args);
   if (!message)
     goto oom;
-  
+
   if (!dbus_connection_send_with_reply (priv->manager->connection,
                                         message,
                                         &pending,
-                                        -1))
+                                        timeout))
     goto oom;
   dbus_message_unref (message);
   g_assert (pending != NULL);
@@ -2171,7 +2173,7 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
     }
 
   g_hash_table_insert (priv->pending_calls, GUINT_TO_POINTER (call_id), pending);
-  
+
   return call_id;
  oom:
   g_error ("Out of memory");
@@ -2213,7 +2215,6 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
   switch (dbus_message_get_type (reply))
     {
     case DBUS_MESSAGE_TYPE_METHOD_RETURN:
-
       dbus_message_iter_init (reply, &msgiter);
       valtype = first_arg_type;
       while (valtype != G_TYPE_INVALID)
@@ -2371,7 +2372,60 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
   
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values);
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values,-1);
+
+  g_value_array_free (arg_values);
+
+  va_end (args);
+
+  return DBUS_G_PROXY_ID_TO_CALL (call_id);
+}
+
+/**
+ * dbus_g_proxy_begin_call_with_timeout:
+ * @proxy: a proxy for a remote interface
+ * @method: the name of the method to invoke
+ * @notify: callback to be invoked when method returns
+ * @user_data: user data passed to callback
+ * @destroy: function called to destroy user_data
+ * @timeout: specify the timeout in milliseconds
+ * @first_arg_type: type of the first argument
+ *
+ * Asynchronously invokes a method on a remote interface. The method
+ * call will not be sent over the wire until the application returns
+ * to the main loop, or blocks in dbus_connection_flush() to write out
+ * pending data.  The call will be completed after a timeout, or when
+ * a reply is received.  When the call returns, the callback specified
+ * will be invoked; you can then collect the results of the call
+ * (which may be an error, or a reply), use dbus_g_proxy_end_call().
+ *
+ * TODO this particular function shouldn't die on out of memory,
+ * since you should be able to do a call with large arguments.
+ *
+ * Returns: call identifier.
+ */
+DBusGProxyCall *
+dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
+                         const char          *method,
+                         DBusGProxyCallNotify notify,
+                         gpointer             user_data,
+                         GDestroyNotify       destroy,
+			 int timeout,
+                         GType                first_arg_type,
+                         ...)
+{
+  guint call_id;
+  va_list args;
+  GValueArray *arg_values;
+
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
+  g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
+
+  va_start (args, first_arg_type);
+
+  DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
+
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values,timeout);
 
   g_value_array_free (arg_values);
 
@@ -2456,7 +2510,56 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
 
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args);
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args,-1);
+
+  g_value_array_free (in_args);
+
+  first_arg_type = va_arg (args, GType);
+  ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type, args);
+
+  va_end (args);
+
+  return ret;
+}
+
+/**
+ * dbus_g_proxy_call_with_timeout:
+ * @proxy: a proxy for a remote interface
+ * @method: method to invoke
+ * @timeout: specify the timeout in milliseconds
+ * @error: return location for an error
+ * @first_arg_type: type of first "in" argument
+ *
+ * Function for synchronously invoking a method and receiving reply
+ * values.  This function is equivalent to dbus_g_proxy_begin_call
+ * followed by dbus_g_proxy_end_call.  All of the input arguments are
+ * specified first, followed by G_TYPE_INVALID, followed by all of the
+ * output values, followed by a second G_TYPE_INVALID.  Note that
+ * this means you must always specify G_TYPE_INVALID twice.
+ *
+ * Returns: #FALSE if an error is set, #TRUE otherwise.
+ */
+gboolean
+dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
+                   const char        *method,
+		   int timeout,
+                   GError           **error,
+                   GType              first_arg_type,
+                   ...)
+{
+  gboolean ret;
+  guint call_id;
+  va_list args;
+  GValueArray *in_args;
+
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
+  g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), FALSE);
+
+  va_start (args, first_arg_type);
+
+  DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
+
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args,timeout);
 
   g_value_array_free (in_args);
 

@@ -224,6 +224,13 @@ gboolean          dbus_g_proxy_call                  (DBusGProxy        *proxy,
 						      GType              first_arg_type,
 						      ...);
 
+gboolean          dbus_g_proxy_call_with_timeout     (DBusGProxy        *proxy,
+				                      const char       *method,
+	                   			      int timeout,
+                   				      GError           **error,
+                   				      GType              first_arg_type,
+				                      ...);
+
 void              dbus_g_proxy_call_no_reply         (DBusGProxy        *proxy,
                                                       const char        *method,
                                                       GType              first_arg_type,
@@ -236,6 +243,15 @@ DBusGProxyCall *  dbus_g_proxy_begin_call            (DBusGProxy        *proxy,
 						      GDestroyNotify     destroy,
                                                       GType              first_arg_type,
                                                       ...);
+DBusGProxyCall * dbus_g_proxy_begin_call_with_timeout (DBusGProxy        *proxy,
+		                                       const char       *method,
+		                                       DBusGProxyCallNotify notify,
+                                                       gpointer       user_data,
+                                                       GDestroyNotify   destroy,
+                                                       int timeout,
+                                                       GType             first_arg_type,
+				                       ...);
+
 gboolean          dbus_g_proxy_end_call              (DBusGProxy        *proxy,
                                                       DBusGProxyCall    *call,
                                                       GError           **error,
