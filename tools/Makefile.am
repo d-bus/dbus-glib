@@ -8,8 +8,13 @@ dbus-glib-bindings.h: dbus-bus-introspect.xml $(top_builddir)/dbus/dbus-binding-
 
 BUILT_SOURCES = dbus-glib-bindings.h dbus-bus-introspect.xml
 
+if USE_INTROSPECT_XML
+dbus-bus-introspect.xml: $(INTROSPECT_XML_PATH)
+	cp $(INTROSPECT_XML_PATH) dbus-bus-introspect.xml
+else
 dbus-bus-introspect.xml:
 	DBUS_TOP_BUILDDIR=$(top_builddir) dbus-daemon --introspect > dbus-bus-introspect.xml.tmp && mv dbus-bus-introspect.xml.tmp dbus-bus-introspect.xml
+endif
 
 EXTRA_DIST = run-with-tmp-session-bus.sh session.conf
 
