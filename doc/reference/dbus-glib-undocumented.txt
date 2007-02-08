@@ -1,7 +1,7 @@
-53% symbol docs coverage.
-62 symbols documented.
+54% symbol docs coverage.
+63 symbols documented.
 15 symbols incomplete.
-55 not documented.
+54 not documented.
 
 
 DBUS_TYPE_G_OBJECT_PATH
@@ -44,7 +44,6 @@ dbus_g_proxy_get_path
 dbus_g_proxy_new_for_name (path, interface)
 dbus_g_proxy_new_for_name_owner (path, interface)
 dbus_g_proxy_new_from_proxy (path_name)
-dbus_g_thread_init
 dbus_g_type_collection_get_fixed
 dbus_g_type_collection_peek_vtable
 dbus_g_type_collection_value_iterate
