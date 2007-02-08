@@ -55,7 +55,6 @@ AC_ARG_ENABLE(checks, AS_HELP_STRING([--enable-checks],[include sanity checks on
 AC_ARG_ENABLE(xml-docs, AS_HELP_STRING([--enable-xml-docs],[build XML documentation (requires xmlto)]),enable_xml_docs=$enableval,enable_xml_docs=auto)
 AC_ARG_ENABLE(doxygen-docs, AS_HELP_STRING([--enable-doxygen-docs],[build DOXYGEN documentation (requires Doxygen)]),enable_doxygen_docs=$enableval,enable_doxygen_docs=auto)
 AC_ARG_ENABLE(gcov, AS_HELP_STRING([--enable-gcov],[compile with coverage profiling instrumentation (gcc only)]),enable_gcov=$enableval,enable_gcov=no)
-AC_ARG_WITH(xml, AS_HELP_STRING([--with-xml=[libxml/expat]],[XML library to use]))
 AC_ARG_WITH(test-socket-dir, AS_HELP_STRING([--with-test-socket-dir=[dirname]],[Where to put sockets for make check]))
 
 
@@ -624,47 +623,13 @@ AC_CHECK_LIB(expat, XML_ParserCreate_MM,
              [ AC_CHECK_HEADERS(expat.h, have_expat=true, have_expat=false) ],
              have_expat=false)
 
-PKG_CHECK_MODULES(LIBXML, libxml-2.0, have_libxml=true, have_libxml=false)
-
-# see what we want to use
-dbus_use_libxml=false
-dbus_use_expat=false
-if test x$with_xml = xexpat; then
-        dbus_use_expat=true
-        if ! $have_expat ; then
-           AC_MSG_ERROR([Explicitly requested expat but expat not found])
-        fi
-elif test x$with_xml = xlibxml; then
-        dbus_use_libxml=true
-        if ! $have_libxml ; then
-           AC_MSG_ERROR([Explicitly requested libxml but libxml not found])
-        fi
-else
-        ### expat is the default because libxml can't currently survive 
-        ### our brutal OOM-handling unit test setup.
-        ### http://bugzilla.gnome.org/show_bug.cgi?id=109368
-        if $have_expat ; then
-                with_xml=expat
-                dbus_use_expat=true
-        elif $have_libxml ; then
-                with_xml=libxml
-                dbus_use_libxml=true
-        else
-                AC_MSG_ERROR([No XML library found, check config.log for failed attempts])
-        fi
+if ! $have_expat ; then
+  AC_MSG_ERROR([expat library not found, check config.log for failed attempts])
 fi
 
-AM_CONDITIONAL(DBUS_USE_EXPAT, $dbus_use_expat)
-AM_CONDITIONAL(DBUS_USE_LIBXML, $dbus_use_libxml)
+XML_LIBS=-lexpat
+XML_CFLAGS=
 
-if $dbus_use_expat; then
-   XML_LIBS=-lexpat
-   XML_CFLAGS=
-fi
-if $dbus_use_libxml; then
-   XML_LIBS=$LIBXML_LIBS
-   XML_CFLAGS=$LIBXML_CFLAGS
-fi
 
 #### Set up final flags
 DBUS_CLIENT_CFLAGS=
