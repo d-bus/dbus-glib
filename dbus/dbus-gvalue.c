@@ -1337,12 +1337,15 @@ marshal_strv (DBusMessageIter   *iter,
 					 &subiter))
     goto out;
 
-  for (elt = array; *elt; elt++)
+  if (array)
     {
-      if (!dbus_message_iter_append_basic (&subiter,
+      for (elt = array; *elt; elt++)
+        {
+          if (!dbus_message_iter_append_basic (&subiter,
 					   DBUS_TYPE_STRING,
 					   elt))
-	goto out;
+	        goto out;
+        }
     }
 
   if (!dbus_message_iter_close_container (iter, &subiter))
@@ -1370,10 +1373,13 @@ marshal_valuearray (DBusMessageIter   *iter,
 					 &subiter))
     goto oom;
 
-  for (i = 0; i < array->n_values; i++)
+  if (array)
     {
-      if (!_dbus_gvalue_marshal (&subiter, g_value_array_get_nth (array, i)))
-	return FALSE;
+      for (i = 0; i < array->n_values; i++)
+        {
+          if (!_dbus_gvalue_marshal (&subiter, g_value_array_get_nth (array, i)))
+            return FALSE;
+        }
     }
 
   if (!dbus_message_iter_close_container (iter, &subiter))
@@ -1770,7 +1776,7 @@ marshal_collection_array (DBusMessageIter   *iter,
    * is this always true?  If it is we can probably avoid
    * a lot of the overhead in _marshal_basic_instance...
    */
-  if (!dbus_message_iter_append_fixed_array (&subiter,
+  if (!array || !dbus_message_iter_append_fixed_array (&subiter,
 					     subsignature_str[0],
 					     &(array->data),
 					     array->len))
