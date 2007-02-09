@@ -1954,10 +1954,11 @@ dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
  *
  * Get the sender of a message so we can send a
  * "reply" later (i.e. send a message directly
- * to a service which invoked the method at a 
+ * to a service which invoked the method at a
  * later time).
  *
- * Returns: the unique name of teh sender
+ * Returns: the unique name of the sender. It
+ * is up to the caller to free the returned string.
  */
 gchar *
 dbus_g_method_get_sender (DBusGMethodInvocation *context)
