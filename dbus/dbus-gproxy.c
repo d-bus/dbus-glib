@@ -718,18 +718,21 @@ dbus_g_proxy_manager_replace_name_owner (DBusGProxyManager  *manager,
 
       names = g_hash_table_lookup (manager->owner_names, prev_owner);
 
-      link = g_slist_find_custom (names, name, find_name_in_info);
-
       info = NULL;
-      if (link != NULL)
-	{
-	  info = link->data;
-	  
-	  names = g_slist_delete_link (names, link);
+      if (names != NULL)
+        {
+	  link = g_slist_find_custom (names, name, find_name_in_info);
 
-	  if (names == NULL)
-	    g_hash_table_remove (manager->owner_names, prev_owner);
-	}
+	  if (link != NULL)
+	    {
+	      info = link->data;
+	  
+	      names = g_slist_delete_link (names, link);
+
+	      if (names == NULL)
+	        g_hash_table_remove (manager->owner_names, prev_owner);
+	    }
+        }
 
       if (new_owner[0] == '\0')
 	{
@@ -758,8 +761,14 @@ dbus_g_proxy_manager_replace_name_owner (DBusGProxyManager  *manager,
 	  g_slist_free (data.destroyed);
 
 	  LOCK_MANAGER (manager);
+
+	  if (info)
+	    {
+	      g_free (info->name);
+	      g_free (info);
+	    }
 	}
-      else
+      else if (info)
 	{
 	  insert_nameinfo (manager, new_owner, info);
 	}
