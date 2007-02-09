@@ -1405,7 +1405,7 @@ write_async_method_client (GIOChannel *channel, InterfaceInfo *interface, Method
   if (!write_printf_to_iochannel ("%s_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)\n", channel, error, method_name))
     goto io_lose;
   WRITE_OR_LOSE ("{\n");
-  WRITE_OR_LOSE ("  DBusGAsyncData *data = user_data;\n  GError *error = NULL;\n");
+  WRITE_OR_LOSE ("  DBusGAsyncData *data = (DBusGAsyncData*) user_data;\n  GError *error = NULL;\n");
   if (!write_formal_declarations_for_direction (interface, method, channel, ARG_OUT, error))
     goto io_lose;
   /* TODO: handle return boolean of end_call */
