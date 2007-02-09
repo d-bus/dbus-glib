@@ -56,7 +56,7 @@ uscore_to_wincaps (const char *uscore)
   
   str = g_string_new (NULL);
   p = uscore;
-  while (*p)
+  while (p && *p)
     {
       if (*p == '-' || *p == '_')
         {
