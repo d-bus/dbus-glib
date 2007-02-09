@@ -1,3 +1,29 @@
+D-Bus GLib Bindings 0.73 (9 Feb 2007)
+==
+
+ - Allow passing of NULL to strv out arguments.
+   (Patch due to Luiz Augusto von Dentz <luiz.dentz@gmail.com>.
+    Fixes bug #8795.)
+ - Make uscore_to_wincaps return NULL when passed NULL. (Fixes bug #8318.)
+ - Only respond to NameOwnerChanged if its one of our names.
+   (Patch by Kimmo Hämäläinen <kimmo.hamalainen@nokia.com>. Fixes bug #8235.)
+ - Fix dbus-binding-tool to generate headers usable from C++.
+   (Thanks to Christian Persch <chpe@gnome.org>. Fixes bug #6358.)
+ - Only require --prefix for server side binding generation.
+   (Fixes reopened bug #4185.)
+ - Clarify documentation for dbus_g_method_get_sender.
+   (Fixes #8832.)
+ - Add new API for specifying the timeout in DBusGProxy calls.
+   (Patch due to S. Nalliami <snallammai@novell.com>. Fixes  bug #9832.)
+ - Don't check for libxml2 when expat not found. (Fixes bugs #9894 and #9000.)
+ - Add configure flags --with-introspect-xml. (Fixes bug #9105)
+ - Use dbus_threads_init_default() rather than using own threading primitives.
+   (Fixes bug #9259.)
+ - Reduce dependency to dbus version 0.93, error out if correct version
+   not found. (Patch due to Luiz Augusto von Dentz <luiz.dentz@gmail.com>.
+   Fixes bug #8793.)
+ - Allow dbus and dbus-glib to live in different prefixes. (Fixes bug #9384.)
+
 D-Bus GLib Bindings 0.72 (26 Oct 2006)
 ==
  - Only use -Wfloat-equal if compiler supports it (Closes #7658. Thanks
