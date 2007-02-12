@@ -1,4 +1,4 @@
-D-Bus GLib Bindings 0.73 (9 Feb 2007)
+D-Bus GLib Bindings 0.73 (12 Feb 2007)
 ==
 
  - Allow passing of NULL to strv out arguments.
@@ -23,6 +23,8 @@ D-Bus GLib Bindings 0.73 (9 Feb 2007)
    not found. (Patch due to Luiz Augusto von Dentz <luiz.dentz@gmail.com>.
    Fixes bug #8793.)
  - Allow dbus and dbus-glib to live in different prefixes. (Fixes bug #9384.)
+ - Add pkg-config support for uninstalled use.
+   (Fix due to Damien Carbery <damien.carbery@sun.com>.  Fixes bug #9769.)
 
 D-Bus GLib Bindings 0.72 (26 Oct 2006)
 ==
