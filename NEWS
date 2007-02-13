@@ -1,4 +1,4 @@
-D-Bus GLib Bindings 0.73 (12 Feb 2007)
+D-Bus GLib Bindings 0.73 (13 Feb 2007)
 ==
 
  - Allow passing of NULL to strv out arguments.
