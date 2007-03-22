@@ -25,6 +25,7 @@
 
 #include <glib.h>
 #include <dbus/dbus.h>
+#include "dbus-glib.h"
 
 /** @addtogroup DBusGLib
  * @{
