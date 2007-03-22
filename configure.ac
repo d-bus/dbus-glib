@@ -534,9 +534,10 @@ AC_CHECK_FUNCS(getpeerucred getpeereid)
 
 #### Abstract sockets
 
-AC_MSG_CHECKING(abstract socket namespace)
 AC_LANG_PUSH(C)
-AC_RUN_IFELSE([AC_LANG_PROGRAM(
+AC_CACHE_CHECK([abstract socket namespace],
+		ac_cv_have_abstract_sockets,
+		[AC_RUN_IFELSE([AC_LANG_PROGRAM(
 [[
 #include <sys/types.h>
 #include <stdlib.h>
@@ -572,22 +573,22 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM(
   else 
     exit (0);
 ]])],
-              [have_abstract_sockets=yes],
-              [have_abstract_sockets=no])
+              [ac_cv_have_abstract_sockets=yes],
+              [ac_cv_have_abstract_sockets=no]
+)])
 AC_LANG_POP(C)
-AC_MSG_RESULT($have_abstract_sockets)
 
 if test x$enable_abstract_sockets = xyes; then
-    if test x$have_abstract_sockets = xno; then
+    if test x$ac_cv_have_abstract_sockets = xno; then
 	AC_MSG_ERROR([Abstract sockets explicitly required, and support not detected.])
     fi
 fi
 
 if test x$enable_abstract_sockets = xno; then
-   have_abstract_sockets=no;
+   ac_cv_have_abstract_sockets=no;
 fi
 
-if test x$have_abstract_sockets = xyes ; then
+if test x$ac_cv_have_abstract_sockets = xyes ; then
    DBUS_PATH_OR_ABSTRACT=abstract
    AC_DEFINE(HAVE_ABSTRACT_SOCKETS,1,[Have abstract socket namespace])
 else
