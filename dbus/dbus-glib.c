@@ -154,7 +154,7 @@ dbus_g_error_quark (void)
 {
   static GQuark quark = 0;
   if (quark == 0)
-    quark = g_quark_from_static_string ("g-exec-error-quark");
+    quark = g_quark_from_static_string ("dbus-glib-error-quark");
   return quark;
 }
 
