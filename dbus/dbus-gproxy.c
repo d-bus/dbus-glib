@@ -798,14 +798,13 @@ got_name_owner_cb (DBusGProxy       *bus_proxy,
 	{
 	  priv->manager->unassociated_proxies = g_slist_prepend (priv->manager->unassociated_proxies, proxy);
 	}
-      else if (error->domain == DBUS_GERROR) 
-	g_warning ("Couldn't get name owner (code %d): %s",
-                   error->code, error->message);
-      else
+      else if (error->domain == DBUS_GERROR && error->code == DBUS_GERROR_REMOTE_EXCEPTION)
 	g_warning ("Couldn't get name owner (%s): %s",
 		   dbus_g_error_get_name (error),
 		   error->message);
-
+      else
+	g_warning ("Couldn't get name owner (code %d): %s",
+                   error->code, error->message);
       g_clear_error (&error);
       goto out;
     }
