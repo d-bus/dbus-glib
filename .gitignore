@@ -2,6 +2,8 @@
 *.lo
 *.deps
 *.libs
+*.lineno
+dbus-glib-*.tar.gz
 Makefile
 Makefile.in
 ChangeLog
@@ -17,6 +19,7 @@ config.status
 config.sub
 configure
 dbus-glib-1.pc
+dbus-glib-1-uninstalled.pc
 dbus/Makefile
 dbus/Makefile.in
 dbus/dbus-binding-tool
@@ -91,6 +94,8 @@ test/core/test-thread-server
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/test-interfaces.service.in
+test/data/valid-service-files/interfaces-test.service
+test/interfaces/test-service
 test/interfaces/
 test/test-service
 tools/Makefile
@@ -102,7 +107,7 @@ Doxyfile
 Makefile
 Makefile.in
 aclocal.m4
-autom4te.cache/
+autom4te.cache
 config.guess
 config.h
 config.h.in
