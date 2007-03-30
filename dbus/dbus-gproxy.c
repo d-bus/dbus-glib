@@ -930,23 +930,23 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
                             list->name, list);
     }
 
-  if (list->proxies == NULL)
+  if (list->proxies == NULL && priv->name)
     {
       /* We have to add the match rule to the server,
-       * but FIXME only if the server is a message bus,
+       * but only if the server is a message bus,
        * not if it's a peer.
        */
-      char *rule;
-
-      rule = g_proxy_get_match_rule (proxy);
-      
-      /* We don't check for errors; it's not like anyone would handle them,
-       * and we don't want a round trip here.
-       */
-      dbus_bus_add_match (manager->connection,
-                          rule, NULL);
-
-      g_free (rule);
+       char *rule;
+       
+       rule = g_proxy_get_match_rule (proxy);
+       
+       /* We don't check for errors; it's not like anyone would handle them, and
+        * we don't want a round trip here.
+        */
+       dbus_bus_add_match (manager->connection,
+			   rule, NULL);
+       
+       g_free (rule);
     }
 
   g_assert (g_slist_find (list->proxies, proxy) == NULL);
@@ -1198,7 +1198,6 @@ dbus_g_proxy_manager_filter (DBusConnection    *connection,
       sender = dbus_message_get_sender (message);
 
       /* dbus spec requires these, libdbus validates */
-      g_assert (sender != NULL);
       g_assert (dbus_message_get_path (message) != NULL);
       g_assert (dbus_message_get_interface (message) != NULL);
       g_assert (dbus_message_get_member (message) != NULL);
@@ -1219,7 +1218,7 @@ dbus_g_proxy_manager_filter (DBusConnection    *connection,
 
       g_free (tri);
 
-      if (manager->owner_names)
+      if (manager->owner_names && sender)
 	{
 	  owned_names = g_hash_table_lookup (manager->owner_names, sender);
 	  for (tmp = owned_names; tmp; tmp = tmp->next)
@@ -1342,7 +1341,6 @@ dbus_g_proxy_constructor (GType                  type,
    * on these parameters being provided. unfortunately we can't assert
    * for manager because it's allowed to be NULL when tha mangager is
    * setting up a bus proxy for its own calls */
-  g_assert (priv->name != NULL);
   g_assert (priv->path != NULL);
   g_assert (priv->interface != NULL);
 
@@ -1498,7 +1496,10 @@ dbus_g_proxy_set_property (GObject *object,
     {
     case PROP_NAME:
       priv->name = g_strdup (g_value_get_string (value));
-      priv->for_owner = (priv->name[0] == ':');
+      if (priv->name)
+        priv->for_owner = (priv->name[0] == ':');
+      else
+        priv->for_owner = TRUE;
       break;
     case PROP_PATH:
       priv->path = g_strdup (g_value_get_string (value));
