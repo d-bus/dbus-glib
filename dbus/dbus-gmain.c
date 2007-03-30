@@ -129,7 +129,7 @@ typedef struct
   DBusTimeout *timeout;
 } TimeoutHandler;
 
-static dbus_int32_t connection_slot = -1;
+dbus_int32_t _dbus_gmain_connection_slot = -1;
 static dbus_int32_t server_slot = -1;
 
 static ConnectionSetup*
@@ -560,8 +560,8 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
   /* FIXME we never free the slot, so its refcount just keeps growing,
    * which is kind of broken.
    */
-  dbus_connection_allocate_data_slot (&connection_slot);
-  if (connection_slot < 0)
+  dbus_connection_allocate_data_slot (&_dbus_gmain_connection_slot);
+  if (_dbus_gmain_connection_slot < 0)
     goto nomem;
 
   if (context == NULL)
@@ -569,7 +569,7 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
 
   cs = NULL;
   
-  old_setup = dbus_connection_get_data (connection, connection_slot);
+  old_setup = dbus_connection_get_data (connection, _dbus_gmain_connection_slot);
   if (old_setup != NULL)
     {
       if (old_setup->context == context)
@@ -578,14 +578,14 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
       cs = connection_setup_new_from_old (context, old_setup);
       
       /* Nuke the old setup */
-      dbus_connection_set_data (connection, connection_slot, NULL, NULL);
+      dbus_connection_set_data (connection, _dbus_gmain_connection_slot, NULL, NULL);
       old_setup = NULL;
     }
 
   if (cs == NULL)
     cs = connection_setup_new (context, connection);
 
-  if (!dbus_connection_set_data (connection, connection_slot, cs,
+  if (!dbus_connection_set_data (connection, _dbus_gmain_connection_slot, cs,
                                  (DBusFreeFunction)connection_setup_free))
     goto nomem;
   

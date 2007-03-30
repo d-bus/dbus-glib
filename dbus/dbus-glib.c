@@ -305,8 +305,32 @@ dbus_g_message_get_g_type (void)
 DBusConnection*
 dbus_g_connection_get_connection (DBusGConnection *gconnection)
 {
+  g_return_val_if_fail (gconnection, NULL);
   return DBUS_CONNECTION_FROM_G_CONNECTION (gconnection);
 }
+
+extern dbus_int32_t _dbus_gmain_connection_slot;
+
+/**
+ * dbus_connection_get_g_connection:
+ * @connection:  a #DBusConnection
+ *
+ * Get the #DBusGConnection corresponding to this #DBusConnection.  This only
+ * makes sense if the #DBusConnection was originally a #DBusGConnection that was
+ * registered with the GLib main loop.  The return value does not have its
+ * refcount incremented.
+ *
+ * Returns: #DBusGConnection 
+ */
+DBusGConnection*
+dbus_connection_get_g_connection (DBusConnection *connection)
+{
+  g_return_val_if_fail (connection, NULL);
+  g_return_val_if_fail (dbus_connection_get_data (connection, _dbus_gmain_connection_slot), NULL);
+  
+  return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
+}
+
 
 /**
  * dbus_g_message_get_message:

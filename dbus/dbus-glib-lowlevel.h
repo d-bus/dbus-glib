@@ -49,6 +49,7 @@ void dbus_g_proxy_send (DBusGProxy    *proxy,
                         dbus_uint32_t *client_serial);
 
 DBusConnection*  dbus_g_connection_get_connection (DBusGConnection *gconnection);
+DBusGConnection* dbus_connection_get_g_connection (DBusConnection  *connection);
 DBusMessage*     dbus_g_message_get_message       (DBusGMessage    *gmessage);
 
 /* dbus_g_pending_call_get_pending_call() deliberately skipped for now;
