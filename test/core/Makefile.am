@@ -11,12 +11,12 @@ INCLUDES = \
 ## TESTS
 if DBUS_BUILD_TESTS
 TESTS_ENVIRONMENT=DBUS_TOP_BUILDDIR=$(ABSOLUTE_TOP_BUILDDIR)
-TESTS=run-test.sh
+TESTS=test-types run-test.sh run-peer-test.sh
 else
 TESTS=
 endif
 
-EXTRA_DIST=run-test.sh test-service-glib.xml my-object-marshal.list test-service-glib.xml
+EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.list test-service-glib.xml
 
 if DBUS_BUILD_TESTS
 
@@ -38,7 +38,7 @@ endif
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
-noinst_PROGRAMS= test-dbus-glib test-service-glib $(THREAD_APPS)
+noinst_PROGRAMS= test-dbus-glib test-service-glib $(THREAD_APPS) peer-server peer-client test-types
 
 test_dbus_glib_SOURCES=				\
 	my-object-marshal.c                             \
@@ -49,8 +49,11 @@ test_dbus_glib_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1
 BUILT_SOURCES = test-service-glib-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
 
 test_service_glib_SOURCES=				\
+	my-object.c                             \
+	my-object.h                             \
 	my-object-marshal.c                             \
 	test-service-glib.c 
+test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
 
 test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
 	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object --mode=glib-server --output=test-service-glib-glue.h $(srcdir)/test-service-glib.xml
@@ -65,11 +68,24 @@ my-object-marshal.h: Makefile my-object-marshal.list
 	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header > my-object-marshal.h
 
 
+peer_server_SOURCES = \
+	my-object.c                             \
+	my-object.h                             \
+	my-object-marshal.c                             \
+	peer-server.c
+peer_server_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS)
+
+peer_client_SOURCES = \
+	peer-client.c
+peer_client_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS)
+
+test_types_SOURCES = \
+	test-types.c
+test_types_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
+
 CLEANFILES = \
 	$(BUILT_SOURCES) \
 	run-with-tmp-session-bus.conf
-
-test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
 
 else
 ### not building tests
