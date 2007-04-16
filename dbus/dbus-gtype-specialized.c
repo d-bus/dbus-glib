@@ -2,6 +2,7 @@
 /* dbus-gtype-specialized.c: Non-DBus-specific functions for specialized GTypes
  *
  * Copyright (C) 2005 Red Hat, Inc.
+ * Copyright (C) 2007 Codethink Ltd.
  *
  * Licensed under the Academic Free License version 2.1
  * 
@@ -28,10 +29,32 @@
 
 /**
  * SECTION:dbus-gtype-specialized
- * @short_description: Non-DBus-specific functions for specialized GTypes
+ * @short_description: Specialized GTypes
  * @stability: Unstable
  *
- * Non-DBus-specific functions for specialized #GType.
+ * Specialized gtypes are basically a way to allow the definition of
+ * recursive GTypes. It allows the definition of 'containers' which is
+ * basically a user defined structure capabale of holding other data and a 
+ * set of functions defining how to access that structure. Containers come in
+ * 3 flavors: collections, maps and structs. 
+ *
+ * A collection is a container that holds an ordered set of items, all
+ * of which must be the same type. 
+ *
+ * A map is a container that holds a set of key/value pairs. 
+ * The keys have one type, and the values another.
+ *
+ * A struct is a container that holds a fixed number of members, each member 
+ * having a predefined type.
+ *
+ * A specialization is a GType detailing a particular container with
+ * particular types (a type specialization).
+ *
+ * Functions are provided for constructing and manipulating specializations.
+ *
+ * This documentation needs splitting into two pages, one for defining new
+ * containers and using existing containers. I expect most users to only do
+ * the latter. I also need to add some examples.
  */
 
 typedef enum {
@@ -201,7 +224,7 @@ proxy_lcopy_value (const GValue *value,
 }
 
 static char *
-build_specialization_name (const char *prefix, guint num_types, GType *types)
+build_specialization_name (const char *prefix, guint num_types, const GType *types)
 {
   GString *fullname;
   guint i;
@@ -233,6 +256,14 @@ register_container (const char                         *name,
   g_hash_table_insert (specialized_containers, g_strdup (name), klass);
 }
 
+/**
+ * dbus_g_type_register_collection:
+ * @name: The name of a new collection container
+ * @vtable: the vtable defining the new container
+ * @flags: As yet unused.
+ *
+ * Defines a new collection container.
+ */
 void
 dbus_g_type_register_collection (const char                                   *name,
 				 const DBusGTypeSpecializedCollectionVtable   *vtable,
@@ -242,6 +273,14 @@ dbus_g_type_register_collection (const char                                   *n
   register_container (name, DBUS_G_SPECTYPE_COLLECTION, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
+/**
+ * dbus_g_type_register_map:
+ * @name: The name of a new map container
+ * @vtable: the vtable defining the new container
+ * @flags: As yet unused.
+ *
+ * Defines a new map container.
+ */
 void
 dbus_g_type_register_map (const char                            *name,
 			  const DBusGTypeSpecializedMapVtable   *vtable,
@@ -251,6 +290,14 @@ dbus_g_type_register_map (const char                            *name,
   register_container (name, DBUS_G_SPECTYPE_MAP, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
+/**
+ * dbus_g_type_register_struct:
+ * @name: The name of a new struct container
+ * @vtable: the vtable defining the new container
+ * @flags: As yet unused.
+ *
+ * Defines a new struct container.
+ */
 void
 dbus_g_type_register_struct (const char                             *name,
 			     const DBusGTypeSpecializedStructVtable *vtable,
@@ -260,7 +307,12 @@ dbus_g_type_register_struct (const char                             *name,
   register_container (name, DBUS_G_SPECTYPE_STRUCT, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
-
+/**
+ * dbus_g_type_map_peek_vtable:
+ * @map_type: a gtype of a map specialization
+ *
+ * Peek the vtable for a given map specialization
+ */
 const DBusGTypeSpecializedMapVtable* dbus_g_type_map_peek_vtable (GType map_type)
 {
   DBusGTypeSpecializedData *data;
@@ -272,6 +324,12 @@ const DBusGTypeSpecializedMapVtable* dbus_g_type_map_peek_vtable (GType map_type
   return (DBusGTypeSpecializedMapVtable *)(data->klass->vtable);
 }
 
+/**
+ * dbus_g_type_collection_peek_vtable:
+ * @collection_type: a gtype of a collection specialization
+ *
+ * Peek the vtable for a given collection specialization
+ */
 const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (GType collection_type)
 {
   DBusGTypeSpecializedData *data;
@@ -283,6 +341,12 @@ const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (
   return (DBusGTypeSpecializedCollectionVtable *)(data->klass->vtable);
 }
 
+/**
+ * dbus_g_type_struct_peek_vtable:
+ * @collection_type: a gtype of a struct specialization
+ *
+ * Peek the vtable for a given struct specialization
+ */
 const DBusGTypeSpecializedStructVtable* dbus_g_type_struct_peek_vtable (GType struct_type)
 {
   DBusGTypeSpecializedData *data;
@@ -296,9 +360,9 @@ const DBusGTypeSpecializedStructVtable* dbus_g_type_struct_peek_vtable (GType st
 
 static GType
 register_specialized_instance (const DBusGTypeSpecializedContainer   *klass,
-			       char                                  *name,
+			       const char                            *name,
 			       guint                                  num_types,
-			       GType                                 *types)
+			       const GType                           *types)
 {
   GType ret;
   
@@ -345,7 +409,7 @@ register_specialized_instance (const DBusGTypeSpecializedContainer   *klass,
 static GType
 lookup_or_register_specialized (const char  *container,
 				guint        num_types,
-				GType       *types)
+				const GType *types)
 {
   GType ret;
   char *name;
@@ -369,13 +433,35 @@ lookup_or_register_specialized (const char  *container,
   return ret;
 }
 
+
+/**
+ * dbus_g_type_get_collection:
+ * @container: a string specifying a registered collection type
+ * @specialization: #GType of collection elements
+ *
+ * Gets a #GType for a particular collection instance, 
+ * creating the type if not already created.
+ *
+ * Returns: the #GType of that instance
+ */
 GType
 dbus_g_type_get_collection (const char *container,
-			    GType       specialization)
+			    GType specialization)
 {
   return lookup_or_register_specialized (container, 1, &specialization);
 }
 
+/**
+ * dbus_g_type_get_map:
+ * @container: a string specifying a registered map type
+ * @key_specialization: #GType of keys
+ * @value_specialization: #GType of values
+ *
+ * Gets a #GType for a particular map instance,
+ * creating the type if not already created.
+ *
+ * Returns: the #GType of that instance
+ */
 GType
 dbus_g_type_get_map (const char   *container,
 		     GType         key_specialization,
@@ -385,14 +471,36 @@ dbus_g_type_get_map (const char   *container,
   return lookup_or_register_specialized (container, 2, types);
 }
 
+/**
+ * dbus_g_type_get_structv:
+ * @container: a string specifying a registered struct type
+ * @num_members: number of members in the struct
+ * @types: an array specufying a GType for each struct element
+ *
+ * Gets a #GType for a particular struct instance,
+ * creating the type if not already created.
+ *
+ * Returns: the #GType of that instance
+ */
 GType
 dbus_g_type_get_structv (const char   *container,
-                        guint         num_items,
-                        GType        *types)
+                         guint         num_members,
+                         GType        *types)
 {
-  return lookup_or_register_specialized (container, num_items, types);
+  return lookup_or_register_specialized (container, num_members, types);
 }
 
+/**
+ * dbus_g_type_get_struct:
+ * @container: a string specifying a registered struct type
+ * @first_type: #GType for the struct's first member
+ * @...: more GTypes for the struct's members, terminated by G_TYPE_INVALID
+ *
+ * Varags methsod to get a #GType for a particular struct instance,
+ * creating the type if not already created.
+ *
+ * Returns: the #GType of that instance
+ */
 GType
 dbus_g_type_get_struct (const char *container,
                         GType first_type,
@@ -421,7 +529,14 @@ dbus_g_type_get_struct (const char *container,
 }
 
 
-
+/**
+ * dbus_g_type_is_collection:
+ * @gtype: a GType to test
+ *
+ * Tests if a given GType is a collection.
+ *
+ * Returns: true if the given GType is a collection
+ */
 gboolean
 dbus_g_type_is_collection (GType gtype)
 {
@@ -432,6 +547,15 @@ dbus_g_type_is_collection (GType gtype)
   return data->klass->type == DBUS_G_SPECTYPE_COLLECTION;
 }
 
+/**
+ * dbus_g_type_is_map:
+ * @gtype: a GType to test
+ *
+ * Tests if a given GType is a map,
+ * i.e. it was created with #dbus_g_type_get_map.
+ *
+ * Returns: true if the given GType is a map
+ */
 gboolean
 dbus_g_type_is_map (GType gtype)
 {
@@ -442,6 +566,15 @@ dbus_g_type_is_map (GType gtype)
   return data->klass->type == DBUS_G_SPECTYPE_MAP;
 }
 
+/**
+ * dbus_g_type_is_struct:
+ * @gtype: a GType to test
+ *
+ * Tests if a given GType is a struct,
+ * i.e. it was created with #dbus_g_type_get_struct
+ *
+ * Returns: true if the given GType is a struct
+ */
 gboolean
 dbus_g_type_is_struct (GType gtype)
 {
@@ -465,6 +598,13 @@ get_specialization_index (GType gtype, guint i)
     return G_TYPE_INVALID;
 }
 
+/**
+ * dbus_g_type_get_collection_specialization:
+ * @gtype: a collection GType, as created by #dbus_g_type_get_collection.
+ *
+ * Returns: the element type for a given collection GType.
+ * Returns G_TYPE_INVALID if not a collection GType
+ */
 GType
 dbus_g_type_get_collection_specialization (GType gtype)
 {
@@ -472,6 +612,13 @@ dbus_g_type_get_collection_specialization (GType gtype)
   return get_specialization_index (gtype, 0);
 }
 
+/**
+ * dbus_g_type_get_map_key_specialization:
+ * @gtype: a map GType, as created by #dbus_g_type_get_map.
+ *
+ * Returns: the key type for a given map GType.
+ * Returns G_TYPE_INVALID if not a map GType
+ */
 GType
 dbus_g_type_get_map_key_specialization (GType gtype)
 {
@@ -479,6 +626,13 @@ dbus_g_type_get_map_key_specialization (GType gtype)
   return get_specialization_index (gtype, 0);
 }
 
+/**
+ * dbus_g_type_get_map_value_specialization:
+ * @gtype: a map GType, as created by #dbus_g_type_get_map.
+ *
+ * Returns: the value type for a given map GType.
+ * Returns G_TYPE_INVALID if not a map GType
+ */
 GType
 dbus_g_type_get_map_value_specialization (GType gtype)
 {
@@ -486,13 +640,28 @@ dbus_g_type_get_map_value_specialization (GType gtype)
   return get_specialization_index (gtype, 1);
 }
 
+/**
+ * dbus_g_type_get_struct_member_type
+ * @gtype: a struct GType, as created with #dbus_g_type_get_struct
+ * @member: the index of a struct member
+ *
+ * Returns: the type for a given member of a struct #GType.
+ * Returns G_TYPE_INVALID if not a struct GType
+ */
 GType
-dbus_g_type_get_struct_member_type (GType gtype, guint index_)
+dbus_g_type_get_struct_member_type (GType gtype, guint member)
 {
   g_return_val_if_fail (dbus_g_type_is_struct (gtype), G_TYPE_INVALID);
-  return get_specialization_index (gtype, index_);
+  return get_specialization_index (gtype, member);
 }
 
+/**
+ * dbus_g_type_get_struct_size
+ * @gtype: a struct GType, as created with #dbus_g_type_get_struct.
+ *
+ * Returns: the number of members in a given struct #GType.
+ * Returns G_TYPE_INVALID if not a struct GType
+ */
 guint
 dbus_g_type_get_struct_size (GType gtype)
 {
@@ -503,20 +672,38 @@ dbus_g_type_get_struct_size (GType gtype)
   return data->num_types;
 }
 
-
-
+/**
+ * dbus_g_type_specialized_construct:
+ * @gtype: a specialized #GType, as created by #dbus_g_type_get_collection, #dbus_g_type_get_map or #dbus_g_type_get_struct.
+ *
+ * Create an instance of a given specialized type. 
+ * The structure created and returned will depend on the container type of the 
+ * GType. E.g. If the given type was created by 
+ * dbus_g_type_get_collection("GArray", G_TYPE_INT), 
+ * then this will return a GArray with element_size of sizeof(int)
+ *
+ * Returns: a pointer to a newly constructed instance of the given type.
+ */
 gpointer
-dbus_g_type_specialized_construct (GType type)
+dbus_g_type_specialized_construct (GType gtype)
 {
   DBusGTypeSpecializedData *data;
   g_return_val_if_fail (specialized_types_is_initialized (), FALSE);
 
-  data = lookup_specialization_data (type);
+  data = lookup_specialization_data (gtype);
   g_return_val_if_fail (data != NULL, FALSE);
 
-  return data->klass->vtable->constructor (type);
+  return data->klass->vtable->constructor (gtype);
 }
 
+/**
+ * dbus_g_type_collection_get_fixed:
+ * @deprecated: maybe?
+ *
+ * if the collection has elements of fixed size (i.e. a fundamental type), 
+ * return the contents of the array.
+ * Its pretty obscure and I don't think anyone uses it.
+ */
 gboolean
 dbus_g_type_collection_get_fixed (GValue   *value,
 				  gpointer *data_ret,
@@ -537,6 +724,17 @@ dbus_g_type_collection_get_fixed (GValue   *value,
 											   data_ret, len_ret);
 }
 
+/**
+ * dbus_g_type_collection_value_iterate:
+ * @value: a #GValue holding a collection type.
+ * @iterator: a function to call for each element
+ * @user_data: user data to pass to the @iterator
+ *
+ * Calls the given function for each element of the collection. 
+ * The function is passed a #GValue containing the element and the given 
+ * @user_data parameter. The collection may not be modified while iterating over 
+ * it.
+ */
 void
 dbus_g_type_collection_value_iterate (const GValue                           *value,
 				      DBusGTypeSpecializedCollectionIterator  iterator,
@@ -563,6 +761,15 @@ typedef struct {
   DBusGTypeSpecializedData *specdata;
 } DBusGTypeSpecializedAppendContextReal;
 
+/**
+ * dbus_g_type_specialized_init_append:
+ * @value: a #GValue containing an instance of specialized type
+ * @ctx: a #DBusGTypeSpecializedAppendContext in which to return a new appending context.
+ * @deprecated: maybe i'll deprecate this as its a bit wank.
+ *
+ * Create a new context for adding elements to a collection or key/value pairs 
+ * to a map. You generally don't need or want to use this..
+ */
 void
 dbus_g_type_specialized_init_append (GValue *value, DBusGTypeSpecializedAppendContext *ctx)
 {
@@ -582,6 +789,14 @@ dbus_g_type_specialized_init_append (GValue *value, DBusGTypeSpecializedAppendCo
   realctx->specdata = specdata;
 }
 
+/**
+ * dbus_g_type_specialized_collection_append:
+ * @ctx: a context created by #dbus_g_type_specialized_init_append
+ * @elt: a GValue containing an element to append to the collection.
+ * @deprecated: maybe i'll deprecate this as its a bit wank.
+ *
+ * Appends a given element to the end of a collection.
+ */
 void
 dbus_g_type_specialized_collection_append (DBusGTypeSpecializedAppendContext *ctx,
 					   GValue                            *elt)
@@ -590,6 +805,13 @@ dbus_g_type_specialized_collection_append (DBusGTypeSpecializedAppendContext *ct
   ((DBusGTypeSpecializedCollectionVtable *) realctx->specdata->klass->vtable)->append_func (ctx, elt);
 }
 
+/**
+ * dbus_g_type_specialized_collection_end_append:
+ * @ctx: a context created by #dbus_g_type_specialized_init_append
+ * @deprecated: maybe i'll deprecate this as its a bit wank.
+ *
+ * Finish appending elements to a given collection
+ */
 void
 dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext *ctx)
 {
@@ -598,6 +820,15 @@ dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext
     ((DBusGTypeSpecializedCollectionVtable *) realctx->specdata->klass->vtable)->end_append_func (ctx);
 }
 
+/**
+ * dbus_g_type_specialized_map_append:
+ * @ctx: a context created by #dbus_g_type_specialized_init_append
+ * @key: a GValue containing a key
+ * @val: a GValue containing a value 
+ * @deprecated: maybe i'll deprecate this as its a bit wank.
+ *
+ * Inserts the given key/value pair into the map instance.
+ */
 void
 dbus_g_type_specialized_map_append (DBusGTypeSpecializedAppendContext *ctx,
 				    GValue                            *key,
@@ -607,6 +838,18 @@ dbus_g_type_specialized_map_append (DBusGTypeSpecializedAppendContext *ctx,
   ((DBusGTypeSpecializedMapVtable *) realctx->specdata->klass->vtable)->append_func (ctx, key, val);
 }
 
+
+/**
+ * dbus_g_type_map_value_iterate:
+ * @value: a #GValue holding a collection type.
+ * @iterator: a function to call for each element
+ * @user_data: user data to pass to the @iterator
+ *
+ * Calls the given function for each key/value pair of the map. 
+ * The function is passed two GValues containing the key/value pair and the given 
+ * @user_data parameter. The map may not be modified while iterating over 
+ * it.
+ */
 void
 dbus_g_type_map_value_iterate (const GValue                           *value,
 			       DBusGTypeSpecializedMapIterator         iterator,
@@ -627,9 +870,21 @@ dbus_g_type_map_value_iterate (const GValue                           *value,
 								     iterator, user_data);
 }
 
+/**
+ * dbus_g_type_struct_get_member:
+ * @value: a #GValue containing a struct instance
+ * @member: the index of a given member
+ * @dest: an initialised #GValue in which to return the struct member
+ *
+ * Fetches a given member of a given struct instance. @dest must be initialised 
+ * was the correct type for that member, e.g. as returned by 
+ * @dbus_g_type_get_struct_member_type
+ *
+ * Returns: TRUE if sucessful
+ */
 gboolean
 dbus_g_type_struct_get_member (const GValue *value,
-			       guint         index_,
+			       guint         member,
 			       GValue       *dest)
 {
   DBusGTypeSpecializedData *data;
@@ -644,12 +899,23 @@ dbus_g_type_struct_get_member (const GValue *value,
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->get_member(gtype,
 											   g_value_get_boxed (value),
-											   index_, dest);
+											   member, dest);
 }
 
+/**
+ * dbus_g_type_struct_set_member:
+ * @value: a #GValue containing a struct instance
+ * @member: the index of a given member
+ * @src: an #GValue containing the new value for that struct member
+ *
+ * Sets a given member of a struct to a new value. The type of @src must match 
+ * the exiting type of @member member of the struct.
+ *
+ * Returns: TRUE if sucessful
+ */
 gboolean
 dbus_g_type_struct_set_member (GValue       *value,
-			       guint         index_,
+			       guint         member,
 			       const GValue *src)
 {
   DBusGTypeSpecializedData *data;
@@ -664,7 +930,7 @@ dbus_g_type_struct_set_member (GValue       *value,
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->set_member(gtype,
 											   g_value_get_boxed (value),
-											   index_, src);
+											   member, src);
 }
 
 /**

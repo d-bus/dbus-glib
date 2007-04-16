@@ -111,7 +111,7 @@ dbus_pending_call_get_g_type
 
 <SECTION>
 <FILE>dbus-gtype-specialized</FILE>
-<TITLE>GType utility functions</TITLE>
+<TITLE>Specializable GType System</TITLE>
 DBusGTypeSpecializedCollectionIterator
 DBusGTypeSpecializedMapIterator
 DBusGTypeSpecializedAppendContext

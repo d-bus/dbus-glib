@@ -35,7 +35,7 @@ GType          dbus_g_type_get_map                          (const char *contain
 							     GType       key_specialization,
 							     GType       value_specialization);
 GType          dbus_g_type_get_structv                      (const char *container,
-							     guint       num_items,
+							     guint       num_members,
 							     GType      *types);
 GType          dbus_g_type_get_struct                       (const char *container,
                                                              GType       first_type,
@@ -47,16 +47,16 @@ GType          dbus_g_type_get_collection_specialization    (GType       gtype);
 GType          dbus_g_type_get_map_key_specialization       (GType       gtype);
 GType          dbus_g_type_get_map_value_specialization     (GType       gtype);
 GType          dbus_g_type_get_struct_member_type           (GType       gtype,
-                                                             guint       index);
+                                                             guint       member);
 guint          dbus_g_type_get_struct_size                  (GType       gtype);
 
-typedef void   (*DBusGTypeSpecializedCollectionIterator)    (const GValue *val,
+typedef void   (*DBusGTypeSpecializedCollectionIterator)    (const GValue *value,
 							     gpointer      user_data);
 typedef void   (*DBusGTypeSpecializedMapIterator)           (const GValue *key_val,
 							     const GValue *value_val,
 							     gpointer      user_data);
 
-gpointer       dbus_g_type_specialized_construct            (GType type);
+gpointer       dbus_g_type_specialized_construct            (GType gtype);
 
 typedef struct {
   /* public */
@@ -68,7 +68,7 @@ typedef struct {
   gpointer d;
 } DBusGTypeSpecializedAppendContext;
 
-void           dbus_g_type_specialized_init_append             (GValue *val, DBusGTypeSpecializedAppendContext *ctx);
+void           dbus_g_type_specialized_init_append             (GValue *value, DBusGTypeSpecializedAppendContext *ctx);
 
 void           dbus_g_type_specialized_collection_append       (DBusGTypeSpecializedAppendContext *ctx, GValue *elt);
 
@@ -92,10 +92,10 @@ void           dbus_g_type_map_value_iterate                (const GValue       
 							     gpointer                                user_data);
 
 gboolean       dbus_g_type_struct_get_member            (const GValue *value,
-                                                         guint index,
+                                                         guint member,
                                                          GValue *dest);
 gboolean       dbus_g_type_struct_set_member            (GValue *value,
-                                                         guint index,
+                                                         guint member,
                                                          const GValue *src);
 
 gboolean       dbus_g_type_struct_get                   (const GValue *value,

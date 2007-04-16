@@ -1,7 +1,7 @@
-54% symbol docs coverage.
-63 symbols documented.
-15 symbols incomplete.
-54 not documented.
+77% symbol docs coverage.
+90 symbols documented.
+18 symbols incomplete.
+27 not documented.
 
 
 DBUS_TYPE_G_OBJECT_PATH
@@ -44,34 +44,10 @@ dbus_g_proxy_get_path
 dbus_g_proxy_new_for_name (path, interface)
 dbus_g_proxy_new_for_name_owner (path, interface)
 dbus_g_proxy_new_from_proxy (path_name)
-dbus_g_type_collection_get_fixed
-dbus_g_type_collection_peek_vtable
-dbus_g_type_collection_value_iterate
-dbus_g_type_get_collection
-dbus_g_type_get_collection_specialization
-dbus_g_type_get_map
-dbus_g_type_get_map_key_specialization
-dbus_g_type_get_map_value_specialization
-dbus_g_type_get_struct
-dbus_g_type_get_struct_member_type
-dbus_g_type_get_struct_size
-dbus_g_type_get_structv
-dbus_g_type_is_collection
-dbus_g_type_is_map
-dbus_g_type_is_struct
-dbus_g_type_map_peek_vtable
-dbus_g_type_map_value_iterate
-dbus_g_type_register_collection
-dbus_g_type_register_map
-dbus_g_type_register_struct
-dbus_g_type_specialized_collection_append
-dbus_g_type_specialized_collection_end_append
-dbus_g_type_specialized_construct
+dbus_g_type_collection_get_fixed (value, data, len, Returns)
+dbus_g_type_collection_peek_vtable (Returns)
+dbus_g_type_map_peek_vtable (Returns)
 dbus_g_type_specialized_init
-dbus_g_type_specialized_init_append
-dbus_g_type_specialized_map_append
-dbus_g_type_struct_get_member
-dbus_g_type_struct_set_member
 dbus_set_g_error (derror)
 
 
