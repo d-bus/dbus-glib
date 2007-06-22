@@ -70,8 +70,8 @@ main (int argc, char **argv)
   DBusGProxy *proxy;
   guint32 v_UINT32_2;
 
-  g_type_init ();
   g_thread_init (NULL); dbus_g_thread_init ();
+  g_type_init ();
 
   loop = g_main_loop_new (NULL, TRUE);
 
