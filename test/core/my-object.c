@@ -93,6 +93,9 @@ my_object_class_init (MyObjectClass *mobject_class)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (mobject_class);
 
+  dbus_g_object_type_install_info (MY_TYPE_OBJECT,
+				   &dbus_glib_my_object_object_info);
+
   gobject_class->finalize = my_object_finalize;
   gobject_class->set_property = my_object_set_property;
   gobject_class->get_property = my_object_get_property;
@@ -139,9 +142,6 @@ my_object_class_init (MyObjectClass *mobject_class)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOXED,
                   G_TYPE_NONE, 1, DBUS_TYPE_G_STRING_STRING_HASHTABLE);
-
-  dbus_g_object_type_install_info (MY_TYPE_OBJECT,
-				   &dbus_glib_my_object_object_info);
 }
 
 GQuark
