@@ -244,7 +244,7 @@ _dbus_gvalue_signals_error (const GValue *value)
       return (g_value_get_boxed (value) == NULL);
       break;
     case G_TYPE_OBJECT:
-      return (g_value_get_boxed (value) == NULL);
+      return (g_value_get_object (value) == NULL);
       break;
     default:
       g_assert_not_reached ();
