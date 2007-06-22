@@ -4,6 +4,6 @@ set -e
 
 libtool --mode=execute ./peer-server &
 
-libtool --mode=execute ./peer-client $ADDRESS
+libtool --mode=execute ./peer-client
 
 kill %1
