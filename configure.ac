@@ -52,7 +52,6 @@ AC_ARG_ENABLE(ansi, AS_HELP_STRING([--enable-ansi],[enable -ansi -pedantic gcc f
 AC_ARG_ENABLE(verbose-mode, AS_HELP_STRING([--enable-verbose-mode],[support verbose debug mode]),enable_verbose_mode=$enableval,enable_verbose_mode=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(asserts, AS_HELP_STRING([--enable-asserts],[include assertion checks]),enable_asserts=$enableval,enable_asserts=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(checks, AS_HELP_STRING([--enable-checks],[include sanity checks on public API]),enable_checks=$enableval,enable_checks=yes)
-AC_ARG_ENABLE(xml-docs, AS_HELP_STRING([--enable-xml-docs],[build XML documentation (requires xmlto)]),enable_xml_docs=$enableval,enable_xml_docs=auto)
 AC_ARG_ENABLE(doxygen-docs, AS_HELP_STRING([--enable-doxygen-docs],[build DOXYGEN documentation (requires Doxygen)]),enable_doxygen_docs=$enableval,enable_doxygen_docs=auto)
 AC_ARG_ENABLE(gcov, AS_HELP_STRING([--enable-gcov],[compile with coverage profiling instrumentation (gcc only)]),enable_gcov=$enableval,enable_gcov=no)
 AC_ARG_WITH(test-socket-dir, AS_HELP_STRING([--with-test-socket-dir=[dirname]],[Where to put sockets for make check]))
@@ -717,35 +716,6 @@ fi
 AM_CONDITIONAL(DBUS_DOXYGEN_DOCS_ENABLED, test x$enable_doxygen_docs = xyes)
 AC_MSG_RESULT(yes)
 
-### XML Documentation
-
-AC_PATH_PROG(XMLTO, xmlto, no)
-
-AC_MSG_CHECKING([whether to build XML documentation])
-
-if test x$XMLTO = xno ; then
-    have_xmlto=no
-else
-    have_xmlto=yes
-fi
-
-if test x$enable_xml_docs = xauto ; then
-    if test x$have_xmlto = xno ; then
-        enable_xml_docs=no
-    else
-        enable_xml_docs=yes
-    fi
-fi
-
-if test x$enable_xml_docs = xyes; then
-    if test x$have_xmlto = xno; then
-	AC_MSG_ERROR([Building XML docs explicitly required, but xmlto not found])
-    fi
-fi
-
-AM_CONDITIONAL(DBUS_XML_DOCS_ENABLED, test x$enable_xml_docs = xyes)
-AC_MSG_RESULT(yes)
-
 #### Have to go $localstatedir->$prefix/var->/usr/local/var   
 #### someone please fix this a better way...
 
@@ -877,8 +847,7 @@ echo "
 	64-bit int:		  ${DBUS_INT64_TYPE}
 	32-bit int:		  ${DBUS_INT32_TYPE}
 	16-bit int:		  ${DBUS_INT16_TYPE}
-        Doxygen:                  ${DOXYGEN}
-        xmlto:                    ${XMLTO}"
+        Doxygen:                  ${DOXYGEN}"
 
 echo "
         Maintainer mode:          ${USE_MAINTAINER_MODE}
@@ -889,7 +858,6 @@ echo "
         Building checks:          ${enable_checks}
         Building Doxygen docs:    ${enable_doxygen_docs}
         Building Gtk-doc docs:    ${enable_gtk_doc}
-        Building XML docs:        ${enable_xml_docs}
         Gettext libs (empty OK):  ${INTLLIBS}
         Using XML parser:         ${with_xml}
         'make check' socket dir:  ${TEST_SOCKET_DIR}
