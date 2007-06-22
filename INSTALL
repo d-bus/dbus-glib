@@ -25,7 +25,7 @@ External software dependancies
 
  Requisite:
 
-  - GLib >= 2.4
+  - GLib >= 2.6
 
  Optional:
 
