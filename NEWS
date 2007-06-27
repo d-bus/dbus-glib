@@ -1,3 +1,15 @@
+D-Bus GLib Bindings 0.74 (27 Jun 2007)
+==
+
+ - Support peer-to-peer proxies (#10233)
+ - Add dbus_connection_get_g_connection ()
+ - Update abstract socket test from DBus, which now cross-compiles
+ - Correctly handle DBus errors
+ - Fix compile warnings (#10374)
+ - Fix typo in error handling (#10837)
+ - Update GLib requirements (#10889)
+ - Update AUTHORS
+
 D-Bus GLib Bindings 0.73 (13 Feb 2007)
 ==
 
