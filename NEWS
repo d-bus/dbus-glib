@@ -1,13 +1,18 @@
 D-Bus GLib Bindings 0.74 (27 Jun 2007)
 ==
 
- - Support peer-to-peer proxies (#10233)
- - Add dbus_connection_get_g_connection ()
+ - Init threading first to stop a warning from new GLib.
+ - Remove the XML documentation support in configure
+ - Fix typo in _dbus_gvalue_signals_error (#10837) (Thanks to Peter Kjellerstedt)
+ - Update GLib requirement (Closes #10889).
+ - Document dbus-gtype-specialized
+ - Add simple test suite for peer objects.
+ - Support peer-to-peer proxies. (Closes #10233).
+ - Add dbus_connection_get_g_connection.
+ - Stop compiler warnings (Closes #10374).
+ - Handle dbus errors which are not name has no owner
  - Update abstract socket test from DBus, which now cross-compiles
- - Correctly handle DBus errors
- - Fix compile warnings (#10374)
- - Fix typo in error handling (#10837)
- - Update GLib requirements (#10889)
+ - Rename the error quark to be unique
  - Update AUTHORS
 
 D-Bus GLib Bindings 0.73 (13 Feb 2007)
@@ -106,3 +111,6 @@ D-Bus GLib Bindings 0.70 (17 July 2006)
 - New methodbus_g_connection_open provides a way to open connections to an 
   arbitrary address
 - Various bugs and memory leaks fixed
+Sleep after starting the peer server, before starting the peer client.
+This fixes random failures due to the race.
+
