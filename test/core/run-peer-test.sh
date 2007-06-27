@@ -4,6 +4,6 @@ set -e
 
 libtool --mode=execute ./peer-server &
 
-libtool --mode=execute ./peer-client
+sleep 1
 
-kill %1
+libtool --mode=execute ./peer-client
