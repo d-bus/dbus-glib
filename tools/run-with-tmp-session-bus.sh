@@ -4,7 +4,7 @@ SCRIPTNAME=$0
 WRAPPED_SCRIPT=$1
 shift
 
-function die() 
+die() 
 {
     if ! test -z "$DBUS_SESSION_BUS_PID" ; then
         echo "killing message bus "$DBUS_SESSION_BUS_PID >&2
