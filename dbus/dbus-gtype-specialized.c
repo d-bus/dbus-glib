@@ -467,7 +467,9 @@ dbus_g_type_get_map (const char   *container,
 		     GType         key_specialization,
 		     GType         value_specialization)
 {
-  GType types[2] = {key_specialization, value_specialization};
+  GType types[2];
+  types[0] = key_specialization;
+  types[1] = value_specialization;
   return lookup_or_register_specialized (container, 2, types);
 }
 

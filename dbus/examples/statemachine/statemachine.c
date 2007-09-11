@@ -15,7 +15,7 @@ static void sm_object_get_property (GObject *object,
 enum
 {
   PROP_0,
-  PROP_NAME,
+  PROP_NAME
 };
 
 enum
