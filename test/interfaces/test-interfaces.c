@@ -64,7 +64,7 @@ test_hello_get_type (void)
 		};
 		
 		the_type = g_type_register_static (G_TYPE_INTERFACE,
-						   g_intern_static_string ("TestHello"),
+						   "TestHello",
 						   &info, 0);
 		g_type_interface_add_prerequisite (the_type, G_TYPE_OBJECT);
 	}
@@ -110,7 +110,7 @@ test_goodbye_get_type (void)
 		};
 		
 		the_type = g_type_register_static (G_TYPE_INTERFACE,
-						   g_intern_static_string ("TestGoodbye"),
+						   "TestGoodbye",
 						   &info, 0);
 		g_type_interface_add_prerequisite (the_type, G_TYPE_OBJECT);
 	}
