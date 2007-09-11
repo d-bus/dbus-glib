@@ -1,3 +1,4 @@
+*~
 *.o
 *.lo
 *.deps
@@ -181,6 +182,8 @@ test/core/Makefile.in
 test/core/my-object-marshal.c
 test/core/my-object-marshal.h
 test/core/run-with-tmp-session-bus.conf
+test/core/peer-client
+test/core/peer-server
 test/core/test-dbus-glib
 test/core/test-profile
 test/core/test-service-glib
@@ -188,6 +191,7 @@ test/core/test-service-glib-bindings.h
 test/core/test-service-glib-glue.h
 test/core/test-thread-client
 test/core/test-thread-server
+test/core/test-types
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/test-interfaces.service.in
@@ -207,4 +211,3 @@ test/interfaces/test-hello-bindings.h
 test/interfaces/test-hello-glue.h
 test/interfaces/test-song-bindings.h
 test/interfaces/test-song-glue.h
-
