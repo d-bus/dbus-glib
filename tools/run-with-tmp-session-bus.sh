@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 SCRIPTNAME=$0
 WRAPPED_SCRIPT=$1
@@ -37,10 +37,11 @@ cat $DBUS_TOP_SRCDIR/tools/session.conf |  \
 
 echo "Created configuration file $CONFIG_FILE" >&2
 
-export PATH=$DBUS_TOP_BUILDDIR/bus:$PATH
+PATH=$DBUS_TOP_BUILDDIR/bus:$PATH
+export PATH
 ## the libtool script found by the path search should already do this, but
-export LD_LIBRARY_PATH=$DBUS_TOP_BUILDDIR/dbus/.libs:$LD_LIBRARY_PATH
-
+LD_LIBRARY_PATH=$DBUS_TOP_BUILDDIR/dbus/.libs:$LD_LIBRARY_PATH
+export PATH
 unset DBUS_SESSION_BUS_ADDRESS
 unset DBUS_SESSION_BUS_PID
 

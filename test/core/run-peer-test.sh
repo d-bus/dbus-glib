@@ -2,8 +2,8 @@
 
 set -e
 
-libtool --mode=execute ./peer-server &
+${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-server &
 
 sleep 1
 
-libtool --mode=execute ./peer-client
+${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-client
