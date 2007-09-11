@@ -488,8 +488,6 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
 	}
       
       g_free (dbus_type);
-
-      g_string_append (xml, "    </property>\n");
     }
   g_slist_free (values->properties);
 
