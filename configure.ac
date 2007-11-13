@@ -659,6 +659,15 @@ AC_SUBST(DBUS_LIBS)
 
 DBUS_INCLUDEDIR=`pkg-config dbus-1 --variable=includedir`
 AC_SUBST(DBUS_INCLUDEDIR)
+DBUS_DAEMONDIR=`pkg-config dbus-1 --variable=daemondir`
+if test x"$DBUS_DAEMONDIR" != "x"; then
+    # Add slash, so that if the D-Bus pkgconfig file does not
+    # specify daemondir, the tools/Makefile.am file will look
+    # in the PATH for the daemon, as was previous behavior.
+    #
+    DBUS_DAEMONDIR="$DBUS_DAEMONDIR/"
+fi
+AC_SUBST(DBUS_DAEMONDIR)
 
 # Glib detection
 PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.6, have_glib=yes, have_glib=no)
