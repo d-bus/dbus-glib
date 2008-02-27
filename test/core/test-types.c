@@ -64,8 +64,8 @@ main (int argc, char **argv)
 
   /* Check NULL -> DBusConnection */
   g_print ("(expecting assertion...)\n");
-  gconn = dbus_g_connection_get_connection (NULL);
-  if (gconn)
+  conn = dbus_g_connection_get_connection (NULL);
+  if (conn)
     lose ("Retrieved DBusConection from NULL");
   
   g_print ("\nTest completed.\n");
