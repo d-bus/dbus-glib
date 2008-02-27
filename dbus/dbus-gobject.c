@@ -2073,6 +2073,9 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, GError *error)
   reply = gerror_to_dbus_error_message (context->object, dbus_g_message_get_message (context->message), error);
   dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
   dbus_message_unref (reply);
+  
+  dbus_g_connection_unref (context->connection);
+  dbus_g_message_unref (context->message);
   g_free (context);
 }
 
