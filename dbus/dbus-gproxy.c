@@ -73,6 +73,8 @@ struct _DBusGProxyPrivate
   GData *signal_signatures;   /**< D-BUS signatures for each signal */
 
   GHashTable *pending_calls;  /**< Calls made on this proxy which have not yet returned */
+
+  int default_timeout; /**< Default timeout to use, see dbus_g_proxy_set_default_timeout */
 };
 
 static void dbus_g_proxy_init               (DBusGProxy      *proxy);
@@ -1315,6 +1317,7 @@ dbus_g_proxy_init (DBusGProxy *proxy)
 				(GDestroyNotify) dbus_pending_call_unref);
   priv->name_call = 0;
   priv->associated = FALSE;
+  priv->default_timeout = -1;
 }
 
 static GObject *
@@ -2377,6 +2380,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
   guint call_id;
   va_list args;
   GValueArray *arg_values;
+  DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
@@ -2385,7 +2389,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
   
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values,-1);
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values, priv->default_timeout);
 
   g_value_array_free (arg_values);
 
@@ -2515,15 +2519,18 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
   guint call_id;
   va_list args;
   GValueArray *in_args;
+  DBusGProxyPrivate *priv;
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), FALSE);
+
+  priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
 
   va_start (args, first_arg_type);
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
 
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args,-1);
+  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args, priv->default_timeout);
 
   g_value_array_free (in_args);
 
@@ -2888,6 +2895,30 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
 
   g_free (name);
 }
+
+/**
+ * dbus_g_proxy_set_default_timeout:
+ * @proxy: a proxy for a remote interface
+ * @timeout: specify the timeout in milliseconds
+ *
+ * Sets the default timeout to use for a proxy. This timeout will be
+ * used in calls where the timeout is not specified.
+ *
+ * Since: 0.75
+ */
+void
+dbus_g_proxy_set_default_timeout (DBusGProxy        *proxy,
+                                  int                timeout)
+{
+  DBusGProxyPrivate *priv;
+
+  g_return_if_fail (DBUS_IS_G_PROXY (proxy));
+  g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
+
+  priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
+  priv->default_timeout = timeout;
+}
+
 
 /** @} End of DBusGLib public */
 

@@ -1,7 +1,7 @@
-77% symbol docs coverage.
-90 symbols documented.
-18 symbols incomplete.
-27 not documented.
+73% symbol docs coverage.
+88 symbols documented.
+20 symbols incomplete.
+32 not documented.
 
 
 DBUS_TYPE_G_OBJECT_PATH
@@ -37,8 +37,10 @@ dbus_g_object_path_get_g_type
 dbus_g_object_register_marshaller (Varargs)
 dbus_g_proxy_add_signal (Varargs)
 dbus_g_proxy_begin_call (data, Varargs)
+dbus_g_proxy_begin_call_with_timeout (Varargs)
 dbus_g_proxy_call (Varargs)
 dbus_g_proxy_call_no_reply (Varargs)
+dbus_g_proxy_call_with_timeout (Varargs)
 dbus_g_proxy_end_call (Varargs)
 dbus_g_proxy_get_path
 dbus_g_proxy_new_for_name (path, interface)
@@ -46,6 +48,11 @@ dbus_g_proxy_new_for_name_owner (path, interface)
 dbus_g_proxy_new_from_proxy (path_name)
 dbus_g_type_collection_get_fixed (value, data, len, Returns)
 dbus_g_type_collection_peek_vtable (Returns)
+dbus_g_type_get_collection_specialization
+dbus_g_type_get_map_key_specialization
+dbus_g_type_get_map_value_specialization
+dbus_g_type_get_struct_member_type
+dbus_g_type_get_struct_size
 dbus_g_type_map_peek_vtable (Returns)
 dbus_g_type_specialized_init
 dbus_set_g_error (derror)

@@ -80,10 +80,13 @@ dbus_g_proxy_connect_signal
 dbus_g_proxy_disconnect_signal
 dbus_g_proxy_send
 dbus_g_proxy_call
+dbus_g_proxy_call_with_timeout
 dbus_g_proxy_call_no_reply
 dbus_g_proxy_begin_call
+dbus_g_proxy_begin_call_with_timeout
 dbus_g_proxy_end_call
 dbus_g_proxy_cancel_call
+dbus_g_proxy_set_default_timeout
 <SUBSECTION Standard>
 DBUS_G_PROXY
 DBUS_IS_G_PROXY

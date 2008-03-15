@@ -252,6 +252,9 @@ DBusGProxyCall * dbus_g_proxy_begin_call_with_timeout (DBusGProxy        *proxy,
                                                        GType             first_arg_type,
 				                       ...);
 
+void              dbus_g_proxy_set_default_timeout   (DBusGProxy        *proxy,
+                                                      int                timeout);
+
 gboolean          dbus_g_proxy_end_call              (DBusGProxy        *proxy,
                                                       DBusGProxyCall    *call,
                                                       GError           **error,
