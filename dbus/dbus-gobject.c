@@ -612,7 +612,7 @@ handle_introspect (DBusConnection *connection,
   g_string_append (xml, "    </method>\n");
   g_string_append (xml, "  </interface>\n");
 
-  /* We support get/set properties */
+  /* We support get/set/getall properties */
   g_string_append_printf (xml, "  <interface name=\"%s\">\n", DBUS_INTERFACE_PROPERTIES);
   g_string_append (xml, "    <method name=\"Get\">\n");
   g_string_append_printf (xml, "      <arg name=\"interface\" direction=\"in\" type=\"%s\"/>\n", DBUS_TYPE_STRING_AS_STRING);
@@ -623,6 +623,17 @@ handle_introspect (DBusConnection *connection,
   g_string_append_printf (xml, "      <arg name=\"interface\" direction=\"in\" type=\"%s\"/>\n", DBUS_TYPE_STRING_AS_STRING);
   g_string_append_printf (xml, "      <arg name=\"propname\" direction=\"in\" type=\"%s\"/>\n", DBUS_TYPE_STRING_AS_STRING);
   g_string_append_printf (xml, "      <arg name=\"value\" direction=\"in\" type=\"%s\"/>\n", DBUS_TYPE_VARIANT_AS_STRING);
+  g_string_append (xml, "    </method>\n");
+  g_string_append (xml, "    <method name=\"GetAll\">\n");
+  g_string_append_printf (xml, "      <arg name=\"interface\" direction=\"in\" type=\"%s\"/>\n", DBUS_TYPE_STRING_AS_STRING);
+  g_string_append_printf (xml, "      <arg name=\"props\" direction=\"out\" type=\"%s\"/>\n",
+                          DBUS_TYPE_ARRAY_AS_STRING
+                          DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+                            DBUS_TYPE_STRING_AS_STRING
+                            DBUS_TYPE_VARIANT_AS_STRING
+                          DBUS_DICT_ENTRY_END_CHAR_AS_STRING
+                          );
+
   g_string_append (xml, "    </method>\n");
   g_string_append (xml, "  </interface>\n");
   
@@ -750,6 +761,113 @@ get_object_property (DBusConnection *connection,
   g_free (variant_sig);
 
   return ret;
+}
+
+static DBusMessage*
+get_all_object_properties (DBusConnection        *connection,
+                           DBusMessage           *message,
+                           const DBusGObjectInfo *object_info,
+                           GObject               *object)
+{
+  DBusMessage *ret;
+  DBusMessageIter iter_ret;
+  DBusMessageIter iter_dict;
+  DBusMessageIter iter_dict_entry;
+  DBusMessageIter iter_dict_value;
+  const char *p;
+
+  ret = dbus_message_new_method_return (message);
+  if (ret == NULL)
+    goto oom;
+
+  dbus_message_iter_init_append (ret, &iter_ret);
+
+  if (!dbus_message_iter_open_container (&iter_ret,
+                                         DBUS_TYPE_ARRAY,
+                                         DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+                                         DBUS_TYPE_STRING_AS_STRING
+                                         DBUS_TYPE_VARIANT_AS_STRING
+                                         DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+                                         &iter_dict))
+    goto oom;
+
+  p = object_info->exported_properties;
+  while (p != NULL && *p != '\0')
+    {
+      const char *prop_ifname;
+      const char *prop_name;
+      GParamSpec *pspec;
+      GType value_gtype;
+      GValue value = {0, };
+      gchar *variant_sig;
+
+      prop_ifname = p;
+
+      while (*p != '\0')
+        p++;
+      p++;
+      if (*p == '\0') {
+        g_warning ("malformed exported_properties in object_info");
+        break;
+      }
+      prop_name = p;
+      while (*p != '\0')
+        p++;
+      p++;
+
+      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), prop_name);
+      if (pspec == NULL)
+        {
+          g_warning ("introspection data references non-existing property %s", prop_name);
+          continue;
+        }
+
+      g_value_init (&value, pspec->value_type);
+      g_object_get_property (object, pspec->name, &value);
+
+      variant_sig = _dbus_gvalue_to_signature (&value);
+      if (variant_sig == NULL)
+        {
+          value_gtype = G_VALUE_TYPE (&value);
+          g_warning ("Cannot marshal type \"%s\" in variant", g_type_name (value_gtype));
+          g_value_unset (&value);
+          continue;
+        }
+
+      if (!dbus_message_iter_open_container (&iter_dict,
+                                             DBUS_TYPE_DICT_ENTRY,
+                                             NULL,
+                                             &iter_dict_entry))
+        goto oom;
+      if (!dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &prop_name))
+        goto oom;
+
+      if (!dbus_message_iter_open_container (&iter_dict_entry,
+                                             DBUS_TYPE_VARIANT,
+                                             variant_sig,
+                                             &iter_dict_value))
+        goto oom;
+
+      if (!_dbus_gvalue_marshal (&iter_dict_value, &value))
+        goto oom;
+
+      if (!dbus_message_iter_close_container (&iter_dict_entry,
+                                              &iter_dict_value))
+        goto oom;
+      if (!dbus_message_iter_close_container (&iter_dict, &iter_dict_entry))
+        goto oom;
+
+      g_value_unset (&value);
+      g_free (variant_sig);
+  }
+
+  if (!dbus_message_iter_close_container (&iter_ret, &iter_dict))
+    goto oom;
+
+  return ret;
+
+ oom:
+  g_error ("out of memory");
 }
 
 static gboolean
@@ -1278,12 +1396,14 @@ gobject_message_function (DBusConnection  *connection,
   GObject *object;
   gboolean setter;
   gboolean getter;
+  gboolean getall;
   char *s;
   const char *wincaps_propname;
   /* const char *wincaps_propiface; */
   DBusMessageIter iter;
   const DBusGMethodInfo *method;
   const DBusGObjectInfo *object_info;
+  DBusMessage *ret;
 
   object = G_OBJECT (user_data);
 
@@ -1291,8 +1411,9 @@ gobject_message_function (DBusConnection  *connection,
                                    DBUS_INTERFACE_INTROSPECTABLE,
                                    "Introspect"))
     return handle_introspect (connection, message, object);
-  
+
   /* Try the metainfo, which lets us invoke methods */
+  object_info = NULL;
   if (lookup_object_and_method (object, message, &object_info, &method))
     return invoke_object_method (object, object_info, method, connection, message);
 
@@ -1301,6 +1422,7 @@ gobject_message_function (DBusConnection  *connection,
    */
   getter = FALSE;
   setter = FALSE;
+  getall = FALSE;
   if (dbus_message_is_method_call (message,
                                    DBUS_INTERFACE_PROPERTIES,
                                    "Get"))
@@ -1309,9 +1431,15 @@ gobject_message_function (DBusConnection  *connection,
                                         DBUS_INTERFACE_PROPERTIES,
                                         "Set"))
     setter = TRUE;
+  else if (dbus_message_is_method_call (message,
+                                   DBUS_INTERFACE_PROPERTIES,
+                                   "GetAll"))
+    getall = TRUE;
 
-  if (!(setter || getter))
+  if (!(setter || getter || getall))
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+
+  ret = NULL;
 
   dbus_message_iter_init (message, &iter);
 
@@ -1326,59 +1454,65 @@ gobject_message_function (DBusConnection  *connection,
   /* dbus_message_iter_get_basic (&iter, &wincaps_propiface); */
   dbus_message_iter_next (&iter);
 
-  if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_STRING)
+  if (getall)
     {
-      g_warning ("Property get or set does not have a property name string as second arg\n");
-      return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-    }
-  dbus_message_iter_get_basic (&iter, &wincaps_propname);
-  dbus_message_iter_next (&iter);
-  
-  s = _dbus_gutils_wincaps_to_uscore (wincaps_propname);
-
-  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
-                                        s);
-
-  g_free (s);
-
-  if (pspec != NULL)
-    {
-      DBusMessage *ret;
-
-      if (setter)
-        {
-          if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_VARIANT)
-            {
-              g_warning ("Property set does not have a variant value as third arg\n");
-              return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-            }
-          
-          ret = set_object_property (connection, message, &iter,
-                                     object, pspec);
-          dbus_message_iter_next (&iter);
-        }
-      else if (getter)
-        {
-          ret = get_object_property (connection, message,
-                                     object, pspec);
-        }
+      if (object_info != NULL)
+          ret = get_all_object_properties (connection, message, object_info, object);
       else
+          return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+    }
+  else if (getter || setter)
+    {
+      if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_STRING)
         {
-          g_assert_not_reached ();
-          ret = NULL;
+          g_warning ("Property get or set does not have a property name string as second arg\n");
+          return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
         }
+      dbus_message_iter_get_basic (&iter, &wincaps_propname);
+      dbus_message_iter_next (&iter);
 
-      g_assert (ret != NULL);
+      s = _dbus_gutils_wincaps_to_uscore (wincaps_propname);
 
-      if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_INVALID)
-        g_warning ("Property get or set had too many arguments\n");
+      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+                                            s);
 
-      dbus_connection_send (connection, ret, NULL);
-      dbus_message_unref (ret);
-      return DBUS_HANDLER_RESULT_HANDLED;
+      g_free (s);
+
+      if (pspec != NULL)
+        {
+          if (setter)
+            {
+              if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_VARIANT)
+                {
+                  g_warning ("Property set does not have a variant value as third arg\n");
+                  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+                }
+
+              ret = set_object_property (connection, message, &iter,
+                                         object, pspec);
+              dbus_message_iter_next (&iter);
+            }
+          else if (getter)
+            {
+              ret = get_object_property (connection, message,
+                                         object, pspec);
+            }
+          else
+            {
+              g_assert_not_reached ();
+              ret = NULL;
+            }
+        }
     }
 
-  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+  g_assert (ret != NULL);
+
+  if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_INVALID)
+    g_warning ("Property get, set or set all had too many arguments\n");
+
+  dbus_connection_send (connection, ret, NULL);
+  dbus_message_unref (ret);
+  return DBUS_HANDLER_RESULT_HANDLED;
 }
 
 static const DBusObjectPathVTable gobject_dbus_vtable = {
