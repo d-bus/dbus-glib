@@ -1,7 +1,7 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ(2.52)
 
-AC_INIT(dbus-glib, 0.74, [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
+AC_INIT(dbus-glib, 0.75, [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
 
 AC_CANONICAL_TARGET
 
@@ -647,7 +647,7 @@ DBUS_TEST_LIBS=
 AC_SUBST(DBUS_TEST_CFLAGS)
 AC_SUBST(DBUS_TEST_LIBS)
 
-PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.93, have_dbus=yes, have_dbus=no)
+PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.1, have_dbus=yes, have_dbus=no)
 
 if test x$have_dbus = xno ; then
     AC_MSG_ERROR([DBus development libraries not found])
