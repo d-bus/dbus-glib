@@ -128,13 +128,17 @@ locate_attributes (const char  *element_name,
 
       if (!found)
         {
-          g_set_error (error,
-                       G_MARKUP_ERROR,
-                       G_MARKUP_ERROR_PARSE,
-                       _("Attribute \"%s\" is invalid on <%s> element in this context"),
-                       attribute_names[i], element_name);
-          retval = FALSE;
-          goto out;
+          /* We want to passthrough namespaced XML nodes that we don't know anything about. */
+          if (strchr (attribute_names[i], ':') == NULL)
+            {
+              g_set_error (error,
+                           G_MARKUP_ERROR,
+                           G_MARKUP_ERROR_PARSE,
+                           _("Attribute \"%s\" is invalid on <%s> element in this context"),
+                           attribute_names[i], element_name);
+              retval = FALSE;
+              goto out;
+            }
         }
 
       ++i;
@@ -177,6 +181,7 @@ struct Parser
   PropertyInfo *property;
   ArgInfo *arg;
   gboolean in_annotation;
+  guint unknown_namespaced_depth;
 };
 
 Parser*
@@ -791,10 +796,14 @@ parser_start_element (Parser      *parser,
     }
   else
     {
-      g_set_error (error, G_MARKUP_ERROR,
-                   G_MARKUP_ERROR_PARSE,
-                   _("Element <%s> not recognized"),
-                   element_name);
+      if (strchr (element_name, ':') != NULL)
+        /* Passthrough XML-namespaced nodes */
+        parser->unknown_namespaced_depth += 1;
+      else if (parser->unknown_namespaced_depth == 0)
+        g_set_error (error, G_MARKUP_ERROR,
+                     G_MARKUP_ERROR_PARSE,
+                     _("Element <%s> not recognized"),
+                     element_name);
     }
   
   return TRUE;
@@ -843,6 +852,15 @@ parser_end_element (Parser      *parser,
 
       if (parser->node_stack == NULL)
         parser->result = top; /* We are done, store the result */      
+    }
+  else if (strchr (element_name, ':') != NULL)
+    {
+      /* Passthrough XML-namespaced nodes */
+      parser->unknown_namespaced_depth -= 1;
+    }
+  else if (parser->unknown_namespaced_depth > 0)
+    {
+		/* pass through unknown elements underneath a namespace */
     }
   else
     g_assert_not_reached (); /* should have had an error on start_element */
