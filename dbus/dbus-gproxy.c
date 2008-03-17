@@ -2904,6 +2904,13 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
  * Sets the default timeout to use for a proxy. This timeout will be
  * used in calls where the timeout is not specified.
  *
+ * This is useful for long-running operations that takes longer than
+ * the default timeout (which is a on the order of magnitude of tens
+ * of seconds). For some applications, consider using a pattern where
+ * the method returns once the operation is underway
+ * (e.g. immediately) and emits a signal when the operation terminates
+ * (though beware of leaking information with/in the signal return value).
+ *
  * Since: 0.75
  */
 void
