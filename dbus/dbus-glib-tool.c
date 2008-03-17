@@ -414,7 +414,7 @@ main (int argc, char **argv)
                                          &error);
       if (node == NULL)
         {
-	  lose_gerror (_("Unable to load \"%s\""), error);
+	  lose (_("Unable to load \"%s\": %s"), filename, error->message);
         }
       else
 	{
