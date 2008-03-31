@@ -1675,7 +1675,22 @@ export_signals (DBusGConnection *connection, const GList *info_list, GObject *ob
  * @gerror: an error
  * @error: a #DBusError
  *
- * FIXME
+ * Store the information from a DBus method error return into a
+ * GError.  For the normal case of an arbitrary remote process,
+ * the error code will be DBUS_GERROR_REMOTE_EXCEPTION.  Now,
+ * DBus errors have two components; a message and a "name". 
+ * The former is an arbitrary (normally American English) string.  
+ * The second is a string like com.example.FooFailure which 
+ * programs can use as a conditional source.  Because a GError
+ * only has one string, we use a hack to encode both values:
+ *
+ * <human readable string><null><error name><null>
+ * 
+ * You can use the following code to retrieve both values:
+ * 
+ * const char *msg = error->message;
+ * size_t len = strlen(msg);
+ * const char *error_name = msg+len+1;
  */
 void
 dbus_set_g_error (GError    **gerror,
