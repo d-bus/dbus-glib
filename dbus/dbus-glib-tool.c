@@ -247,8 +247,8 @@ static void
 usage (int ecode)
 {
   fprintf (stderr, "dbus-binding-tool [--version] [--help]\n");
-  fprintf (stderr, "dbus-binding-tool --mode=[pretty|glib-server|glib-client] [--prefix=SYMBOL_PREFIX] [--ignore-unsupported] [--force] [--output=FILE] [\n");
-  fprintf (stderr, "dbus-binding-tool --mode=glib-server --prefix=SYMBOL_PREFIX [--ignore-unsupported] [--force] [--output=FILE] [\n");
+  fprintf (stderr, "dbus-binding-tool --mode=[pretty|glib-server|glib-client] [--prefix=SYMBOL_PREFIX] [--ignore-unsupported] [--force] [--output=FILE]\n");
+  fprintf (stderr, "dbus-binding-tool --mode=glib-server --prefix=SYMBOL_PREFIX [--ignore-unsupported] [--force] [--output=FILE]\n");
   exit (ecode);
 }
 
