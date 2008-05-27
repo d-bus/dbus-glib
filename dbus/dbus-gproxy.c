@@ -2171,7 +2171,13 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
                                         timeout))
     goto oom;
   dbus_message_unref (message);
-  g_assert (pending != NULL);
+  
+  /* If we got a NULL pending, that means the connection was disconnected,
+   * and we need to abort this call.  
+   * https://bugs.freedesktop.org/show_bug.cgi?id=12675
+   */
+  if (pending == NULL)
+    return 0;
 
   call_id = ++priv->call_id_counter;
 
@@ -2534,8 +2540,18 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 
   g_value_array_free (in_args);
 
-  first_arg_type = va_arg (args, GType);
-  ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type, args);
+  if (call_id > 0)
+    {
+      first_arg_type = va_arg (args, GType);
+      ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type, args);
+    }
+  else
+    {
+      g_set_error (error, DBUS_GERROR,
+		   DBUS_GERROR_FAILED,
+		   _("Disconnection or out-of-memory"));
+      ret = FALSE;
+    }
 
   va_end (args);
 
