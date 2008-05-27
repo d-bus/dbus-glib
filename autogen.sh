@@ -111,6 +111,7 @@ automake_progs="automake automake-1.9"
 version_check automake AUTOMAKE "$automake_progs" 1.9 \
     "http://ftp.gnu.org/pub/gnu/automake/automake-1.9.tar.gz" || DIE=1
 ACLOCAL=`echo $AUTOMAKE | sed s/automake/aclocal/`
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 
 version_check gtkdoc GTKDOC 'gtkdoc-scan' 1.6 \
    "http://ftp.gnome.org/pub/GNOME/sources/gtk-doc/" || DIE=1
