@@ -804,10 +804,13 @@ parser_start_element (Parser      *parser,
         /* Passthrough XML-namespaced nodes */
         parser->unknown_namespaced_depth += 1;
       else if (parser->unknown_namespaced_depth == 0)
-        g_set_error (error, G_MARKUP_ERROR,
-                     G_MARKUP_ERROR_PARSE,
-                     _("Element <%s> not recognized"),
-                     element_name);
+        {
+          g_set_error (error, G_MARKUP_ERROR,
+                       G_MARKUP_ERROR_PARSE,
+                       _("Element <%s> not recognized"),
+                       element_name);
+          return FALSE;
+        }
     }
   
   return TRUE;
