@@ -76,7 +76,11 @@ locate_attributes (const char  *element_name,
 
   while (name != NULL)
     {
-      g_return_val_if_fail (retloc != NULL, FALSE);
+      if (retloc == NULL)
+        {
+          va_end (args);
+          return FALSE;
+        }
 
       g_assert (n_attrs < MAX_ATTRS);
       
