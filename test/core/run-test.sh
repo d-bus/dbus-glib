@@ -34,5 +34,8 @@ elif test x$MODE = xwait ; then
   sleep 86400
 else
   echo "running test-dbus-glib"
+  if test x$DBUS_TEST_MONITOR != x; then
+    dbus-monitor --session &
+  fi
   ${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-dbus-glib || die "test-dbus-glib failed"
 fi
