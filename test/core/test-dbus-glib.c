@@ -313,6 +313,7 @@ main (int argc, char **argv)
   DBusGProxy *driver;
   DBusGProxy *proxy;
   DBusGProxy *proxy2;
+  DBusGProxy *property_proxy;
   char **name_list;
   guint name_list_len;
   guint i;
@@ -1623,7 +1624,66 @@ main (int argc, char **argv)
       lose ("Missing interface"); 
   }
   g_free (v_STRING_2);
-  
+
+  /* Properties tests */
+  property_proxy = dbus_g_proxy_new_from_proxy (proxy, DBUS_INTERFACE_PROPERTIES, NULL);
+
+  g_print ("Calling GetProperty (1)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "this_is_a_string", 
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_STRING));
+    g_assert (!strcmp (g_value_get_string (&value), ""));
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling SetProperty (1)\n");
+  {
+    GValue value = {0,};
+    g_value_init (&value, G_TYPE_STRING);
+    g_value_set_string (&value, "testing value");
+    if (!dbus_g_proxy_call (property_proxy, "Set", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "this_is_a_string", 
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete SetProperty call", error);
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty (2)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "this_is_a_string", 
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_STRING));
+    g_assert (!strcmp (g_value_get_string (&value), "testing value"));
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty (3)\n");
+  {
+    GValue value = {0,};
+    if (dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "SomeUnknownProperty", 
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Unexpected success for GetProperty call of unknown property", error);
+
+    g_clear_error (&error);
+  }
+
+  g_object_unref (property_proxy);
+  property_proxy = NULL;
 
   test_terminate_proxy1 = dbus_g_proxy_new_for_name_owner (connection,
                             "org.freedesktop.DBus.GLib.TestService",

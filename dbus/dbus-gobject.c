@@ -1503,6 +1503,12 @@ gobject_message_function (DBusConnection  *connection,
               ret = NULL;
             }
         }
+      else
+        {
+          ret = dbus_message_new_error_printf (message,
+                                               DBUS_ERROR_INVALID_ARGS,
+                                               "No such property %s", wincaps_propname);
+        }
     }
 
   g_assert (ret != NULL);
