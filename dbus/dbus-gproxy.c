@@ -2225,6 +2225,9 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
   n_retvals_processed = 0;
   over = 0;
 
+  /* Keep around a copy of output arguments so we can free on error. */
+  G_VA_COPY(args_unwind, args);
+
   pending = g_hash_table_lookup (priv->pending_calls, GUINT_TO_POINTER (call_id));
   
   dbus_pending_call_block (pending);
@@ -2286,7 +2289,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 		goto out;
 
 	      /* Anything that can be demarshaled must be storable */
-	      if (!_dbus_gvalue_store (&gvalue, (gpointer*) return_storage))
+	      if (!_dbus_gvalue_store (&gvalue, return_storage))
 		g_assert_not_reached ();
 	      /* Ownership of the value passes to the client, don't unset */
 	    }
@@ -2329,21 +2332,33 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 
   ret = TRUE;
  out:
-  va_end (args);
-
   if (ret == FALSE)
     {
       int i;
+
+      valtype = first_arg_type;
       for (i = 0; i < n_retvals_processed; i++)
 	{
+          GValue value = {0,};
 	  gpointer retval;
 
-	  retval = va_arg (args_unwind, gpointer);
+          g_value_init (&value, valtype);
 
-	  g_free (retval);
+	  retval = va_arg (args_unwind, gpointer);
+          if (retval == NULL)
+            {
+              i--;
+              continue;
+            }
+            
+          _dbus_gvalue_take (&value, retval);
+          g_value_unset (&value);
+
+          valtype = va_arg (args_unwind, GType);
 	}
     }
   va_end (args_unwind);
+  va_end (args);
 
   g_hash_table_remove (priv->pending_calls, GUINT_TO_POINTER (call_id));
 

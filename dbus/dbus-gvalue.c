@@ -459,6 +459,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_BOOLEAN:
       {
 	dbus_bool_t bool;
+        if (!G_VALUE_HOLDS (value, G_TYPE_BOOLEAN))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &bool);
 	g_value_set_boolean (value, bool);
 	return TRUE;
@@ -466,6 +468,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_BYTE:
       {
 	unsigned char byte;
+        if (!G_VALUE_HOLDS (value, G_TYPE_UCHAR))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &byte);
 	g_value_set_uchar (value, byte);
 	return TRUE;
@@ -473,6 +477,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_INT32:
       {
 	dbus_int32_t intval;
+        if (!G_VALUE_HOLDS (value, G_TYPE_INT))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &intval);
 	g_value_set_int (value, intval);
 	return TRUE;
@@ -480,6 +486,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_UINT32:
       {
 	dbus_uint32_t intval;
+        if (!G_VALUE_HOLDS (value, G_TYPE_UINT))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &intval);
 	g_value_set_uint (value, intval);
 	return TRUE;
@@ -487,6 +495,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_INT64:
       {
 	dbus_int64_t intval;
+        if (!G_VALUE_HOLDS (value, G_TYPE_INT64))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &intval);
 	g_value_set_int64 (value, intval);
 	return TRUE;
@@ -494,6 +504,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_UINT64:
       {
 	dbus_uint64_t intval;
+        if (!G_VALUE_HOLDS (value, G_TYPE_UINT64))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &intval);
 	g_value_set_uint64 (value, intval);
 	return TRUE;
@@ -501,6 +513,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_DOUBLE:
       {
 	double dval;
+        if (!G_VALUE_HOLDS (value, G_TYPE_DOUBLE))
+          goto invalid_type;
 	dbus_message_iter_get_basic (iter, &dval);
 	g_value_set_double (value, dval);
 	return TRUE;
@@ -508,6 +522,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_INT16:
       {
         dbus_int16_t v;
+        if (!G_VALUE_HOLDS (value, G_TYPE_INT))
+          goto invalid_type;
         dbus_message_iter_get_basic (iter, &v);
         g_value_set_int (value, v);
 	return TRUE;
@@ -515,6 +531,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_UINT16:
       {
         dbus_uint16_t v;
+        if (!G_VALUE_HOLDS (value, G_TYPE_UINT))
+          goto invalid_type;
         dbus_message_iter_get_basic (iter, &v);
         g_value_set_uint (value, v);
 	return TRUE;
@@ -522,6 +540,8 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     case DBUS_TYPE_STRING:
       {
         const char *s;
+        if (!G_VALUE_HOLDS (value, G_TYPE_STRING))
+          goto invalid_type;
         dbus_message_iter_get_basic (iter, &s);
 	g_value_set_string (value, s);
 	return TRUE;
@@ -530,6 +550,14 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
       g_assert_not_reached ();
       return FALSE;
     }
+  invalid_type:
+    g_set_error (error,
+                 DBUS_GERROR,
+                 DBUS_GERROR_INVALID_ARGS,
+                 _("Expected type %s, got type code \'%c\'"), 
+                 g_type_name (G_VALUE_TYPE (value)),
+                 (guchar) current_type);
+    return FALSE;
 }
 
 static gboolean

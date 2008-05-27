@@ -457,6 +457,35 @@ main (int argc, char **argv)
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
+  /* Exercise invalid number/type of return values */
+
+  g_print ("Invalid args; calling Echo\n");
+  if (dbus_g_proxy_call (proxy, "Echo", &error,
+			  G_TYPE_STRING, "my string hello",
+			  G_TYPE_INVALID,
+			  G_TYPE_INVALID))
+    lose ("Unexpected success for invalid Echo return values");
+  g_clear_error (&error);
+
+  g_print ("Invalid args 2; calling Echo\n");
+  if (dbus_g_proxy_call (proxy, "Echo", &error,
+			  G_TYPE_STRING, "my string hello",
+			  G_TYPE_INVALID,
+                          G_TYPE_UINT, &v_UINT32_2,
+			  G_TYPE_INVALID))
+    lose ("Unexpected success for invalid Echo return values");
+  g_clear_error (&error);
+
+  g_print ("Invalid args 3; calling Echo\n");
+  if (dbus_g_proxy_call (proxy, "Echo", &error,
+			  G_TYPE_STRING, "my string hello",
+			  G_TYPE_INVALID,
+                          G_TYPE_STRING, &v_STRING_2,
+                          G_TYPE_UINT, &v_UINT32_2,
+			  G_TYPE_INVALID))
+    lose ("Unexpected success for invalid Echo return values");
+  g_clear_error (&error);
+
   /* Test oneway call and signal handling */
 
   g_print ("Testing Foo emission\n");
