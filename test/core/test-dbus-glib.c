@@ -950,6 +950,7 @@ main (int argc, char **argv)
     g_assert (!strcmp ("/org/freedesktop/DBus/GLib/Tests/MyTestObject2",
 		       g_value_get_boxed (g_value_array_get_nth (vals_ret, 1))));
 
+    g_free (val);
     g_value_array_free (vals);
     g_value_array_free (vals_ret);
   }
@@ -1190,6 +1191,7 @@ main (int argc, char **argv)
       lose_gerror ("Failed to send a vairant of array of ints 1, 2 and 3!", error);
 
     g_value_unset (variant);
+    g_free (variant);
   }
 
   for (i=0; i<3; i++)
@@ -1622,6 +1624,7 @@ main (int argc, char **argv)
 
     if (!(found_introspectable && found_myobject && found_properties))
       lose ("Missing interface"); 
+    g_free (node);
   }
   g_free (v_STRING_2);
 
