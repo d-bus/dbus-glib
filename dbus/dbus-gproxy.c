@@ -1235,8 +1235,17 @@ dbus_g_proxy_manager_filter (DBusConnection    *connection,
 						  dbus_message_get_interface (message));
 
 	      owner_list = g_hash_table_lookup (manager->proxy_lists, tri);
-	      if (owner_list != NULL)
-		full_list = g_slist_concat (full_list, g_slist_copy (owner_list->proxies));
+	      if (owner_list != NULL) 
+                {
+	          GSList *elt;
+
+	          /* Ignore duplicates when adding to full_list */
+	          for (elt = owner_list->proxies; elt; elt = g_slist_next (elt)) 
+                    {
+	              if (!g_slist_find (full_list, elt->data))
+	                full_list = g_slist_append (full_list, elt->data);
+	            }
+	        }
 	      g_free (tri);
 	    }
 	}
