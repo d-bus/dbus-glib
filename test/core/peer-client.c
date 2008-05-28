@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 
@@ -69,13 +71,22 @@ main (int argc, char **argv)
   DBusGConnection *conn;
   DBusGProxy *proxy;
   guint32 v_UINT32_2;
+  char *addrbuf;
+  gsize lineoffset;
+  GIOChannel *io;
 
   g_thread_init (NULL); dbus_g_thread_init ();
   g_type_init ();
 
+  io = g_io_channel_unix_new (0);
+  if (!g_io_channel_read_line (io, &addrbuf, NULL, &lineoffset, &error))
+    lose_gerror ("failed to read address from stdin", error);
+  /* trim newline */
+  addrbuf[lineoffset] = '\0';
+
   loop = g_main_loop_new (NULL, TRUE);
 
-  conn = dbus_g_connection_open ("unix:abstract=/tmp/dbus-glib-peer.sock", &error);
+  conn = dbus_g_connection_open (addrbuf, &error);
   if (!conn)
     g_error ("Cannot open connection: %s", error->message);
   

@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -5,13 +8,6 @@
 #include "my-object.h"
 
 GMainLoop *loop;
-
-static const char*
-make_path (void)
-{
-  /* TODO: not this */
-  return "unix:abstract=/tmp/dbus-glib-peer.sock";
-}
 
 static void
 new_connection_func (DBusServer *server, DBusConnection *conn, gpointer user_data)
@@ -32,6 +28,7 @@ main (int argc, char **argv)
 {
   DBusError error;
   DBusServer *server;
+  char *addr;
 
   dbus_error_init (&error);
 
@@ -40,11 +37,16 @@ main (int argc, char **argv)
 
   loop = g_main_loop_new (NULL, TRUE);
 
-  server = dbus_server_listen (make_path (), &error);
-  if (!server) {
-    g_warning ("Cannot create server: %s", error.message);
-    return 1;
-  }
+  server = dbus_server_listen ("unix:tmpdir=/tmp", &error);
+  if (!server) 
+    {
+      g_warning ("Cannot create server: %s", error.message);
+      return 1;
+    }
+  addr = dbus_server_get_address (server);
+  fprintf (stdout, "%s\n", addr);
+  fflush (stdout);
+  free (addr);
   dbus_server_setup_with_g_main (server, NULL);
   dbus_server_set_new_connection_function (server, new_connection_func, NULL, NULL);
   

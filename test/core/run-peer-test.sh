@@ -1,9 +1,6 @@
-#! /bin/sh
+#!/bin/sh
 
 set -e
 
-${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-server &
-
-sleep 1
-
-${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-client
+# The peer server writes its address over stdout, which the client reads
+${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-server | ${DBUS_TOP_BUILDDIR}/libtool --mode=execute ./peer-client
