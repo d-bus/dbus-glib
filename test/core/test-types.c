@@ -29,16 +29,6 @@ main (int argc, char **argv)
   g_type_init ();
   dbus_error_init (&derror);
 
-  /* Check plain DBusConnection -> DBusGConnection fails. */
-  conn = dbus_bus_get (DBUS_BUS_SESSION, &derror);
-  if (!conn)
-    lose ("Cannot get connection: %s", derror.message);
-  g_print ("(expecting assertion...)\n");
-  gconn = dbus_connection_get_g_connection (conn);
-  if (gconn)
-    lose ("Retrieved DBusGConection from plain DBusConnection");
-
-
   /* Check DBusGConnection -> DBusConnection -> DBusGConnection */
   gconn = dbus_g_bus_get (DBUS_BUS_SESSION, &gerror);
   if (!gconn)
@@ -53,22 +43,6 @@ main (int argc, char **argv)
     lose ("Retrieved DBusGConection != original DBusGConnection");
   
   dbus_g_connection_unref (gconn);
-
-
-  /* Check NULL -> DBusGConnection */
-  g_print ("(expecting assertion...)\n");
-  gconn = dbus_connection_get_g_connection (NULL);
-  if (gconn)
-    lose ("Retrieved DBusGConection from NULL");
-
-
-  /* Check NULL -> DBusConnection */
-  g_print ("(expecting assertion...)\n");
-  conn = dbus_g_connection_get_connection (NULL);
-  if (conn)
-    lose ("Retrieved DBusConection from NULL");
-  
-  g_print ("\nTest completed.\n");
   
   return 0;
 }
