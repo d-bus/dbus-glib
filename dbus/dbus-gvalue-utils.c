@@ -248,6 +248,7 @@ _dbus_gvalue_signals_error (const GValue *value)
       break;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 
