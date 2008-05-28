@@ -905,6 +905,9 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
                                                     NULL);
       /* FIXME - for now we listen for all NameOwnerChanged; once
        * Anders' detail patch lands we should add individual rules
+       * 
+       * NOTE: if you change this, be sure to change the matching
+       * call to dbus_bus_remove_match in dbus_g_proxy_manager_unregister.
        */
       dbus_bus_add_match (manager->connection,
                           "type='signal',sender='" DBUS_SERVICE_DBUS
@@ -1061,6 +1064,17 @@ dbus_g_proxy_manager_unregister (DBusGProxyManager *manager,
     {
       g_hash_table_destroy (manager->proxy_lists);
       manager->proxy_lists = NULL;
+
+      /*
+       * NOTE: if you change this, be sure to change the matching
+       * call to dbus_bus_add_match in dbus_g_proxy_manager_register.
+       */
+      dbus_bus_remove_match (manager->connection,
+                             "type='signal',sender='" DBUS_SERVICE_DBUS
+			     "',path='" DBUS_PATH_DBUS
+			     "',interface='" DBUS_INTERFACE_DBUS
+			     "',member='NameOwnerChanged'",
+			     NULL);
     }
 
   g_free (tri);
