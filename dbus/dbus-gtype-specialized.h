@@ -159,8 +159,6 @@ void           dbus_g_type_register_collection        (const char               
 void           dbus_g_type_register_map               (const char                                   *name,
 						       const DBusGTypeSpecializedMapVtable          *vtable,
 						       guint                                         flags);
-const DBusGTypeSpecializedMapVtable* dbus_g_type_map_peek_vtable (GType map_type);
-const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (GType collection_type);
 
 void           dbus_g_type_register_struct             (const char                                   *name,
 						       const DBusGTypeSpecializedStructVtable        *vtable,
