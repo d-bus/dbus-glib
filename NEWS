@@ -1,3 +1,28 @@
+D-Bus GLib Bindings 0.75 (05 Jun 2008)
+==
+
+Thanks to Dan Williams, David Zeuthen, Kimmo Hämäläinen,
+Ross Burton, William Jon McCann, Colin Walters, Brian Cameron,
+Peter O'Gorman, Peter Kjellerstedt, Christian Persch,
+Rob Taylor and others for their contributions in this release.
+
+Critical fixes:
+
+ - #15430: ABI now guaranteed frozen
+ - #8607: Fix broken introspection XML
+ - #16079: Return an error on unknown property Get
+ - #10834: Fix error handling in dbus_g_proxy_end_call_internal
+
+Other notable fixes:
+
+ - #11672: Fixes for /bin/sh as dash
+ - #11675: Fixes for non-gcc compilers
+ - #10668: Correctly detect path to dbus-daemon
+ - #12849, #12857: Memory leak fixes
+ - New function to specify default timeout for calls on proxy
+ - Implement org.freedesktop.DBus.Properties.GetAll
+ - Require DBus 1.1
+
 D-Bus GLib Bindings 0.74 (27 Jun 2007)
 ==
 
