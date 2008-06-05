@@ -775,6 +775,7 @@ get_all_object_properties (DBusConnection        *connection,
   DBusMessageIter iter_dict_entry;
   DBusMessageIter iter_dict_value;
   const char *p;
+  char *uscore_propname;
 
   ret = dbus_message_new_method_return (message);
   if (ret == NULL)
@@ -815,12 +816,17 @@ get_all_object_properties (DBusConnection        *connection,
         p++;
       p++;
 
-      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), prop_name);
+      uscore_propname = _dbus_gutils_wincaps_to_uscore (prop_name);
+
+      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), uscore_propname);
       if (pspec == NULL)
         {
-          g_warning ("introspection data references non-existing property %s", prop_name);
+          g_warning ("introspection data references non-existing property %s", uscore_propname);
+          g_free (uscore_propname);
           continue;
         }
+
+      g_free (uscore_propname);
 
       g_value_init (&value, pspec->value_type);
       g_object_get_property (object, pspec->name, &value);
