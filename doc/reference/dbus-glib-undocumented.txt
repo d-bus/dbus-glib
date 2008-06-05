@@ -1,15 +1,20 @@
-73% symbol docs coverage.
-88 symbols documented.
+66% symbol docs coverage.
+91 symbols documented.
 20 symbols incomplete.
-32 not documented.
+46 not documented.
 
 
+A
+Context
+Convert
 DBUS_TYPE_G_OBJECT_PATH
 DBusGConnection
 DBusGError
 DBusGMessage
+DBusGMessageQueue
 DBusGMethodInvocation
 DBusGProxy
+DBusGProxyManager
 DBusGTypeSpecializedAppendContext
 DBusGTypeSpecializedCollectionAppendFunc
 DBusGTypeSpecializedCollectionEndAppendFunc
@@ -28,8 +33,15 @@ DBusGTypeSpecializedStructGetMember
 DBusGTypeSpecializedStructSetMember
 DBusGTypeSpecializedStructVtable
 DBusGTypeSpecializedVtable
+Get
+Internals
+The
+Unit
+dbus_connection_get_g_type
+dbus_g_connection_get_g_type
 dbus_g_connection_ref (connection)
 dbus_g_connection_unref (connection)
+dbus_g_message_get_g_type
 dbus_g_message_ref (message)
 dbus_g_message_unref (message)
 dbus_g_method_return (Varargs)
@@ -43,6 +55,7 @@ dbus_g_proxy_call_no_reply (Varargs)
 dbus_g_proxy_call_with_timeout (Varargs)
 dbus_g_proxy_end_call (Varargs)
 dbus_g_proxy_get_path
+dbus_g_proxy_get_type
 dbus_g_proxy_new_for_name (path, interface)
 dbus_g_proxy_new_for_name_owner (path, interface)
 dbus_g_proxy_new_from_proxy (path_name)
@@ -55,6 +68,7 @@ dbus_g_type_get_struct_member_type
 dbus_g_type_get_struct_size
 dbus_g_type_map_peek_vtable (Returns)
 dbus_g_type_specialized_init
+dbus_message_get_g_type
 dbus_set_g_error (derror)
 
 
