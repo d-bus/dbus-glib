@@ -1647,6 +1647,7 @@ marshal_dbus_message_to_g_marshaller (GClosure     *closure,
   
   {
     DBusGValueMarshalCtx context;
+    context.recursion_depth = 0;
     context.gconnection = DBUS_G_CONNECTION_FROM_CONNECTION (priv->manager->connection);
     context.proxy = proxy;
 
@@ -2272,6 +2273,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 	  GValue gvalue = { 0, };
 	  DBusGValueMarshalCtx context;
 
+          context.recursion_depth = 0;
 	  context.gconnection = DBUS_G_CONNECTION_FROM_CONNECTION (priv->manager->connection);
 	  context.proxy = proxy;
 

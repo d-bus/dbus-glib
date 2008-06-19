@@ -12,6 +12,7 @@ G_BEGIN_DECLS
 typedef struct {
   DBusGConnection    *gconnection;
   DBusGProxy         *proxy;
+  guint               recursion_depth;
 } DBusGValueMarshalCtx;
 
 void           _dbus_g_value_types_init        (void);

@@ -679,6 +679,7 @@ set_object_property (DBusConnection  *connection,
 
   dbus_message_iter_recurse (iter, &sub);
 
+  context.recursion_depth = 0;
   context.gconnection = DBUS_G_CONNECTION_FROM_CONNECTION (connection);
   context.proxy = NULL;
 
@@ -1111,6 +1112,7 @@ invoke_object_method (GObject         *object,
     DBusGValueMarshalCtx context;
     GError *error = NULL;
     
+    context.recursion_depth = 0;
     context.gconnection = DBUS_G_CONNECTION_FROM_CONNECTION (connection);
     context.proxy = NULL;
 

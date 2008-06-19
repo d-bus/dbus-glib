@@ -34,6 +34,9 @@
 #include <glib/gi18n.h>
 #include "dbus/dbus-signature.h"
 
+/* Seems reasonable, but this should probably be part of the standard protocol */
+#define DBUS_GLIB_MAX_VARIANT_RECURSION 32
+
 static gboolean demarshal_static_variant (DBusGValueMarshalCtx    *context,
 					  DBusMessageIter         *iter,
 					  GValue                  *value,
@@ -1131,6 +1134,16 @@ _dbus_gvalue_demarshal (DBusGValueMarshalCtx    *context,
 {
   GType gtype;
   DBusGValueDemarshalFunc demarshaller;
+  gboolean retcode = FALSE;
+
+  if (context->recursion_depth > DBUS_GLIB_MAX_VARIANT_RECURSION)
+    {
+      g_set_error (error, DBUS_GERROR,
+                   DBUS_GERROR_NO_MEMORY, 
+                   "Variant recursion limit exceeded");
+      return FALSE;
+    }
+  context->recursion_depth++;
 
   gtype = G_VALUE_TYPE (value);
 
@@ -1143,10 +1156,14 @@ _dbus_gvalue_demarshal (DBusGValueMarshalCtx    *context,
 		   DBUS_GERROR_INVALID_ARGS,
 		   _("No demarshaller registered for type \"%s\""),
 		   g_type_name (gtype));
-      return FALSE;
+    
+      goto out;
     }
   
-  return demarshaller (context, iter, value, error);
+  retcode = demarshaller (context, iter, value, error);
+ out:
+  context->recursion_depth--;  
+  return retcode;
 }
 
 gboolean
