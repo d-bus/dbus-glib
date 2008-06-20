@@ -712,9 +712,7 @@ demarshal_strv (DBusGValueMarshalCtx    *context,
 {
   DBusMessageIter subiter;
   int current_type;
-  char **ret;
-  int len;
-  int i;
+  GArray *arr;
 
   current_type = dbus_message_iter_get_arg_type (iter);
   if (current_type != DBUS_TYPE_ARRAY)
@@ -739,24 +737,23 @@ demarshal_strv (DBusGValueMarshalCtx    *context,
       return FALSE;
     }
 
-  len = dbus_message_iter_get_array_len (&subiter);
-  g_assert (len >= 0);
-  ret = g_malloc (sizeof (char *) * (len + 1));
-  
-  i = 0;
+  arr = g_array_new (TRUE, FALSE, sizeof (char *));
+
   while ((current_type = dbus_message_iter_get_arg_type (&subiter)) != DBUS_TYPE_INVALID)
     {
-      g_assert (i < len);
       g_assert (current_type == DBUS_TYPE_STRING);
+      const char *str;
+      char *copy;
       
-      dbus_message_iter_get_basic (&subiter, &(ret[i]));
-      ret[i] = g_strdup (ret[i]);
+      dbus_message_iter_get_basic (&subiter, &str);
+      copy = g_strdup (str);
+      g_array_append_val (arr, copy);
 
       dbus_message_iter_next (&subiter);
-      i++;
     }
-  ret[i] = NULL; 
-  g_value_set_boxed_take_ownership (value, ret);
+
+  g_value_set_boxed_take_ownership (value, arr->data);
+  g_array_free (arr, FALSE);
   
   return TRUE;
 }
