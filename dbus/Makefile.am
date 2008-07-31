@@ -91,7 +91,22 @@ regenerate-built-sources:
 	echo '#include "dbus-gmarshal.h"' > dbus-gmarshal.c &&					    \
         @GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --body >> dbus-gmarshal.c
 
-EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh make-dbus-glib-error-enum.sh
+
+profiledir = $(sysconfdir)/profile.d
+if DBUS_BASH_COMPLETION
+libexec_PROGRAMS=dbus-bash-completion-helper
+profile_SCRIPTS=dbus-bash-completion.sh
+endif
+
+dbus-bash-completion.sh : dbus-bash-completion.sh.in
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+
+dbus_bash_completion_helper_SOURCES =                 	\
+	dbus-bash-completion-helper.c
+dbus_bash_completion_helper_LDADD=$(DBUS_LIBS) $(DBUS_GLIB_LIBS) -lexpat libdbus-gtool.la libdbus-glib-1.la
+
+
+EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh make-dbus-glib-error-enum.sh dbus-bash-completion.sh.in
 
 if DBUS_BUILD_TESTS
 
