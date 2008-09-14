@@ -85,6 +85,12 @@ static gboolean demarshal_object                (DBusGValueMarshalCtx      *cont
 						 DBusMessageIter           *iter,
 						 GValue                    *value,
 						 GError                   **error);
+static gboolean marshal_signature		(DBusMessageIter           *iter,
+						 const GValue             *value);
+static gboolean demarshal_signature		(DBusGValueMarshalCtx      *context,
+						 DBusMessageIter           *iter,
+						 GValue                    *value,
+						 GError                   **error);
 static gboolean marshal_map                     (DBusMessageIter           *iter,
 						 const GValue              *value);
 static gboolean demarshal_map                   (DBusGValueMarshalCtx      *context,
@@ -336,6 +342,18 @@ _dbus_g_value_types_init (void)
     set_type_metadata (G_TYPE_OBJECT, &typedata);
   }
 
+  {
+    static const DBusGTypeMarshalVtable vtable = {
+      marshal_signature,
+      demarshal_signature
+    };
+    static const DBusGTypeMarshalData typedata = {
+      DBUS_TYPE_SIGNATURE_AS_STRING,
+      &vtable
+    };
+    set_type_metadata (DBUS_TYPE_G_SIGNATURE, &typedata);
+  }
+
   types_initialized = TRUE;
 }
 
@@ -353,6 +371,24 @@ dbus_g_object_path_get_g_type (void)
     type_id = g_boxed_type_register_static ("DBusGObjectPath",
 					    (GBoxedCopyFunc) g_strdup,
 					    (GBoxedFreeFunc) g_free);
+  return type_id;
+}
+
+/**
+ * Get the GLib type ID for a DBusGSignature boxed type.
+ *
+ * Returns: GLib type
+ */
+GType
+dbus_g_signature_get_g_type (void)
+{
+  static GType type_id = 0;
+
+  if (G_UNLIKELY (type_id == 0))
+    type_id = g_boxed_type_register_static ("DBusGSignature",
+					    (GBoxedCopyFunc) g_strdup,
+					    (GBoxedFreeFunc) g_free);
+
   return type_id;
 }
 
@@ -661,7 +697,7 @@ demarshal_object_path (DBusGValueMarshalCtx    *context,
 
   dbus_message_iter_get_basic (iter, &objpath);
 
-  g_value_set_boxed_take_ownership (value, g_strdup (objpath));
+  g_value_set_boxed (value, objpath);
 
   return TRUE;
 }
@@ -700,6 +736,32 @@ demarshal_object (DBusGValueMarshalCtx    *context,
       return FALSE;
     }
   g_value_set_object (value, obj);
+
+  return TRUE;
+}
+
+static gboolean
+demarshal_signature (DBusGValueMarshalCtx    *context,
+		     DBusMessageIter         *iter,
+		     GValue                  *value,
+		     GError                 **error)
+{
+  const char *sig;
+  int current_type;
+
+  current_type = dbus_message_iter_get_arg_type (iter);
+  if (current_type != DBUS_TYPE_SIGNATURE)
+    {
+      g_set_error (error,
+		   DBUS_GERROR,
+		   DBUS_GERROR_INVALID_ARGS,
+		   _("Expected D-BUS signature, got type code \'%c\'"), (guchar) current_type);
+      return FALSE;
+    }
+
+  dbus_message_iter_get_basic (iter, &sig);
+
+  g_value_set_boxed (value, sig);
 
   return TRUE;
 }
@@ -1488,6 +1550,24 @@ marshal_object (DBusMessageIter         *iter,
 				       DBUS_TYPE_OBJECT_PATH,
 				       &path))
     return FALSE;
+  return TRUE;
+}
+
+static gboolean
+marshal_signature (DBusMessageIter         *iter,
+		   const GValue            *value)
+{
+  const char *sig;
+
+  g_assert (G_VALUE_TYPE (value) == DBUS_TYPE_G_SIGNATURE);
+
+  sig = (const char*) g_value_get_boxed (value);
+
+  if (!dbus_message_iter_append_basic (iter,
+				       DBUS_TYPE_SIGNATURE,
+				       &sig))
+    return FALSE;
+
   return TRUE;
 }
 

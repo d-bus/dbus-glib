@@ -985,6 +985,25 @@ main (int argc, char **argv)
   }
 
   {
+    const gchar *in_sig = "a(iou)sq";
+    gchar *out_sig = NULL;
+
+    g_print ("Calling EchoSignature: %s\n", in_sig);
+    if (!org_freedesktop_DBus_GLib_Tests_MyObject_echo_signature (proxy,
+          in_sig, &out_sig, &error))
+      lose_gerror ("Failed to complete EchoSignature call", error);
+
+    if (out_sig == NULL)
+      lose ("EchoSignature returned NULL");
+    if (strcmp (in_sig, out_sig) != 0)
+      lose ("EchoSignature changed the signature");
+
+    g_print ("EchoSignature returned: %s\n", out_sig);
+
+    g_free (out_sig);
+  }
+
+  {
     GValue *val;
     GHashTable *table;
     GHashTable *ret_table;

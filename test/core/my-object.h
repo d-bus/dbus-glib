@@ -90,6 +90,7 @@ gboolean my_object_emit_signal2 (MyObject *obj, GError **error);
 gboolean my_object_emit_frobnicate (MyObject *obj, GError **error);
 
 gboolean my_object_echo_variant (MyObject *obj, GValue *variant, GValue *ret, GError **error);
+gboolean my_object_echo_signature (MyObject *obj, const gchar *in, gchar **out, GError **error);
 
 gboolean my_object_process_variant_of_array_of_ints123 (MyObject *obj, GValue *variant, GError **error);
 

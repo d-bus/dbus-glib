@@ -126,6 +126,9 @@ dbus_g_type_get_c_name (GType gtype)
   if (g_type_is_a (gtype, DBUS_TYPE_G_OBJECT_PATH))
     return "char";
 
+  if (g_type_is_a (gtype, DBUS_TYPE_G_SIGNATURE))
+    return "char";
+
   return g_type_name (gtype);
 }
 
@@ -1081,6 +1084,7 @@ dbus_g_type_get_lookup_function (GType gtype)
   MAP_KNOWN(G_TYPE_VALUE_ARRAY);
   MAP_KNOWN(DBUS_TYPE_G_PROXY);
   MAP_KNOWN(DBUS_TYPE_G_OBJECT_PATH);
+  MAP_KNOWN(DBUS_TYPE_G_SIGNATURE);
   return NULL;
 }
 #undef MAP_FUNDAMENTAL

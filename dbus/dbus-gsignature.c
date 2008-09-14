@@ -147,6 +147,8 @@ _dbus_gtype_from_signature_iter (DBusSignatureIter *iter, gboolean is_client)
     return _dbus_gtype_from_basic_typecode (current_type);
   else if (current_type == DBUS_TYPE_OBJECT_PATH)
     return DBUS_TYPE_G_OBJECT_PATH;
+  else if (current_type == DBUS_TYPE_SIGNATURE)
+    return DBUS_TYPE_G_SIGNATURE;
   else
     {
       DBusSignatureIter subiter;

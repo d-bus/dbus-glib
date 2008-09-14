@@ -801,7 +801,10 @@ _dbus_gmain_test (const char *test_data_dir)
   g_assert (type == DBUS_TYPE_G_OBJECT_PATH);
   type = _dbus_gtype_from_signature ("o", TRUE);
   g_assert (type == DBUS_TYPE_G_OBJECT_PATH);
-  
+
+  type = _dbus_gtype_from_signature ("g", TRUE);
+  g_assert (type == DBUS_TYPE_G_SIGNATURE);
+
   return TRUE;
 }
 

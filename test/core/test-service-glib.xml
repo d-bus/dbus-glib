@@ -133,6 +133,11 @@
       <arg type="v" direction="out" />
     </method>
 
+    <method name="EchoSignature">
+      <arg type="g" direction="in" />
+      <arg type="g" direction="out" />
+    </method>
+
     <method name="ProcessVariantOfArrayOfInts123">
       <arg type="v" direction="in" />
     </method>

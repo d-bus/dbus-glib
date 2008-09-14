@@ -574,6 +574,13 @@ my_object_echo_variant (MyObject *obj, GValue *variant, GValue *ret, GError **er
     return TRUE;
 }
 
+gboolean
+my_object_echo_signature (MyObject *obj, const gchar *in, gchar **out, GError **error)
+{
+  *out = g_strdup (in);
+  return TRUE;
+}
+
 gboolean 
 my_object_process_variant_of_array_of_ints123 (MyObject *obj, GValue *variant, GError **error)
 {
