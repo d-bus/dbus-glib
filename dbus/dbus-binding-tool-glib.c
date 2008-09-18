@@ -1433,8 +1433,8 @@ write_async_method_client (GIOChannel *channel, InterfaceInfo *interface, Method
     goto io_lose;
   
   WRITE_OR_LOSE ("{\n");
-  WRITE_OR_LOSE ("  DBusGAsyncData *stuff;\n  stuff = g_new (DBusGAsyncData, 1);\n  stuff->cb = G_CALLBACK (callback);\n  stuff->userdata = userdata;\n");
-  if (!write_printf_to_iochannel ("  return dbus_g_proxy_begin_call (proxy, \"%s\", %s_async_callback, stuff, g_free, ", channel, error, method_info_get_name (method), method_name))
+  WRITE_OR_LOSE ("  DBusGAsyncData *stuff;\n  stuff = g_slice_new (DBusGAsyncData);\n  stuff->cb = G_CALLBACK (callback);\n  stuff->userdata = userdata;\n");
+  if (!write_printf_to_iochannel ("  return dbus_g_proxy_begin_call (proxy, \"%s\", %s_async_callback, stuff, _dbus_glib_async_data_free, ", channel, error, method_info_get_name (method), method_name))
     goto io_lose;
   if (!write_args_for_direction (interface, method, channel, ARG_IN, error))
     goto io_lose;
@@ -1611,6 +1611,12 @@ dbus_binding_tool_output_glib_client (BaseInfo *info, GIOChannel *channel, gbool
   WRITE_OR_LOSE ("#include <glib.h>\n");
   WRITE_OR_LOSE ("#include <dbus/dbus-glib.h>\n\n");
   WRITE_OR_LOSE ("G_BEGIN_DECLS\n\n");
+
+  WRITE_OR_LOSE ("#ifndef _DBUS_GLIB_ASYNC_DATA_FREE\n");
+  WRITE_OR_LOSE ("#define _DBUS_GLIB_ASYNC_DATA_FREE\n");
+  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\nvoid\n");
+  WRITE_OR_LOSE ("_dbus_glib_async_data_free (gpointer stuff)\n{\n\tg_slice_free (DBusGAsyncData, stuff);\n}\n");
+  WRITE_OR_LOSE ("#endif\n\n");
 
   ret = generate_client_glue (info, &data, error);
   if (!ret)
