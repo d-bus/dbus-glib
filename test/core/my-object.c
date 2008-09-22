@@ -654,6 +654,22 @@ my_object_dict_of_dicts (MyObject *obj, GHashTable *in,
   return TRUE;
 }
 
+void
+my_object_dict_of_sigs (MyObject *obj,
+                        GHashTable *dict,
+                        DBusGMethodInvocation *context)
+{
+  dbus_g_method_return (context, dict);
+}
+
+void
+my_object_dict_of_objs (MyObject *obj,
+                        GHashTable *dict,
+                        DBusGMethodInvocation *context)
+{
+  dbus_g_method_return (context, dict);
+}
+
 gboolean
 my_object_emit_frobnicate (MyObject *obj, GError **error)
 {

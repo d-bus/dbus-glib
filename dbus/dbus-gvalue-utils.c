@@ -269,6 +269,16 @@ hash_func_from_gtype (GType gtype, GHashFunc *func)
       *func = g_str_hash;
       return TRUE;
     default:
+      if (gtype == DBUS_TYPE_G_OBJECT_PATH)
+        {
+          *func = g_str_hash;
+          return TRUE;
+        }
+      else if (gtype == DBUS_TYPE_G_SIGNATURE)
+        {
+          *func = g_str_hash;
+          return TRUE;
+        }
       return FALSE;
     }
 }
@@ -307,6 +317,21 @@ hash_free_from_gtype (GType gtype, GDestroyNotify *func)
       else if (gtype == G_TYPE_VALUE_ARRAY)
         {
           *func = (GDestroyNotify) g_value_array_free;
+          return TRUE;
+        }
+      else if (gtype == G_TYPE_STRV)
+        {
+          *func = (GDestroyNotify) g_strfreev;
+          return TRUE;
+        }
+      else if (gtype == DBUS_TYPE_G_OBJECT_PATH)
+        {
+          *func = g_free;
+          return TRUE;
+        }
+      else if (gtype == DBUS_TYPE_G_SIGNATURE)
+        {
+          *func = g_free;
           return TRUE;
         }
       else if (dbus_g_type_is_collection (gtype))
@@ -383,6 +408,10 @@ _dbus_g_hash_equal_from_gtype (GType gtype)
     case G_TYPE_STRING:
       return g_str_equal;
     default:
+      if (gtype == DBUS_TYPE_G_OBJECT_PATH)
+        return g_str_equal;
+      else if (gtype == DBUS_TYPE_G_SIGNATURE)
+        return g_str_equal;
       g_assert_not_reached ();
       return NULL;
     }

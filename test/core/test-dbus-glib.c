@@ -1328,6 +1328,102 @@ main (int argc, char **argv)
     g_mem_profile ();
   }
 
+  for (i=0; i<3; i++)
+  {
+    GHashTable *table;
+    GHashTable *ret_table = NULL;
+    const gchar *foo[] = { "foo", NULL };
+    const gchar *bar[] = { "bar", "baz", NULL };
+    const gchar **ret_foo = NULL, **ret_bar = NULL;
+
+    table = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (table, "dub", foo);
+    g_hash_table_insert (table, "sox", bar);
+
+    g_print ("Calling DictOfSigs\n");
+
+    if (!org_freedesktop_DBus_GLib_Tests_MyObject_dict_of_sigs (proxy, table,
+          &ret_table, &error))
+      lose_gerror ("Failed to complete DictOfSigs call", error);
+
+    if (ret_table == NULL)
+      lose ("DictOfSigs didn't return a hash table");
+
+    if (g_hash_table_size (ret_table) != 2)
+      lose ("DictOfSigs has too many entries");
+
+    ret_foo = g_hash_table_lookup (ret_table, "dub");
+    ret_bar = g_hash_table_lookup (ret_table, "sox");
+
+    if (ret_foo == NULL || ret_bar == NULL)
+      lose ("DictOfSigs is missing entries");
+
+    if (ret_foo[0] == NULL ||
+        ret_foo[1] != NULL ||
+        strcmp (ret_foo[0], "foo") != 0)
+      lose ("DictOfSigs mangled foo");
+
+    if (ret_bar[0] == NULL ||
+        ret_bar[1] == NULL ||
+        ret_bar[2] != NULL ||
+        strcmp (ret_bar[0], "bar") != 0 ||
+        strcmp (ret_bar[1], "baz") != 0)
+      lose ("DictOfSigs mangled bar");
+
+    g_hash_table_destroy (table);
+    g_hash_table_destroy (ret_table);
+
+    g_mem_profile ();
+  }
+
+  for (i=0; i<3; i++)
+  {
+    GHashTable *table;
+    GHashTable *ret_table = NULL;
+    const gchar *foo[] = { "foo", NULL };
+    const gchar *bar[] = { "bar", "baz", NULL };
+    const gchar **ret_foo = NULL, **ret_bar = NULL;
+
+    table = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (table, "/foo", foo);
+    g_hash_table_insert (table, "/bar", bar);
+
+    g_print ("Calling DictOfObjs\n");
+
+    if (!org_freedesktop_DBus_GLib_Tests_MyObject_dict_of_objs (proxy, table,
+          &ret_table, &error))
+      lose_gerror ("Failed to complete DictOfObjs call", error);
+
+    if (ret_table == NULL)
+      lose ("DictOfObjs didn't return a hash table");
+
+    if (g_hash_table_size (ret_table) != 2)
+      lose ("DictOfObjs has too many entries");
+
+    ret_foo = g_hash_table_lookup (ret_table, "/foo");
+    ret_bar = g_hash_table_lookup (ret_table, "/bar");
+
+    if (ret_foo == NULL || ret_bar == NULL)
+      lose ("DictOfObjs is missing entries");
+
+    if (ret_foo[0] == NULL ||
+        ret_foo[1] != NULL ||
+        strcmp (ret_foo[0], "foo") != 0)
+      lose ("DictOfObjs mangled foo");
+
+    if (ret_bar[0] == NULL ||
+        ret_bar[1] == NULL ||
+        ret_bar[2] != NULL ||
+        strcmp (ret_bar[0], "bar") != 0 ||
+        strcmp (ret_bar[1], "baz") != 0)
+      lose ("DictOfObjs mangled bar");
+
+    g_hash_table_destroy (table);
+    g_hash_table_destroy (ret_table);
+
+    g_mem_profile ();
+  }
+
 
 
   /* Signal handling tests */

@@ -96,6 +96,10 @@ gboolean my_object_process_variant_of_array_of_ints123 (MyObject *obj, GValue *v
 
 gboolean my_object_dict_of_dicts (MyObject *obj, GHashTable *dict, GHashTable **ret, GError **error);
 
+void my_object_dict_of_sigs (MyObject *obj, GHashTable *dict, DBusGMethodInvocation *ctx);
+
+void my_object_dict_of_objs (MyObject *obj, GHashTable *dict, DBusGMethodInvocation *ctx);
+
 gboolean my_object_terminate (MyObject *obj, GError **error);
 
 void my_object_async_increment (MyObject *obj, gint32 x, DBusGMethodInvocation *context);

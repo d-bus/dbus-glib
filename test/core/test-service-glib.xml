@@ -147,6 +147,18 @@
       <arg type="a{sa{ss}}" direction="out"/>
     </method>
 
+    <method name="DictOfSigs">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="a{gas}" direction="in" />
+      <arg type="a{gas}" direction="out" />
+    </method>
+
+    <method name="DictOfObjs">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="a{oas}" direction="in" />
+      <arg type="a{oas}" direction="out" />
+    </method>
+
     <method name="EmitFrobnicate">
     </method>
 
