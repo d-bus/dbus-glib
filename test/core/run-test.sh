@@ -3,6 +3,12 @@
 SCRIPTNAME=$0
 MODE=$1
 
+die()
+{
+  echo $@ 1>&2
+  exit 1
+}
+
 ## so the tests can complain if you fail to use the script to launch them
 DBUS_TEST_GLIB_RUN_TEST_SCRIPT=1
 export DBUS_TEST_GLIB_RUN_TEST_SCRIPT
