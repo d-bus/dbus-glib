@@ -592,11 +592,7 @@ hashtable_copy (GType type, gpointer src)
 static void
 hashtable_simple_free (gpointer val)
 {
-#if GLIB_CHECK_VERSION(2,10,0)
   g_hash_table_unref (val);
-#else
-  g_hash_table_destroy (val);
-#endif
 }
 
 static gpointer
