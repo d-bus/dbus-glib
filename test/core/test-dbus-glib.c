@@ -1380,9 +1380,15 @@ main (int argc, char **argv)
   {
     GHashTable *table;
     GHashTable *ret_table = NULL;
-    const gchar *foo[] = { "foo", NULL };
-    const gchar *bar[] = { "bar", "baz", NULL };
-    const gchar **ret_foo = NULL, **ret_bar = NULL;
+    GPtrArray *foo, *bar;
+    GPtrArray *ret_foo = NULL, *ret_bar = NULL;
+
+    foo = g_ptr_array_new ();
+    g_ptr_array_add (foo, "/foo");
+
+    bar = g_ptr_array_new ();
+    g_ptr_array_add (bar, "/bar");
+    g_ptr_array_add (bar, "/baz");
 
     table = g_hash_table_new (g_str_hash, g_str_equal);
     g_hash_table_insert (table, "/foo", foo);
@@ -1393,6 +1399,10 @@ main (int argc, char **argv)
     if (!org_freedesktop_DBus_GLib_Tests_MyObject_dict_of_objs (proxy, table,
           &ret_table, &error))
       lose_gerror ("Failed to complete DictOfObjs call", error);
+
+    g_ptr_array_free (foo, TRUE);
+    g_ptr_array_free (bar, TRUE);
+    g_hash_table_destroy (table);
 
     if (ret_table == NULL)
       lose ("DictOfObjs didn't return a hash table");
@@ -1406,20 +1416,17 @@ main (int argc, char **argv)
     if (ret_foo == NULL || ret_bar == NULL)
       lose ("DictOfObjs is missing entries");
 
-    if (ret_foo[0] == NULL ||
-        ret_foo[1] != NULL ||
-        strcmp (ret_foo[0], "foo") != 0)
-      lose ("DictOfObjs mangled foo");
+    if (ret_foo->len != 1 ||
+        strcmp (g_ptr_array_index (ret_foo, 0), "/foo") != 0)
+      lose ("DictOfObjs mangled /foo");
 
-    if (ret_bar[0] == NULL ||
-        ret_bar[1] == NULL ||
-        ret_bar[2] != NULL ||
-        strcmp (ret_bar[0], "bar") != 0 ||
-        strcmp (ret_bar[1], "baz") != 0)
-      lose ("DictOfObjs mangled bar");
+    if (ret_bar->len != 2 ||
+        strcmp (g_ptr_array_index (ret_bar, 0), "/bar") != 0 ||
+        strcmp (g_ptr_array_index (ret_bar, 1), "/baz") != 0)
+      lose ("DictOfObjs mangled /bar");
 
-    g_hash_table_destroy (table);
-    g_hash_table_destroy (ret_table);
+    g_boxed_free (dbus_g_type_get_map ("GHashTable", DBUS_TYPE_G_OBJECT_PATH,
+          dbus_g_type_get_collection ("GPtrArray", DBUS_TYPE_G_OBJECT_PATH)), ret_table);
 
     g_mem_profile ();
   }

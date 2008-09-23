@@ -293,7 +293,10 @@ unset_and_free_g_value (gpointer val)
 }
 
 static gboolean
-hash_free_from_gtype (GType gtype, GDestroyNotify *func)
+gtype_can_simple_free (GType type);
+
+static gboolean
+hash_simple_free_from_gtype (GType gtype, GDestroyNotify *func)
 {
   switch (gtype)
     {
@@ -347,6 +350,19 @@ hash_free_from_gtype (GType gtype, GDestroyNotify *func)
       else if (dbus_g_type_is_map (gtype))
         {
           const DBusGTypeSpecializedMapVtable* vtable;
+          GType key_gtype, value_gtype;
+
+          key_gtype = dbus_g_type_get_map_key_specialization (gtype);
+          value_gtype = dbus_g_type_get_map_value_specialization (gtype);
+
+          /* if either the key or the value don't have "simple" (without a
+           * GType) free functions, then the hashtable's contents must be freed
+           * with hashtable_free, so the hashtable itself can't have a simple
+           * free function. */
+          if (!gtype_can_simple_free (key_gtype) ||
+              !gtype_can_simple_free (value_gtype))
+            return FALSE;
+
           vtable = dbus_g_type_map_peek_vtable (gtype);
           if (vtable->base_vtable.simple_free_func)
             {
@@ -368,6 +384,13 @@ hash_free_from_gtype (GType gtype, GDestroyNotify *func)
     }
 }
 
+static gboolean
+gtype_can_simple_free (GType type)
+{
+  GDestroyNotify func;
+  return hash_simple_free_from_gtype (type, &func);
+}
+
 gboolean
 _dbus_gtype_is_valid_hash_key (GType type)
 {
@@ -376,10 +399,24 @@ _dbus_gtype_is_valid_hash_key (GType type)
 }
 
 gboolean
-_dbus_gtype_is_valid_hash_value (GType type)
+_dbus_gtype_is_valid_hash_value (GType gtype)
 {
-  GDestroyNotify func;
-  return hash_free_from_gtype (type, &func);
+  /* anything we can take into a GValue using gvalue_take_hash_value is fine */
+  switch (g_type_fundamental (gtype))
+    {
+    case G_TYPE_CHAR:
+    case G_TYPE_UCHAR:
+    case G_TYPE_BOOLEAN:
+    case G_TYPE_INT:
+    case G_TYPE_UINT:
+    case G_TYPE_DOUBLE:
+    case G_TYPE_STRING:
+    case G_TYPE_BOXED:
+    case G_TYPE_OBJECT:
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 GHashFunc
@@ -417,13 +454,45 @@ _dbus_g_hash_equal_from_gtype (GType gtype)
     }
 }
 
+static void
+hash_fake_simple_free_func (gpointer val)
+{
+  /* Havoc would be proud... :P */
+  g_critical ("If you see this message then the author of this application or "
+      "one of its libraries has tried to remove or replace the value %p in a "
+      "hash table which was constructed by the D-Bus Glib bindings.\n\n"
+
+      "However, it was not possible for the bindings to provide a destroy "
+      "function to g_hash_table_new_full which is able to free this value, as "
+      "its GType must be known in order to free it. This means the memory "
+      "allocated to store the value has most likely just been leaked.\n\n"
+
+      "To avoid this error, the GHashTable (or keys/values \"stolen\" from "
+      "it) should be freed by using g_boxed_free as follows:\n"
+      "  g_boxed_free (dbus_g_type_get_map (\"GHashTable\", key_gtype, "
+      "value_gtype), hash_table);\n", val);
+}
+
 GDestroyNotify
 _dbus_g_hash_free_from_gtype (GType gtype)
 {
   GDestroyNotify func;
   gboolean ret;
-  ret = hash_free_from_gtype (gtype, &func);
-  g_assert (ret != FALSE);
+
+  ret = hash_simple_free_from_gtype (gtype, &func);
+
+  /* if the value doesn't have a simple free function, we cannot define a
+   * meaningful free function here. instead, this hash table must be freed
+   * using g_boxed_free so that the hash_free function gets invoked. if the
+   * user does not do so, we provide a fake free function to provide a warning
+   * in this case. */
+  if (ret == FALSE)
+    {
+      g_assert (_dbus_gtype_is_valid_hash_value (gtype));
+
+      func = hash_fake_simple_free_func;
+    }
+
   return func;
 }
 
@@ -618,10 +687,78 @@ hashtable_copy (GType type, gpointer src)
   return ret;
 }
 
+/* we leave this here for backwards compatibility - any hash tables nested
+ * inside hash tables will use this as their free function if users were
+ * already relying on it, but dbus-glib itself will never use it directly as
+ * hashtable_free is also defined. */
 static void
 hashtable_simple_free (gpointer val)
 {
   g_hash_table_unref (val);
+}
+
+struct DBusGHashTableFreeData
+{
+  GType key_gtype;
+  GType value_gtype;
+};
+
+static gboolean
+hashtable_free_foreach_steal (gpointer key,
+                              gpointer value,
+                              gpointer user_data)
+{
+  struct DBusGHashTableFreeData *data = user_data;
+  GValue val = { 0, };
+
+  g_value_init (&val, data->key_gtype);
+  gvalue_take_hash_value (&val, key);
+  g_value_unset (&val);
+
+  g_value_init (&val, data->value_gtype);
+  gvalue_take_hash_value (&val, value);
+  g_value_unset (&val);
+
+  return TRUE;
+}
+
+static void
+hashtable_free (GType type,
+                gpointer val)
+{
+  struct DBusGHashTableFreeData data = { 0, };
+  GHashTable *hash = val;
+
+  data.key_gtype = dbus_g_type_get_map_key_specialization (type);
+  data.value_gtype = dbus_g_type_get_map_value_specialization (type);
+
+  /* wheee, fun. two cases here. either:
+   *
+   * a) the keys and value types both have simple (ie, no * GType parameter is
+   * needed to know how to free them) free functions, in which case they were
+   * set as the hash free functions when the hash table was constructed.  in
+   * this case, it's sufficient for us to unref the hash table as before. we
+   * have to keep doing this in order to maintain compatibility with the ABI
+   * which was around before hash tables could contain types which don't have
+   * simple free functions (such as GPtrArrays of other stuff). for these
+   * tables, users were able to ref the hash tables and add/remove values, and
+   * rely on meaningful free functions.
+   *
+   * b) for any other key or value types where /do/ need to know the GType in
+   * order to free it, this function is the only "right" way to free the hash
+   * table. both the key and value free functions were set to print a big nasty
+   * warning, and we free the contents of the hashtable with foreach_steal.
+   */
+  if (gtype_can_simple_free (data.key_gtype) &&
+      gtype_can_simple_free (data.value_gtype))
+    {
+      g_hash_table_unref (hash);
+    }
+  else
+    {
+      g_hash_table_foreach_steal (hash, hashtable_free_foreach_steal, &data);
+      g_hash_table_unref (hash);
+    }
 }
 
 static gpointer
@@ -1043,7 +1180,7 @@ _dbus_g_type_specialized_builtins_init (void)
   static const DBusGTypeSpecializedMapVtable hashtable_vtable = {
     {
       hashtable_constructor,
-      NULL,
+      hashtable_free,
       hashtable_copy,
       hashtable_simple_free,
       NULL,

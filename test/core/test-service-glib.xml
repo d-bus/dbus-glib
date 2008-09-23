@@ -155,8 +155,8 @@
 
     <method name="DictOfObjs">
       <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
-      <arg type="a{oas}" direction="in" />
-      <arg type="a{oas}" direction="out" />
+      <arg type="a{oao}" direction="in" />
+      <arg type="a{oao}" direction="out" />
     </method>
 
     <method name="EmitFrobnicate">
