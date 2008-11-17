@@ -658,8 +658,15 @@ unassociate_proxies (gpointer key, gpointer val, gpointer user_data)
 	{
 	  if (!priv->for_owner)
 	    {
-	      g_assert (priv->associated);
-	      g_assert (priv->name_call == NULL);
+	      /* If a service appeared and then vanished very quickly,
+	       * it's conceivable we have an inflight request for
+	       * GetNameOwner here.  Cancel it.
+	       * https://bugs.freedesktop.org/show_bug.cgi?id=18573
+	       */
+	      if (priv->name_call)
+		dbus_g_proxy_cancel_call (manager->bus_proxy, priv->name_call);
+
+	      priv->name_call = NULL;
 
 	      priv->associated = FALSE;
 	      manager->unassociated_proxies = g_slist_prepend (manager->unassociated_proxies, proxy);
