@@ -235,108 +235,6 @@ if test x$enable_gcov = xyes; then
 fi
 AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
 
-#### Integer sizes 
-
-AC_CHECK_SIZEOF(char)
-AC_CHECK_SIZEOF(short)
-AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(void *)
-AC_CHECK_SIZEOF(long long)
-AC_CHECK_SIZEOF(__int64)
-
-### See what our 64 bit type is called
-AC_MSG_CHECKING([64-bit integer type])
-
-case 8 in
-$ac_cv_sizeof_int)
-  dbusint64=int
-  dbusint64_constant='(val)'
-  dbusuint64_constant='(val)'
-  ;;
-$ac_cv_sizeof_long)
-  dbusint64=long
-  dbusint64_constant='(val##L)'
-  dbusuint64_constant='(val##UL)'
-  ;;
-$ac_cv_sizeof_long_long)
-  dbusint64='long long'
-  dbusint64_constant='(val##LL)'
-  dbusuint64_constant='(val##ULL)'
-  ;;
-$ac_cv_sizeof___int64)
-  dbusint64=__int64
-  dbusint64_constant='(val##i64)'
-  dbusuint64_constant='(val##ui64)'
-  ;;
-esac
-
-if test -z "$dbusint64" ; then
-        DBUS_INT64_TYPE="no_int64_type_detected"
-        DBUS_HAVE_INT64=0
-        DBUS_INT64_CONSTANT=
-        DBUS_UINT64_CONSTANT=
-        AC_MSG_RESULT([none found])
-else
-        DBUS_INT64_TYPE="$dbusint64"
-        DBUS_HAVE_INT64=1
-        DBUS_INT64_CONSTANT="$dbusint64_constant"
-        DBUS_UINT64_CONSTANT="$dbusuint64_constant"
-        AC_MSG_RESULT($DBUS_INT64_TYPE)
-fi
-
-AC_SUBST(DBUS_INT64_TYPE)
-AC_SUBST(DBUS_INT64_CONSTANT)
-AC_SUBST(DBUS_UINT64_CONSTANT)
-AC_SUBST(DBUS_HAVE_INT64)
-
-### see what 32-bit int is called
-AC_MSG_CHECKING([32-bit integer type])
-
-case 4 in
-$ac_cv_sizeof_short)
-  dbusint32=int
-  ;;
-$ac_cv_sizeof_int)
-  dbusint32=int
-  ;;
-$ac_cv_sizeof_long)
-  dbusint32=long
-  ;;
-esac
-
-if test -z "$dbusint32" ; then
-        DBUS_INT32_TYPE="no_int32_type_detected"
-        AC_MSG_ERROR([No 32-bit integer type found])
-else
-        DBUS_INT32_TYPE="$dbusint32"
-        AC_MSG_RESULT($DBUS_INT32_TYPE)
-fi
-
-AC_SUBST(DBUS_INT32_TYPE)
-
-### see what 16-bit int is called
-AC_MSG_CHECKING([16-bit integer type])
-
-case 2 in
-$ac_cv_sizeof_short)
-  dbusint16=short
-  ;;
-$ac_cv_sizeof_int)
-  dbusint16=int
-  ;;
-esac
-
-if test -z "$dbusint16" ; then
-        DBUS_INT16_TYPE="no_int16_type_detected"
-        AC_MSG_ERROR([No 16-bit integer type found])
-else
-        DBUS_INT16_TYPE="$dbusint16"
-        AC_MSG_RESULT($DBUS_INT16_TYPE)
-fi
-
-AC_SUBST(DBUS_INT16_TYPE)
-
 ## byte order
 AC_C_BIGENDIAN
 
@@ -870,9 +768,6 @@ echo "
 	compiler:		  ${CC}
 	cflags:		          ${CFLAGS}
 	cppflags:		  ${CPPFLAGS}
-	64-bit int:		  ${DBUS_INT64_TYPE}
-	32-bit int:		  ${DBUS_INT32_TYPE}
-	16-bit int:		  ${DBUS_INT16_TYPE}
         Doxygen:                  ${DOXYGEN}"
 
 echo "
