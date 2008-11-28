@@ -43,7 +43,6 @@ AC_SUBST(LT_AGE)
 
 
 AC_PROG_CC
-AC_PROG_CXX
 AC_ISC_POSIX
 AC_HEADER_STDC
 
@@ -218,7 +217,6 @@ changequote(,)dnl
 CPPFLAGS="-DDBUS_API_SUBJECT_TO_CHANGE=1 $CPPFLAGS"
 # compress spaces in flags
 CFLAGS=`echo "$CFLAGS" | sed -e 's/ +/ /g'`
-CXXFLAGS=`echo "$CXXFLAGS" | sed -e 's/ +/ /g'`
 CPPFLAGS=`echo "$CPPFLAGS" | sed -e 's/ +/ /g'`
 changequote([,])dnl
 
@@ -872,7 +870,6 @@ echo "
 	compiler:		  ${CC}
 	cflags:		          ${CFLAGS}
 	cppflags:		  ${CPPFLAGS}
-	cxxflags:		  ${CXXFLAGS}
 	64-bit int:		  ${DBUS_INT64_TYPE}
 	32-bit int:		  ${DBUS_INT32_TYPE}
 	16-bit int:		  ${DBUS_INT16_TYPE}
