@@ -233,9 +233,6 @@ if test x$enable_gcov = xyes; then
 fi
 AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
 
-## byte order
-AC_C_BIGENDIAN
-
 
 dnl **********************************
 dnl *** va_copy checks (from GLib) ***
