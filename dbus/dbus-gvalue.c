@@ -177,7 +177,6 @@ _dbus_g_value_types_init (void)
     return;
 
   dbus_g_type_specialized_init ();
-  _dbus_g_type_specialized_builtins_init ();
 
   /* Register basic types */
   {

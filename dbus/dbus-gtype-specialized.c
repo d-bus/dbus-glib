@@ -23,6 +23,7 @@
  */
 
 #include "dbus-gtype-specialized.h"
+#include "dbus-gvalue-utils.h"
 #include <glib.h>
 #include <string.h>
 #include <gobject/gvaluecollector.h>
@@ -89,7 +90,12 @@ specialized_type_data_quark ()
 void
 dbus_g_type_specialized_init (void)
 {
+  if (specialized_containers)
+    return;
+  
   specialized_containers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  
+  _dbus_g_type_specialized_builtins_init ();
 }
 
 static gboolean
