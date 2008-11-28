@@ -234,32 +234,6 @@ fi
 AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
 
 
-#### Atomic integers (checks by Sebastian Wilhelmi for GLib)
-AC_MSG_CHECKING([whether to use inline assembler routines for atomic integers])
-have_atomic_inc=no
-if test x"$GCC" = xyes; then
-  if test "x$enable_ansi" = "xyes"; then
-    AC_MSG_RESULT([no])
-  else
-    case $host_cpu in
-      i386)
-        AC_MSG_RESULT([no])
-        ;;
-      i?86)
-        AC_MSG_RESULT([i486])
-        AC_DEFINE_UNQUOTED(DBUS_USE_ATOMIC_INT_486, 1, [Use atomic integer implementation for 486])
-        have_atomic_inc=yes
-        ;;
-      *)
-        AC_MSG_RESULT([no])
-        ;;
-    esac
-  fi
-fi
-if test x$have_atomic_inc = xyes ; then
-  AC_DEFINE_UNQUOTED(DBUS_HAVE_ATOMIC_INT, 1, [Some atomic integer implementation present])
-fi
-
 #### Various functions
 AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket])
