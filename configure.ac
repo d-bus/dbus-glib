@@ -213,8 +213,6 @@ fi
 AM_PROG_LIBTOOL
 
 changequote(,)dnl
-# let ourselves use our own unstable API
-CPPFLAGS="-DDBUS_API_SUBJECT_TO_CHANGE=1 $CPPFLAGS"
 # compress spaces in flags
 CFLAGS=`echo "$CFLAGS" | sed -e 's/ +/ /g'`
 CPPFLAGS=`echo "$CPPFLAGS" | sed -e 's/ +/ /g'`
