@@ -224,6 +224,17 @@ my_object_throw_error (MyObject *obj, GError **error)
 }
 
 gboolean
+my_object_throw_not_supported (MyObject *obj, GError **error)
+{
+  g_set_error (error,
+	       DBUS_GERROR,
+	       DBUS_GERROR_NOT_SUPPORTED,
+	       "%s",
+	       "this method always loses");
+  return FALSE;
+}
+
+gboolean
 my_object_uppercase (MyObject *obj, const char *str, char **ret, GError **error)
 {
   *ret = g_ascii_strup (str, -1);
