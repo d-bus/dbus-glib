@@ -1074,9 +1074,72 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
   else
     {
       if (error->domain == DBUS_GERROR)
-	reply = dbus_message_new_error (message,
-					dbus_g_error_get_name (error),
-					error->message);
+        {
+          const gchar *name = DBUS_ERROR_FAILED;
+
+          switch (error->code)
+            {
+            case DBUS_GERROR_FAILED:
+              name = DBUS_ERROR_FAILED;
+              break;
+            case DBUS_GERROR_NO_MEMORY:
+              name = DBUS_ERROR_NO_MEMORY;
+              break;
+            case DBUS_GERROR_SERVICE_UNKNOWN:
+              name = DBUS_ERROR_SERVICE_UNKNOWN;
+              break;
+            case DBUS_GERROR_NAME_HAS_NO_OWNER:
+              name = DBUS_ERROR_NAME_HAS_NO_OWNER;
+              break;
+            case DBUS_GERROR_NO_REPLY:
+              name = DBUS_ERROR_NO_REPLY;
+              break;
+            case DBUS_GERROR_IO_ERROR:
+              name = DBUS_ERROR_IO_ERROR;
+              break;
+            case DBUS_GERROR_BAD_ADDRESS:
+              name = DBUS_ERROR_BAD_ADDRESS;
+              break;
+            case DBUS_GERROR_NOT_SUPPORTED:
+              name = DBUS_ERROR_NOT_SUPPORTED;
+              break;
+            case DBUS_GERROR_LIMITS_EXCEEDED:
+              name = DBUS_ERROR_LIMITS_EXCEEDED;
+              break;
+            case DBUS_GERROR_ACCESS_DENIED:
+              name = DBUS_ERROR_ACCESS_DENIED;
+              break;
+            case DBUS_GERROR_AUTH_FAILED:
+              name = DBUS_ERROR_AUTH_FAILED;
+              break;
+            case DBUS_GERROR_NO_SERVER:
+              name = DBUS_ERROR_NO_SERVER;
+              break;
+            case DBUS_GERROR_TIMEOUT:
+              name = DBUS_ERROR_TIMEOUT;
+              break;
+            case DBUS_GERROR_NO_NETWORK:
+              name = DBUS_ERROR_NO_NETWORK;
+              break;
+            case DBUS_GERROR_ADDRESS_IN_USE:
+              name = DBUS_ERROR_ADDRESS_IN_USE;
+              break;
+            case DBUS_GERROR_DISCONNECTED:
+              name = DBUS_ERROR_DISCONNECTED;
+              break;
+            case DBUS_GERROR_INVALID_ARGS:
+              name = DBUS_ERROR_INVALID_ARGS;
+              break;
+            case DBUS_GERROR_FILE_NOT_FOUND:
+              name = DBUS_ERROR_FILE_NOT_FOUND;
+              break;
+            case DBUS_GERROR_REMOTE_EXCEPTION:
+              name = dbus_g_error_get_name (error);
+              break;
+            }
+
+          reply = dbus_message_new_error (message, name, error->message);
+        }
       else
 	{
 	  char *error_name;
