@@ -235,48 +235,7 @@ AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
 
 
 #### Various functions
-AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket])
-
-AC_CHECK_FUNCS(vsnprintf vasprintf nanosleep usleep poll setenv unsetenv socketpair getgrouplist)
-
-AC_CHECK_HEADERS(execinfo.h, [AC_CHECK_FUNCS(backtrace)])
-
-AC_CACHE_CHECK([for posix getpwnam_r],
-		ac_cv_func_posix_getpwnam_r,
-		[AC_TRY_RUN([
-#include <errno.h>
-#include <pwd.h>
-int main () { 
-    char buffer[10000];
-    struct passwd pwd, *pwptr = &pwd;
-    int error;
-    errno = 0;
-    error = getpwnam_r ("", &pwd, buffer, 
-                        sizeof (buffer), &pwptr);
-   return (error < 0 && errno == ENOSYS) 
-	   || error == ENOSYS; 
-}               ],
-	[ac_cv_func_posix_getpwnam_r=yes],
-	[ac_cv_func_posix_getpwnam_r=no])])
-if test "$ac_cv_func_posix_getpwnam_r" = yes; then
-	AC_DEFINE(HAVE_POSIX_GETPWNAM_R,1,
-		[Have POSIX function getpwnam_r])
-else
-	AC_CACHE_CHECK([for nonposix getpwnam_r],
-		ac_cv_func_nonposix_getpwnam_r,
-		[AC_TRY_LINK([#include <pwd.h>],
-                      	[char buffer[10000];
-                       	struct passwd pwd;
-                       	getpwnam_r ("", &pwd, buffer, 
-                               		sizeof (buffer));],
-			[ac_cv_func_nonposix_getpwnam_r=yes],
-			[ac_cv_func_nonposix_getpwnam_r=no])])
-		if test "$ac_cv_func_nonposix_getpwnam_r" = yes; then
-		AC_DEFINE(HAVE_NONPOSIX_GETPWNAM_R,1,
-			[Have non-POSIX function getpwnam_r])
-	fi
-fi
 
 dnl check for socklen_t
 AC_MSG_CHECKING(whether socklen_t is defined)
@@ -293,53 +252,6 @@ AC_MSG_RESULT($dbus_have_socklen_t)
 if test "x$dbus_have_socklen_t" = "xyes"; then
     AC_DEFINE(HAVE_SOCKLEN_T,1,[Have socklen_t type])
 fi
-
-dnl check for writev header and writev function so we're 
-dnl good to go if HAVE_WRITEV gets defined.
-AC_CHECK_HEADERS(sys/uio.h, [AC_CHECK_FUNCS(writev)])
-
-dnl check for flavours of varargs macros (test from GLib)
-AC_MSG_CHECKING(for ISO C99 varargs macros in C)
-AC_TRY_COMPILE([],[
-int a(int p1, int p2, int p3);
-#define call_a(...) a(1,__VA_ARGS__)
-call_a(2,3);
-],dbus_have_iso_c_varargs=yes,dbus_have_iso_c_varargs=no)
-AC_MSG_RESULT($dbus_have_iso_c_varargs)
-
-AC_MSG_CHECKING(for GNUC varargs macros)
-AC_TRY_COMPILE([],[
-int a(int p1, int p2, int p3);
-#define call_a(params...) a(1,params)
-call_a(2,3);
-],dbus_have_gnuc_varargs=yes,dbus_have_gnuc_varargs=no)
-AC_MSG_RESULT($dbus_have_gnuc_varargs)
-
-dnl Output varargs tests
-if test x$dbus_have_iso_c_varargs = xyes; then
-    AC_DEFINE(HAVE_ISO_VARARGS,1,[Have ISO C99 varargs macros])
-fi
-if test x$dbus_have_gnuc_varargs = xyes; then
-    AC_DEFINE(HAVE_GNUC_VARARGS,1,[Have GNU-style varargs macros])
-fi
-
-dnl Check for various credentials.
-AC_MSG_CHECKING(for struct cmsgcred)
-AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <sys/socket.h>
-],[
-struct cmsgcred cred;
-
-cred.cmcred_pid = 0;
-],dbus_have_struct_cmsgcred=yes,dbus_have_struct_cmsgcred=no)
-AC_MSG_RESULT($dbus_have_struct_cmsgcred)
-
-if test x$dbus_have_struct_cmsgcred = xyes; then
-    AC_DEFINE(HAVE_CMSGCRED,1,[Have cmsgcred structure])
-fi
-
-AC_CHECK_FUNCS(getpeerucred getpeereid)
 
 #### Abstract sockets
 
@@ -442,20 +354,6 @@ XML_CFLAGS=
 
 
 #### Set up final flags
-DBUS_CLIENT_CFLAGS=
-DBUS_CLIENT_LIBS=
-AC_SUBST(DBUS_CLIENT_CFLAGS)
-AC_SUBST(DBUS_CLIENT_LIBS)
-
-DBUS_BUS_CFLAGS=$XML_CFLAGS
-DBUS_BUS_LIBS="$XML_LIBS $SELINUX_LIBS $INTLLIBS"
-AC_SUBST(DBUS_BUS_CFLAGS)
-AC_SUBST(DBUS_BUS_LIBS)
-
-DBUS_TEST_CFLAGS=
-DBUS_TEST_LIBS=
-AC_SUBST(DBUS_TEST_CFLAGS)
-AC_SUBST(DBUS_TEST_LIBS)
 
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.1, have_dbus=yes, have_dbus=no)
 
