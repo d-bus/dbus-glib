@@ -425,8 +425,8 @@ if test x$have_atomic_inc = xyes ; then
 fi
 
 #### Various functions
-AC_CHECK_LIB(socket,socket)
-AC_CHECK_LIB(nsl,gethostbyname)
+AC_SEARCH_LIBS([gethostbyname], [nsl])
+AC_SEARCH_LIBS([socket], [socket])
 
 AC_CHECK_FUNCS(vsnprintf vasprintf nanosleep usleep poll setenv unsetenv socketpair getgrouplist)
 
