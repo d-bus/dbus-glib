@@ -1,3 +1,21 @@
+D-Bus GLib Bindings 0.78 (04 Dec 2008)
+
+Thanks to Robert McQueen, Philip Van Hoof, David Zeuthen,
+Colin Walters, Dan Williams, Nick Welch, Tomas Pelka and
+others for their contributions.
+
+Reliability fixes:
+
+ - #16114 [patch] wincaps-to-uscore property names for GetAll()
+ - #16419: recursive variants demarshaling limits
+ - #18573: service tracker race
+
+Other notable fixes and enhancements:
+
+ - #17329: allow hash tables to contain complex types
+ - #17798: add support for 'o', 'g' and 'as' in dictionaries
+ - #16925: bash completion for dbus-send
+
 D-Bus GLib Bindings 0.75 (05 Jun 2008)
 ==
 
