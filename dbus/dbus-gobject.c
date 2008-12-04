@@ -1911,7 +1911,7 @@ unregister_gobject (DBusGConnection *connection, GObject *dead)
  * Registers a #GObject at the given path. Properties, methods, and signals
  * of the object can then be accessed remotely. Methods are only available
  * if method introspection data has been added to the object's class
- * with g_object_class_install_info().
+ * with dbus_g_object_type_install_info().
  *
  * The registration will be cancelled if either the #DBusConnection or
  * the #GObject gets finalized.
