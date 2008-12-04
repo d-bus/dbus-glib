@@ -100,6 +100,7 @@ endif
 
 dbus-bash-completion.sh : dbus-bash-completion.sh.in
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+CLEANFILES += dbus-bash-completion.sh
 
 dbus_bash_completion_helper_SOURCES =                 	\
 	dbus-bash-completion-helper.c
