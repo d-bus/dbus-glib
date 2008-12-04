@@ -63,7 +63,7 @@ filter_test_message (DBusConnection     *connection,
       goto out;
     }
 
-  if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_UINT32)
+  if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_INT32)
     {
       g_print ("Second arg not right type\n");
       goto out;
