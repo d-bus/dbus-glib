@@ -290,11 +290,12 @@ dbus_g_object_type_dbus_metadata_quark (void)
   return quark;
 }
 
-static GList *
-lookup_object_info (GObject *object)
+static void
+foreach_object_info (GObject *object,
+		     GFunc callback,
+		     gpointer user_data)
 {
   GType *interfaces, *p;
-  GList *info_list = NULL;
   const DBusGObjectInfo *info;
   GType classtype;
 
@@ -304,7 +305,7 @@ lookup_object_info (GObject *object)
     {
       info = g_type_get_qdata (*p, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-          info_list = g_list_prepend (info_list, (gpointer) info);
+	callback ((gpointer) info, user_data);
     }
 
   g_free (interfaces);
@@ -313,14 +314,68 @@ lookup_object_info (GObject *object)
     {
       info = g_type_get_qdata (classtype, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-          info_list = g_list_prepend (info_list, (gpointer) info);
+	callback ((gpointer) info, user_data);
     }
 
-  /* if needed only:
-  return g_list_reverse (info_list);
-  */
-  
+}
+
+static void
+lookup_object_info_cb (gpointer data,
+		       gpointer user_data)
+{
+  GList **list = (GList **) user_data;
+
+  *list = g_list_prepend (*list, data);
+}
+
+static GList *
+lookup_object_info (GObject *object)
+{
+  GList *info_list = NULL;
+
+  foreach_object_info (object, lookup_object_info_cb, &info_list);
+
   return info_list;
+}
+
+typedef struct {
+  const char *iface;
+  DBusGObjectInfo *info;
+} LookupObjectInfoByIfaceData;
+
+static void
+lookup_object_info_by_iface_cb (gpointer data,
+				gpointer user_data)
+{
+  DBusGObjectInfo *info = (DBusGObjectInfo *) data;
+  LookupObjectInfoByIfaceData *lookup_data = (LookupObjectInfoByIfaceData *) user_data;
+
+  if (lookup_data->info)
+    return;
+
+  /* If interface is not specified, choose the first info */
+  if (!lookup_data->iface || strlen (lookup_data->iface) == 0)
+    {
+      lookup_data->info = info;
+      return;
+    }
+
+  if (info->exported_properties && !strcmp (info->exported_properties, lookup_data->iface))
+    lookup_data->info = info;
+}
+
+static DBusGObjectInfo *
+lookup_object_info_by_iface (GObject     *object,
+			     const char  *iface)
+{
+  LookupObjectInfoByIfaceData data;
+
+  data.iface = iface;
+  data.info = NULL;
+
+  foreach_object_info (object, lookup_object_info_by_iface_cb, &data);
+
+  return data.info;
 }
 
 static void
@@ -1407,7 +1462,7 @@ gobject_message_function (DBusConnection  *connection,
   gboolean getall;
   char *s;
   const char *wincaps_propname;
-  /* const char *wincaps_propiface; */
+  const char *wincaps_propiface;
   DBusMessageIter iter;
   const DBusGMethodInfo *method;
   const DBusGObjectInfo *object_info;
@@ -1456,14 +1511,13 @@ gobject_message_function (DBusConnection  *connection,
       g_warning ("Property get or set does not have an interface string as first arg\n");
       return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
     }
-  /* We never use the interface name; if we did, we'd need to
-   * remember that it can be empty string for "pick one for me"
-   */
-  /* dbus_message_iter_get_basic (&iter, &wincaps_propiface); */
+
+  dbus_message_iter_get_basic (&iter, &wincaps_propiface);
   dbus_message_iter_next (&iter);
 
   if (getall)
     {
+      object_info = lookup_object_info_by_iface (object, wincaps_propiface);
       if (object_info != NULL)
           ret = get_all_object_properties (connection, message, object_info, object);
       else
