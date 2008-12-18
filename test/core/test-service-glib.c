@@ -12,9 +12,11 @@
 #include <glib/gquark.h>
 
 #include "my-object.h"
+#include "my-object-subclass.h"
 
 static GObject *obj;
 static GObject *obj2;
+static GObject *subobj;
 GMainLoop *loop;
 
 #define TEST_SERVICE_NAME "org.freedesktop.DBus.GLib.TestService"
@@ -59,6 +61,7 @@ main (int argc, char **argv)
 
   obj = g_object_new (MY_TYPE_OBJECT, NULL);
   obj2 = g_object_new (MY_TYPE_OBJECT, NULL);
+  subobj = g_object_new (MY_TYPE_OBJECT_SUBCLASS, NULL);
 
   dbus_g_connection_register_g_object (connection,
                                        "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
@@ -66,6 +69,10 @@ main (int argc, char **argv)
   dbus_g_connection_register_g_object (connection,
                                        "/org/freedesktop/DBus/GLib/Tests/MyTestObject2",
                                        obj2);
+
+  dbus_g_connection_register_g_object (connection,
+                                       "/org/freedesktop/DBus/GLib/Tests/MyTestObjectSubclass",
+                                       subobj);
 
   driver_proxy = dbus_g_proxy_new_for_name (connection,
                                             DBUS_SERVICE_DBUS,

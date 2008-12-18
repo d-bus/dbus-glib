@@ -17,7 +17,7 @@ else
 TESTS=
 endif
 
-EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.list test-service-glib.xml
+EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.list test-service-glib-subclass.xml
 
 if DBUS_BUILD_TESTS
 
@@ -51,17 +51,22 @@ test_variant_recursion_SOURCES=test-variant-recursion.c
 
 test_variant_recursion_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
 
-BUILT_SOURCES = test-service-glib-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
+BUILT_SOURCES = test-service-glib-glue.h test-service-glib-subclass-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
 
 test_service_glib_SOURCES=				\
 	my-object.c                             \
 	my-object.h                             \
+	my-object-subclass.c                    \
+	my-object-subclass.h                    \
 	my-object-marshal.c                             \
 	test-service-glib.c 
 test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
 
 test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
 	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object --mode=glib-server --output=test-service-glib-glue.h $(srcdir)/test-service-glib.xml
+
+test-service-glib-subclass-glue.h: test-service-glib-subclass.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object_subclass --mode=glib-server --output=test-service-glib-subclass-glue.h $(srcdir)/test-service-glib-subclass.xml
 
 test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
 	$(top_builddir)/dbus/dbus-binding-tool --prefix=my_object --mode=glib-client --output=test-service-glib-bindings.h $(srcdir)/test-service-glib.xml
@@ -76,6 +81,8 @@ my-object-marshal.h: Makefile my-object-marshal.list
 peer_server_SOURCES = \
 	my-object.c                             \
 	my-object.h                             \
+	my-object-subclass.c                    \
+	my-object-subclass.h                    \
 	my-object-marshal.c                             \
 	peer-server.c
 peer_server_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS)
