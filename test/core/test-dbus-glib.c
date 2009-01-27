@@ -268,6 +268,175 @@ increment_async_cb (DBusGProxy *proxy, guint val, GError *error, gpointer data)
   g_source_remove (exit_timeout);
 }
 
+#define DBUS_TYPE_G_MAP_OF_VARIANT (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
+static gboolean
+test_base_class_get_all (DBusGConnection *connection,
+                         const char *object_path,
+                         const char *expected_string_value)
+{
+  DBusGProxy *proxy;
+  GError *error = NULL;
+  GHashTable *hash = NULL;
+
+  g_assert (expected_string_value != NULL);
+  g_assert (object_path != NULL);
+
+  /* Test GetAll with interfaces on the base class */
+
+  proxy = dbus_g_proxy_new_for_name (connection,
+				     "org.freedesktop.DBus.GLib.TestService",
+				     object_path,
+				     DBUS_INTERFACE_PROPERTIES);
+  g_assert (proxy != NULL);
+
+  g_print ("%s: Calling GetAll for unknown interface\n", object_path);
+  {
+    if (dbus_g_proxy_call (proxy, "GetAll", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.foobar.blahblah",
+                            G_TYPE_INVALID,
+                            DBUS_TYPE_G_MAP_OF_VARIANT, &hash, G_TYPE_INVALID))
+        lose ("Unexpected success for GetAll call of unknown interface\n");
+    g_clear_error (&error);
+    hash = NULL;
+  }
+
+  g_print ("%s: Calling GetAll for base class interface\n", object_path);
+  {
+    GValue *value;
+    const char *foo = NULL;
+
+    if (!dbus_g_proxy_call (proxy, "GetAll", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_INVALID,
+                            DBUS_TYPE_G_MAP_OF_VARIANT, &hash, G_TYPE_INVALID))
+      lose_gerror ("Unexpected error for GetProperty call of base class interface\n", error);
+    g_clear_error (&error);
+
+    if (!hash)
+      {
+        lose ("%s: Unexpected NULL hash table returned for GetAll call of base "
+              "class interface\n", object_path);
+      }
+
+    if (g_hash_table_size (hash) != 1)
+      {
+        lose ("%s: Unexpected hash table size %d (expected 1) returned for GetAll "
+              " call of base class interface\n", object_path, g_hash_table_size (hash));
+      }
+    value = g_hash_table_lookup (hash, "this_is_a_string");
+    if (!value)
+      {
+        lose ("%s: Unexpected missing 'this_is_a_string' property for GetAll "
+              "call of base class interface\n", object_path);
+      }
+    if (!G_VALUE_HOLDS_STRING (value))
+      {
+        lose ("%s: Unexpected wrong type for 'this_is_a_string' property for "
+              "GetAll call of base class interface\n", object_path);
+      }
+    foo = g_value_get_string (value);
+    if (!foo || strcmp (foo, expected_string_value))
+      {
+        lose ("%s: Unexpected value for 'this_is_a_string' property for GetAll "
+              "call of base class interface\n", object_path);
+      }
+
+    g_hash_table_destroy (hash);
+    hash = NULL;
+  }
+
+  g_object_unref (proxy);
+  return TRUE;
+}
+
+static gboolean
+test_subclass_get_all (DBusGConnection *connection,
+                       const char *object_path)
+{
+  DBusGProxy *proxy;
+  GError *error = NULL;
+  GHashTable *hash = NULL;
+
+  g_assert (object_path != NULL);
+
+  /* Test GetAll with interfaces on the subclass */
+
+  proxy = dbus_g_proxy_new_for_name (connection,
+				     "org.freedesktop.DBus.GLib.TestService",
+				     object_path,
+				     DBUS_INTERFACE_PROPERTIES);
+  g_assert (proxy != NULL);
+
+  g_print ("%s: Calling GetAll for subclass interface\n", object_path);
+  {
+    GValue *value;
+    const char *string = NULL;
+    guint num = 0;
+
+    if (!dbus_g_proxy_call (proxy, "GetAll", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObjectSubclass",
+                            G_TYPE_INVALID,
+                            DBUS_TYPE_G_MAP_OF_VARIANT, &hash, G_TYPE_INVALID))
+      lose_gerror ("Unexpected error for GetProperty call of base subclass interface\n", error);
+    g_clear_error (&error);
+
+    if (!hash)
+      {
+        lose ("%s: Unexpected NULL hash table returned for GetAll call of "
+              "subclass interface\n", object_path);
+      }
+
+    if (g_hash_table_size (hash) != 2)
+      {
+        lose ("%s: Unexpected hash table size %d (expected 2) returned for GetAll "
+              " call of subclass interface\n", object_path, g_hash_table_size (hash));
+      }
+
+    /* Test the string property */
+    value = g_hash_table_lookup (hash, "this_is_a_subclass_string");
+    if (!value)
+      {
+        lose ("%s: Unexpected missing 'this_is_a_subclass_string' property for "
+              "GetAll call of subclass interface\n", object_path);
+      }
+    if (!G_VALUE_HOLDS_STRING (value))
+      {
+        lose ("%s: Unexpected wrong type for 'this_is_a_subclass_string' "
+              "property for GetAll call of subclass interface\n", object_path);
+      }
+    string = g_value_get_string (value);
+    if (!string || strcmp (string, "default subclass value"))
+      {
+        lose ("%s: Unexpected value for 'this_is_a_subclass_string' property "
+              "for GetAll call of subclass interface\n", object_path);
+      }
+
+    /* Test the uint property */
+    value = g_hash_table_lookup (hash, "this_is_a_subclass_uint");
+    if (!value)
+      {
+        lose ("%s: Unexpected missing 'this_is_a_subclass_uint' property for "
+              "GetAll call of subclass interface\n", object_path);
+      }
+    if (!G_VALUE_HOLDS_UINT (value))
+      {
+        lose ("%s: Unexpected wrong type for 'this_is_a_subclass_uint' "
+              "property for GetAll call of subclass interface\n", object_path);
+      }
+    num = g_value_get_uint (value);
+    if (num != 1234567)
+      {
+        lose ("%s: Unexpected value for 'this_is_a_subclass_uint' property "
+              "for GetAll call of subclass interface\n", object_path);
+      }
+
+    g_hash_table_destroy (hash);
+    hash = NULL;
+  }
+
+  g_object_unref (proxy);
+  return TRUE;
+}
 
 static void
 lose (const char *str, ...)
@@ -1838,6 +2007,24 @@ main (int argc, char **argv)
 
   g_object_unref (property_proxy);
   property_proxy = NULL;
+
+  /* Test GetAll */
+  /* 'testing value' set earlier by the SetProperty tests */
+  test_base_class_get_all (connection,
+                           "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
+                           "testing value");
+
+  /* "" is base class default for this_is_a_string property since the
+   * property isn't marked with G_PARAM_CONSTRUT.
+   */
+  test_base_class_get_all (connection,
+                           "/org/freedesktop/DBus/GLib/Tests/MyTestObjectSubclass",
+                           "");
+
+  /* Finally test GetAll of a subclass on a different interface to ensure that
+   * the right properties are returned (fdo #19145)
+   */
+  test_subclass_get_all (connection, "/org/freedesktop/DBus/GLib/Tests/MyTestObjectSubclass");
 
   test_terminate_proxy1 = dbus_g_proxy_new_for_name_owner (connection,
                             "org.freedesktop.DBus.GLib.TestService",
