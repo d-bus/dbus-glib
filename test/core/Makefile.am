@@ -12,7 +12,7 @@ INCLUDES = \
 ## TESTS
 if DBUS_BUILD_TESTS
 TESTS_ENVIRONMENT=DBUS_TOP_BUILDDIR=$(ABSOLUTE_TOP_BUILDDIR)
-TESTS=test-types run-test.sh run-peer-test.sh
+TESTS=run-test.sh run-peer-test.sh
 else
 TESTS=
 endif
