@@ -1108,6 +1108,7 @@ struct _DBusGMethodInvocation {
   DBusGMessage *message; /**< The message which generated the method call */
   const DBusGObjectInfo *object; /**< The object the method was called on */
   const DBusGMethodInfo *method; /**< The method called */
+  gboolean send_reply;
 };
 
 static DBusHandlerResult
@@ -1117,7 +1118,7 @@ invoke_object_method (GObject         *object,
 		      DBusConnection  *connection,
 		      DBusMessage     *message)
 {
-  gboolean had_error, call_only;
+  gboolean had_error, is_async, send_reply;
   GError *gerror;
   GValueArray *value_array;
   GValue return_value = {0,};
@@ -1128,7 +1129,7 @@ invoke_object_method (GObject         *object,
   int out_param_count;
   int out_param_pos, out_param_gvalue_pos;
   DBusHandlerResult result;
-  DBusMessage *reply;
+  DBusMessage *reply = NULL;
   gboolean have_retval;
   gboolean retval_signals_error;
   gboolean retval_is_synthetic;
@@ -1137,13 +1138,19 @@ invoke_object_method (GObject         *object,
 
   gerror = NULL;
 
-  /* Determine whether or not this method should be invoked in a new
-     thread
+  /* This flag says whether invokee is handed a special DBusGMethodInvocation structure,
+   * instead of being required to fill out all return values in the context of the function.
+   * Some additional data is also exposed, such as the message sender.
    */
-  if (strcmp (string_table_lookup (get_method_data (object_info, method), 2), "A") == 0)
-    call_only = TRUE;
-  else
-    call_only = FALSE;
+  is_async = strcmp (string_table_lookup (get_method_data (object_info, method), 2), "A") == 0;
+  
+  /* Messages can be sent with a flag that says "I don't need a reply".  This is an optimization
+   * normally, but in the context of the system bus it's important to not send a reply
+   * to these kinds of messages, because they will be unrequested replies, and thus subject
+   * to denial and logging.  We don't want to fill up logs.
+   * http://bugs.freedesktop.org/show_bug.cgi?id=19441
+   */
+  send_reply = !dbus_message_get_no_reply (message); 
 
   have_retval = FALSE;
   retval_signals_error = FALSE;
@@ -1194,7 +1201,7 @@ invoke_object_method (GObject         *object,
   g_value_init (g_value_array_get_nth (value_array, 0), G_TYPE_OBJECT);
   g_value_set_object (g_value_array_get_nth (value_array, 0), object);
   
-  if (call_only)
+  if (is_async)
     {
       GValue context_value = {0,};
       DBusGMethodInvocation *context;
@@ -1203,6 +1210,7 @@ invoke_object_method (GObject         *object,
       context->message = dbus_g_message_ref (DBUS_G_MESSAGE_FROM_MESSAGE (message));
       context->object = object_info;
       context->method = method;
+      context->send_reply = send_reply;
       g_value_init (&context_value, G_TYPE_POINTER);
       g_value_set_pointer (&context_value, context);
       g_value_array_append (value_array, &context_value);
@@ -1340,7 +1348,7 @@ invoke_object_method (GObject         *object,
 		      value_array->n_values,
 		      value_array->values,
 		      NULL, method->function);
-  if (call_only)
+  if (is_async)
     {
       result = DBUS_HANDLER_RESULT_HANDLED;
       goto done;
@@ -1354,17 +1362,25 @@ invoke_object_method (GObject         *object,
     {
       DBusMessageIter iter;
 
-      reply = dbus_message_new_method_return (message);
-      if (reply == NULL)
-	goto nomem;
+      /* Careful here - there are two major cases in this section of the code.
+       * If send_reply is TRUE, we're constructing a dbus message and freeing
+       * the return values.  If it's FALSE, then we just need to free the
+       * values.
+       */
+      if (send_reply)
+        {
+          reply = dbus_message_new_method_return (message);
+          if (reply == NULL)
+            goto nomem;
 
-      /* Append output arguments to reply */
-      dbus_message_iter_init_append (reply, &iter);
+          /* Append output arguments to reply */
+          dbus_message_iter_init_append (reply, &iter);
+        }
 
       /* First, append the return value, unless it's synthetic */
       if (have_retval && !retval_is_synthetic)
-	{
-	  if (!_dbus_gvalue_marshal (&iter, &return_value))
+	{ 
+	  if (send_reply && !_dbus_gvalue_marshal (&iter, &return_value))
 	    goto nomem;
 	  if (!retval_is_constant)
 	    g_value_unset (&return_value);
@@ -1416,7 +1432,7 @@ invoke_object_method (GObject         *object,
 	      out_param_gvalue_pos++;
 	    }
 	      
-	  if (!_dbus_gvalue_marshal (&iter, &gvalue))
+	  if (send_reply && !_dbus_gvalue_marshal (&iter, &gvalue))
 	    goto nomem;
 	  /* Here we actually free the allocated value; we
 	   * took ownership of it with _dbus_gvalue_take, unless
@@ -1426,7 +1442,7 @@ invoke_object_method (GObject         *object,
 	    g_value_unset (&gvalue);
 	}
     }
-  else
+  else if (send_reply)
     reply = gerror_to_dbus_error_message (object_info, message, gerror);
 
   if (reply)
@@ -1438,7 +1454,7 @@ invoke_object_method (GObject         *object,
   result = DBUS_HANDLER_RESULT_HANDLED;
  done:
   g_free (in_signature);
-  if (!call_only)
+  if (!is_async)
     {
       g_array_free (out_param_values, TRUE);
       g_value_array_free (out_param_gvalues);
@@ -2311,6 +2327,12 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
   char *out_sig;
   GArray *argsig;
   guint i;
+  
+  /* This field was initialized inside invoke_object_method; we
+   * carry it over through the async invocation to here.
+   */
+  if (!context->send_reply)
+    return;
 
   reply = dbus_message_new_method_return (dbus_g_message_get_message (context->message));
   out_sig = method_output_signature_from_object_info (context->object, context->method);
@@ -2357,6 +2379,11 @@ void
 dbus_g_method_return_error (DBusGMethodInvocation *context, GError *error)
 {
   DBusMessage *reply;
+  
+  /* See comment in dbus_g_method_return */
+  if (!context->send_reply)
+    return;  
+  
   reply = gerror_to_dbus_error_message (context->object, dbus_g_message_get_message (context->message), error);
   dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
   dbus_message_unref (reply);
