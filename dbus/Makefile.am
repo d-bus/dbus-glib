@@ -92,10 +92,10 @@ regenerate-built-sources:
         @GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --body >> dbus-gmarshal.c
 
 
-profiledir = $(sysconfdir)/profile.d
+completiondir = $(sysconfdir)/bash_completion.d
 if DBUS_BASH_COMPLETION
 libexec_PROGRAMS=dbus-bash-completion-helper
-profile_SCRIPTS=dbus-bash-completion.sh
+completion_SCRIPTS=dbus-bash-completion.sh
 endif
 
 dbus-bash-completion.sh : dbus-bash-completion.sh.in
