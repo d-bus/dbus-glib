@@ -72,7 +72,7 @@ libdbus_gtool_la_SOURCES = $(DBUS_GLIB_INTERNALS) \
 	dbus-gparser.c				\
 	dbus-gparser.h
 
-libdbus_gtool_la_LIBADD = $(DBUS_LIBS) 
+libdbus_gtool_la_LIBADD = $(DBUS_LIBS) -lexpat
 
 bin_PROGRAMS=dbus-binding-tool
 
@@ -82,7 +82,7 @@ dbus_binding_tool_SOURCES =			\
 	dbus-glib-tool.h			\
 	dbus-glib-tool.c
 
-dbus_binding_tool_LDADD= libdbus-gtool.la libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS) -lexpat
+dbus_binding_tool_LDADD= $(builddir)/libdbus-gtool.la $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS) -lexpat
 
 ## we just rebuilt these manually and check them into cvs; easier than
 ## convincing automake/make to do this properly
@@ -104,7 +104,7 @@ CLEANFILES += dbus-bash-completion.sh
 
 dbus_bash_completion_helper_SOURCES =                 	\
 	dbus-bash-completion-helper.c
-dbus_bash_completion_helper_LDADD=$(DBUS_LIBS) $(DBUS_GLIB_LIBS) libdbus-gtool.la -lexpat libdbus-glib-1.la
+dbus_bash_completion_helper_LDADD=$(DBUS_LIBS) $(DBUS_GLIB_LIBS) $(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la
 
 
 EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh make-dbus-glib-error-enum.sh dbus-bash-completion.sh.in
@@ -126,7 +126,7 @@ TESTS=dbus-glib-test
 dbus_glib_test_SOURCES=			\
 	dbus-gtest-main.c
 
-dbus_glib_test_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
+dbus_glib_test_LDADD= $(builddir)/libdbus-glib-1.la
 
 else
 ### not building tests
