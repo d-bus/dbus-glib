@@ -30,3 +30,8 @@ test_service_SOURCES=				\
 
 test_service_LDADD=$(DBUS_LIBS)
 decode_gcov_LDADD=$(DBUS_LIBS)
+
+EXTRA_DIST = data/nested-introspect.xml test-compile-nested.sh
+
+TESTS_ENVIRONMENT=top_builddir=$(top_builddir) srcdir=$(srcdir)
+TESTS = test-compile-nested.sh

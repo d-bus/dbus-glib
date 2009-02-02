@@ -1,1 +1,1 @@
-/usr/share/aclocal/gtk-doc.m4
+/src/build/jhbuild/share/aclocal/gtk-doc.m4

@@ -56,6 +56,7 @@ typedef struct
 } DBusBindingToolCData;
 
 static gboolean gather_marshallers (BaseInfo *base, DBusBindingToolCData *data, GError **error);
+static gboolean generate_glue_toplevel (BaseInfo *base, DBusBindingToolCData *data, GError **error);
 static gboolean generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error);
 static gboolean generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error);
 
@@ -461,59 +462,72 @@ write_quoted_string (GIOChannel *channel, GString *string, GError **error)
 }
 
 static gboolean
+generate_glue_toplevel (BaseInfo *base, DBusBindingToolCData *data, GError **error)
+{
+  GString *object_introspection_data_blob;
+  GIOChannel *channel;
+  
+  channel = data->channel;
+  
+  object_introspection_data_blob = g_string_new_len ("", 0);
+
+  data->blob = object_introspection_data_blob;
+  data->count = 0;
+  
+  data->signal_blob = g_string_new_len ("", 0);
+  data->property_blob = g_string_new_len ("", 0);
+
+  if (!write_printf_to_iochannel ("static const DBusGMethodInfo dbus_glib_%s_methods[] = {\n", channel, error, data->prefix))
+    goto io_lose;
+  
+  if (!generate_glue_list (node_info_get_nodes ((NodeInfo *) base),
+                           data, error))
+    return FALSE;
+  if (!generate_glue_list (node_info_get_interfaces ((NodeInfo *) base),
+                             data, error))
+    return FALSE;
+
+  WRITE_OR_LOSE ("};\n\n");
+  /* Information about the object. */
+
+  if (!write_printf_to_iochannel ("const DBusGObjectInfo dbus_glib_%s_object_info = {\n",
+                                  channel, error, data->prefix))
+    goto io_lose;
+  WRITE_OR_LOSE ("  0,\n");
+  if (!write_printf_to_iochannel ("  dbus_glib_%s_methods,\n", channel, error, data->prefix))
+    goto io_lose;
+  if (!write_printf_to_iochannel ("  %d,\n", channel, error, data->count))
+    goto io_lose;
+  if (!write_quoted_string (channel, object_introspection_data_blob, error))
+    goto io_lose;
+  WRITE_OR_LOSE (",\n");
+  if (!write_quoted_string (channel, data->signal_blob, error))
+    goto io_lose;
+  WRITE_OR_LOSE (",\n");
+  if (!write_quoted_string (channel, data->property_blob, error))
+    goto io_lose;
+  WRITE_OR_LOSE ("\n};\n\n");
+  g_string_free (object_introspection_data_blob, TRUE);
+  g_string_free (data->signal_blob, TRUE);
+  g_string_free (data->property_blob, TRUE);
+  data->signal_blob = NULL;
+  data->property_blob = NULL;
+  return TRUE;
+io_lose:
+ return FALSE;  
+}
+
+static gboolean
 generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
 {
   if (base_info_get_type (base) == INFO_TYPE_NODE)
     {
-      GString *object_introspection_data_blob;
-      GIOChannel *channel;
-
-      channel = data->channel;
-      
-      object_introspection_data_blob = g_string_new_len ("", 0);
-      
-      data->blob = object_introspection_data_blob;
-      data->count = 0;
-
-      data->signal_blob = g_string_new_len ("", 0);
-      data->property_blob = g_string_new_len ("", 0);
-
-      if (!write_printf_to_iochannel ("static const DBusGMethodInfo dbus_glib_%s_methods[] = {\n", channel, error, data->prefix))
-	goto io_lose;
-
       if (!generate_glue_list (node_info_get_nodes ((NodeInfo *) base),
-			       data, error))
-	return FALSE;
+	                       data, error))
+        return FALSE;
       if (!generate_glue_list (node_info_get_interfaces ((NodeInfo *) base),
-			       data, error))
+	                       data, error))
 	return FALSE;
-
-      WRITE_OR_LOSE ("};\n\n");
-
-      /* Information about the object. */
-
-      if (!write_printf_to_iochannel ("const DBusGObjectInfo dbus_glib_%s_object_info = {\n",
-				      channel, error, data->prefix))
-	goto io_lose;
-      WRITE_OR_LOSE ("  0,\n");
-      if (!write_printf_to_iochannel ("  dbus_glib_%s_methods,\n", channel, error, data->prefix))
-	goto io_lose;
-      if (!write_printf_to_iochannel ("  %d,\n", channel, error, data->count))
-	goto io_lose;
-
-      if (!write_quoted_string (channel, object_introspection_data_blob, error))
-	goto io_lose;
-      WRITE_OR_LOSE (",\n");
-      if (!write_quoted_string (channel, data->signal_blob, error))
-	goto io_lose;
-      WRITE_OR_LOSE (",\n");
-      if (!write_quoted_string (channel, data->property_blob, error))
-	goto io_lose;
-      WRITE_OR_LOSE ("\n};\n\n");
-
-      g_string_free (object_introspection_data_blob, TRUE);
-      g_string_free (data->signal_blob, TRUE);
-      g_string_free (data->property_blob, TRUE);
     }
   else
     {
@@ -858,7 +872,7 @@ dbus_binding_tool_output_glib_server (BaseInfo *info, GIOChannel *channel, const
 
   data.channel = channel;
   g_io_channel_ref (data.channel);
-  if (!generate_glue (info, &data, error))
+  if (!generate_glue_toplevel (info, &data, error))
     goto io_lose;
   
   ret = TRUE;
