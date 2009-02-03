@@ -2350,7 +2350,7 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
       G_VALUE_COLLECT (&value, args, G_VALUE_NOCOPY_CONTENTS, &error);
       if (error)
 	{
-	  g_warning(error);
+	  g_warning("%s", error);
 	  g_free (error);
 	}
       _dbus_gvalue_marshal (&iter, &value);
