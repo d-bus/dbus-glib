@@ -161,6 +161,14 @@ if test "x$GCC" = "xyes"; then
   *[\ \	]-Wsign-compare[\ \	]*) ;;
   *) CFLAGS="$CFLAGS -Wsign-compare" ;;
   esac
+  
+  # This one is special - it's not a warning override.
+  # http://bugs.freedesktop.org/show_bug.cgi?id=10599
+  # is the bug for DBus core.
+  case " $CFLAGS " in
+  *[\ \	]-fno-strict-aliasing[\ \	]*) ;;
+  *) CFLAGS="$CFLAGS -fno-strict-aliasing" ;;
+  esac  
 
   if test "x$enable_ansi" = "xyes"; then
     case " $CFLAGS " in
