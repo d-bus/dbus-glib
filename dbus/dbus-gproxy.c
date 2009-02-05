@@ -471,7 +471,7 @@ g_proxy_list_free (DBusGProxyList *list)
 }
 
 static char*
-g_proxy_get_match_rule (DBusGProxy *proxy)
+g_proxy_get_signal_match_rule (DBusGProxy *proxy)
 {
   DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   /* FIXME Escaping is required here */
@@ -482,6 +482,21 @@ g_proxy_get_match_rule (DBusGProxy *proxy)
   else
     return g_strdup_printf ("type='signal',path='%s',interface='%s'",
                             priv->path, priv->interface);
+}
+
+static char *
+g_proxy_get_owner_match_rule (DBusGProxy *proxy)
+{
+  DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
+  if (priv->name) 
+    {
+      return g_strdup_printf ("type='signal',sender='" DBUS_SERVICE_DBUS
+        "',path='" DBUS_PATH_DBUS
+        "',interface='" DBUS_INTERFACE_DBUS
+        "',member='NameOwnerChanged'"
+        ",arg0='%s'", priv->name);
+    }
+  return NULL;
 }
 
 typedef struct
@@ -910,18 +925,6 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
                                                     g_str_equal,
                                                     g_free,
                                                     NULL);
-      /* FIXME - for now we listen for all NameOwnerChanged; once
-       * Anders' detail patch lands we should add individual rules
-       * 
-       * NOTE: if you change this, be sure to change the matching
-       * call to dbus_bus_remove_match in dbus_g_proxy_manager_unregister.
-       */
-      dbus_bus_add_match (manager->connection,
-                          "type='signal',sender='" DBUS_SERVICE_DBUS
-			  "',path='" DBUS_PATH_DBUS
-			  "',interface='" DBUS_INTERFACE_DBUS
-			  "',member='NameOwnerChanged'",
-			  NULL);
     }
   else
     {
@@ -944,20 +947,24 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
 
   if (list->proxies == NULL && priv->name)
     {
-      /* We have to add the match rule to the server,
+      /* We have to add match rules to the server,
        * but only if the server is a message bus,
        * not if it's a peer.
        */
        char *rule;
        
-       rule = g_proxy_get_match_rule (proxy);
-       
+       rule = g_proxy_get_signal_match_rule (proxy);
        /* We don't check for errors; it's not like anyone would handle them, and
         * we don't want a round trip here.
         */
        dbus_bus_add_match (manager->connection,
 			   rule, NULL);
+       g_free (rule);
        
+       rule = g_proxy_get_owner_match_rule (proxy);
+       if (rule)
+         dbus_bus_add_match (manager->connection,
+                             rule, NULL);
        g_free (rule);
     }
 
@@ -1061,27 +1068,21 @@ dbus_g_proxy_manager_unregister (DBusGProxyManager *manager,
                            tri);
       list = NULL;
 
-      rule = g_proxy_get_match_rule (proxy);
+      rule = g_proxy_get_signal_match_rule (proxy);
       dbus_bus_remove_match (manager->connection,
                              rule, NULL);
       g_free (rule);
+      rule = g_proxy_get_owner_match_rule (proxy);
+      if (rule)
+        dbus_bus_remove_match (manager->connection,
+                               rule, NULL);
+      g_free (rule);      
     }
   
   if (g_hash_table_size (manager->proxy_lists) == 0)
     {
       g_hash_table_destroy (manager->proxy_lists);
       manager->proxy_lists = NULL;
-
-      /*
-       * NOTE: if you change this, be sure to change the matching
-       * call to dbus_bus_add_match in dbus_g_proxy_manager_register.
-       */
-      dbus_bus_remove_match (manager->connection,
-                             "type='signal',sender='" DBUS_SERVICE_DBUS
-			     "',path='" DBUS_PATH_DBUS
-			     "',interface='" DBUS_INTERFACE_DBUS
-			     "',member='NameOwnerChanged'",
-			     NULL);
     }
 
   g_free (tri);
