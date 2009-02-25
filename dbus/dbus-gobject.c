@@ -2372,7 +2372,7 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
  * This function also frees the sending context.
  */
 void
-dbus_g_method_return_error (DBusGMethodInvocation *context, GError *error)
+dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
 {
   DBusMessage *reply;
   

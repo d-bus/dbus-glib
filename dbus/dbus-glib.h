@@ -308,7 +308,7 @@ typedef struct _DBusGMethodInvocation DBusGMethodInvocation;
 
 void              dbus_g_method_return               (DBusGMethodInvocation *context, ...);
 
-void              dbus_g_method_return_error         (DBusGMethodInvocation *context, GError *error);
+void              dbus_g_method_return_error         (DBusGMethodInvocation *context, const GError *error);
 
 /* Probably possible to replace this with a closure */
 typedef struct {
