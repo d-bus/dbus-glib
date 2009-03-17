@@ -2267,11 +2267,7 @@ dbus_g_method_get_sender (DBusGMethodInvocation *context)
   const gchar *sender;
 
   sender = dbus_message_get_sender (dbus_g_message_get_message (context->message));
-
-  if (sender == NULL)
-    return NULL;
-    
-  return strdup (sender);
+  return g_strdup (sender);
 }
 
 /**
