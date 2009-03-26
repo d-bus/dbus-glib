@@ -87,15 +87,24 @@ specialized_type_data_quark ()
   return quark;
 }
 
+static gpointer
+specialized_init (gpointer arg G_GNUC_UNUSED)
+{
+  g_assert (specialized_containers == NULL);
+
+  specialized_containers = g_hash_table_new_full (g_str_hash, g_str_equal,
+      g_free, NULL);
+
+  _dbus_g_type_specialized_builtins_init ();
+  return NULL;
+}
+
 void
 dbus_g_type_specialized_init (void)
 {
-  if (specialized_containers)
-    return;
-  
-  specialized_containers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  
-  _dbus_g_type_specialized_builtins_init ();
+  static GOnce once = G_ONCE_INIT;
+
+  g_once (&once, specialized_init, NULL);
 }
 
 static gboolean
