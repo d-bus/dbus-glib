@@ -870,6 +870,13 @@ main (int argc, char **argv)
 
   g_print ("(wrapped) ThrowError failed (as expected) returned error: %s\n", error->message);
   g_clear_error (&error);
+  
+  g_print ("Calling (wrapped) throw_error_multi_word\n");
+  if (org_freedesktop_DBus_GLib_Tests_MyObject_throw_error_multi_word (proxy, &error) != FALSE)
+    lose ("(wrapped) ThrowErrorMultiWord call unexpectedly succeeded!");
+
+  g_print ("(wrapped) ThrowErrorMultiWord failed (as expected) returned error: %s\n", error->message);
+  g_clear_error (&error);
 
   if (org_freedesktop_DBus_GLib_Tests_MyObject_async_throw_error (proxy, &error) != FALSE)
     lose ("(wrapped) AsyncThrowError call unexpectedly succeeded!");

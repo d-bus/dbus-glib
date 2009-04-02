@@ -31,6 +31,9 @@
 
     <method name="ThrowNotSupported">
     </method>
+    
+    <method name="ThrowErrorMultiWord">
+    </method>
 
     <method name="Uppercase">
       <arg type="s" direction="in" />

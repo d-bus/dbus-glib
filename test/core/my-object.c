@@ -169,6 +169,7 @@ my_object_error_get_type (void)
 
 			ENUM_ENTRY (MY_OBJECT_ERROR_FOO, "Foo"),
 			ENUM_ENTRY (MY_OBJECT_ERROR_BAR, "Bar"),
+			ENUM_ENTRY (MY_OBJECT_ERROR_MULTI_WORD, "Multi-word"),
 			{ 0, 0, 0 }
 		};
 
@@ -233,6 +234,18 @@ my_object_throw_not_supported (MyObject *obj, GError **error)
 	       "this method always loses");
   return FALSE;
 }
+
+gboolean
+my_object_throw_error_multi_word (MyObject *obj, GError **error)
+{
+  g_set_error (error,
+	       MY_OBJECT_ERROR,
+	       MY_OBJECT_ERROR_MULTI_WORD,
+	       "%s",
+	       "this method's error has a hyphen");    
+  return FALSE;
+}
+
 
 gboolean
 my_object_uppercase (MyObject *obj, const char *str, char **ret, GError **error)

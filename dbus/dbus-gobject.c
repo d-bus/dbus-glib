@@ -46,13 +46,14 @@ static GHashTable *marshal_table = NULL;
 static GData *error_metadata = NULL;
 
 static char*
-uscore_to_wincaps (const char *uscore)
+uscore_to_wincaps_full (const char *uscore,
+                        gboolean    uppercase_first)
 {
   const char *p;
   GString *str;
   gboolean last_was_uscore;
 
-  last_was_uscore = TRUE;
+  last_was_uscore = uppercase_first;
   
   str = g_string_new (NULL);
   p = uscore;
@@ -76,6 +77,12 @@ uscore_to_wincaps (const char *uscore)
     }
 
   return g_string_free (str, FALSE);
+}
+
+static char *
+uscore_to_wincaps (const char *uscore)
+{
+  return uscore_to_wincaps_full (uscore, TRUE);
 }
 
 static const char *
@@ -1065,6 +1072,7 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 	{
 	  GEnumValue *value;
 	  GEnumClass *klass;
+          const char *p;
 
 	  klass = g_type_class_ref (info->code_enum);
 	  value = g_enum_get_value (klass, code);
@@ -1093,9 +1101,16 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
     }
   else
     {
+      gchar *code_str_wincaps;
       dbus_error_name = g_string_new (domain_str);
       g_string_append_c (dbus_error_name, '.');
-      g_string_append (dbus_error_name, code_str);
+      /* We can't uppercase here for backwards compatibility
+       * reasons; if someone had a lowercase enumeration value,
+       * previously we'd just send it across unaltered.
+       */
+      code_str_wincaps = uscore_to_wincaps_full (code_str, FALSE);
+      g_string_append (dbus_error_name, code_str_wincaps);
+      g_free (code_str_wincaps);
     }
 
   return g_string_free (dbus_error_name, FALSE);
