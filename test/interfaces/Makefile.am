@@ -47,22 +47,22 @@ BUILT_SOURCES = \
 	test-goodbye-bindings.h
 
 test-song-glue.h: test-song.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_song --mode=glib-server --output=test-song-glue.h $(srcdir)/test-song.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_song --mode=glib-server --output=test-song-glue.h $(srcdir)/test-song.xml
 
 test-song-bindings.h: test-song.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_song --mode=glib-client --output=test-song-bindings.h $(srcdir)/test-song.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_song --mode=glib-client --output=test-song-bindings.h $(srcdir)/test-song.xml
 
 test-hello-glue.h: test-hello.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_hello --mode=glib-server --output=test-hello-glue.h $(srcdir)/test-hello.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_hello --mode=glib-server --output=test-hello-glue.h $(srcdir)/test-hello.xml
 
 test-hello-bindings.h: test-hello.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_hello --mode=glib-client --output=test-hello-bindings.h $(srcdir)/test-hello.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_hello --mode=glib-client --output=test-hello-bindings.h $(srcdir)/test-hello.xml
 
 test-goodbye-glue.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_goodbye --mode=glib-server --output=test-goodbye-glue.h $(srcdir)/test-goodbye.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_goodbye --mode=glib-server --output=test-goodbye-glue.h $(srcdir)/test-goodbye.xml
 
 test-goodbye-bindings.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
-	$(top_builddir)/dbus/dbus-binding-tool --prefix=test_goodbye --mode=glib-client --output=test-goodbye-bindings.h $(srcdir)/test-goodbye.xml
+	$(DBUS_BINDING_TOOL) --prefix=test_goodbye --mode=glib-client --output=test-goodbye-bindings.h $(srcdir)/test-goodbye.xml
 
 
 CLEANFILES = \

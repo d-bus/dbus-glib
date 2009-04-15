@@ -21,7 +21,7 @@ example_service_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 BUILT_SOURCES = example-service-glue.h
 
 example-service-glue.h: example-service.xml
-	$(LIBTOOL) --mode=execute $(top_builddir)/dbus/dbus-binding-tool --prefix=some_object --mode=glib-server --output=example-service-glue.h $(srcdir)/example-service.xml
+	$(LIBTOOL) --mode=execute $(DBUS_BINDING_TOOL) --prefix=some_object --mode=glib-server --output=example-service-glue.h $(srcdir)/example-service.xml
 
 
 ## Makefile.am bits for another client/server pair
@@ -37,7 +37,7 @@ example_signal_emitter_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 BUILT_SOURCES += example-signal-emitter-glue.h
 
 example-signal-emitter-glue.h: example-signal-emitter.xml
-	$(LIBTOOL) --mode=execute $(top_builddir)/dbus/dbus-binding-tool --prefix=test_object --mode=glib-server --output=example-signal-emitter-glue.h $(srcdir)/example-signal-emitter.xml
+	$(LIBTOOL) --mode=execute $(DBUS_BINDING_TOOL) --prefix=test_object --mode=glib-server --output=example-signal-emitter-glue.h $(srcdir)/example-signal-emitter.xml
 
 CLEANFILES = $(BUILT_SOURCES)
 
