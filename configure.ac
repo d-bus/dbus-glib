@@ -43,7 +43,6 @@ AC_SUBST(LT_AGE)
 
 
 AC_PROG_CC
-AC_PROG_CXX
 AC_ISC_POSIX
 AC_HEADER_STDC
 
@@ -214,11 +213,8 @@ fi
 AM_PROG_LIBTOOL
 
 changequote(,)dnl
-# let ourselves use our own unstable API
-CPPFLAGS="-DDBUS_API_SUBJECT_TO_CHANGE=1 $CPPFLAGS"
 # compress spaces in flags
 CFLAGS=`echo "$CFLAGS" | sed -e 's/ +/ /g'`
-CXXFLAGS=`echo "$CXXFLAGS" | sed -e 's/ +/ /g'`
 CPPFLAGS=`echo "$CPPFLAGS" | sed -e 's/ +/ /g'`
 changequote([,])dnl
 
@@ -237,256 +233,9 @@ if test x$enable_gcov = xyes; then
 fi
 AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
 
-#### Integer sizes 
-
-AC_CHECK_SIZEOF(char)
-AC_CHECK_SIZEOF(short)
-AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(void *)
-AC_CHECK_SIZEOF(long long)
-AC_CHECK_SIZEOF(__int64)
-
-### See what our 64 bit type is called
-AC_MSG_CHECKING([64-bit integer type])
-
-case 8 in
-$ac_cv_sizeof_int)
-  dbusint64=int
-  dbusint64_constant='(val)'
-  dbusuint64_constant='(val)'
-  ;;
-$ac_cv_sizeof_long)
-  dbusint64=long
-  dbusint64_constant='(val##L)'
-  dbusuint64_constant='(val##UL)'
-  ;;
-$ac_cv_sizeof_long_long)
-  dbusint64='long long'
-  dbusint64_constant='(val##LL)'
-  dbusuint64_constant='(val##ULL)'
-  ;;
-$ac_cv_sizeof___int64)
-  dbusint64=__int64
-  dbusint64_constant='(val##i64)'
-  dbusuint64_constant='(val##ui64)'
-  ;;
-esac
-
-if test -z "$dbusint64" ; then
-        DBUS_INT64_TYPE="no_int64_type_detected"
-        DBUS_HAVE_INT64=0
-        DBUS_INT64_CONSTANT=
-        DBUS_UINT64_CONSTANT=
-        AC_MSG_RESULT([none found])
-else
-        DBUS_INT64_TYPE="$dbusint64"
-        DBUS_HAVE_INT64=1
-        DBUS_INT64_CONSTANT="$dbusint64_constant"
-        DBUS_UINT64_CONSTANT="$dbusuint64_constant"
-        AC_MSG_RESULT($DBUS_INT64_TYPE)
-fi
-
-AC_SUBST(DBUS_INT64_TYPE)
-AC_SUBST(DBUS_INT64_CONSTANT)
-AC_SUBST(DBUS_UINT64_CONSTANT)
-AC_SUBST(DBUS_HAVE_INT64)
-
-### see what 32-bit int is called
-AC_MSG_CHECKING([32-bit integer type])
-
-case 4 in
-$ac_cv_sizeof_short)
-  dbusint32=int
-  ;;
-$ac_cv_sizeof_int)
-  dbusint32=int
-  ;;
-$ac_cv_sizeof_long)
-  dbusint32=long
-  ;;
-esac
-
-if test -z "$dbusint32" ; then
-        DBUS_INT32_TYPE="no_int32_type_detected"
-        AC_MSG_ERROR([No 32-bit integer type found])
-else
-        DBUS_INT32_TYPE="$dbusint32"
-        AC_MSG_RESULT($DBUS_INT32_TYPE)
-fi
-
-AC_SUBST(DBUS_INT32_TYPE)
-
-### see what 16-bit int is called
-AC_MSG_CHECKING([16-bit integer type])
-
-case 2 in
-$ac_cv_sizeof_short)
-  dbusint16=short
-  ;;
-$ac_cv_sizeof_int)
-  dbusint16=int
-  ;;
-esac
-
-if test -z "$dbusint16" ; then
-        DBUS_INT16_TYPE="no_int16_type_detected"
-        AC_MSG_ERROR([No 16-bit integer type found])
-else
-        DBUS_INT16_TYPE="$dbusint16"
-        AC_MSG_RESULT($DBUS_INT16_TYPE)
-fi
-
-AC_SUBST(DBUS_INT16_TYPE)
-
-## byte order
-AC_C_BIGENDIAN
-
-
-dnl **********************************
-dnl *** va_copy checks (from GLib) ***
-dnl **********************************
-dnl we currently check for all three va_copy possibilities, so we get
-dnl all results in config.log for bug reports.
-AC_CACHE_CHECK([for an implementation of va_copy()],dbus_cv_va_copy,[
-	AC_LINK_IFELSE([#include <stdarg.h>
-	void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	va_copy (args2, args1);
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}],
-	[dbus_cv_va_copy=yes],
-	[dbus_cv_va_copy=no])
-])
-AC_CACHE_CHECK([for an implementation of __va_copy()],dbus_cv___va_copy,[
-	AC_LINK_IFELSE([#include <stdarg.h>
-	void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	__va_copy (args2, args1);
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}],
-	[dbus_cv___va_copy=yes],
-	[dbus_cv___va_copy=no])
-])
-
-if test "x$dbus_cv_va_copy" = "xyes"; then
-  dbus_va_copy_func=va_copy
-else if test "x$dbus_cv___va_copy" = "xyes"; then
-  dbus_va_copy_func=__va_copy
-fi
-fi
-
-if test -n "$dbus_va_copy_func"; then
-  AC_DEFINE_UNQUOTED(DBUS_VA_COPY,$dbus_va_copy_func,[A 'va_copy' style function])
-fi
-
-AC_CACHE_CHECK([whether va_lists can be copied by value],dbus_cv_va_val_copy,[
-	AC_TRY_RUN([#include <stdarg.h>
-	void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	args2 = args1;
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}],
-	[dbus_cv_va_val_copy=yes],
-	[dbus_cv_va_val_copy=no],
-	[dbus_cv_va_val_copy=yes])
-])
-
-if test "x$dbus_cv_va_val_copy" = "xno"; then
-  AC_DEFINE(DBUS_VA_COPY_AS_ARRAY,1, ['va_lists' cannot be copies as values])
-fi
-
-
-#### Atomic integers (checks by Sebastian Wilhelmi for GLib)
-AC_MSG_CHECKING([whether to use inline assembler routines for atomic integers])
-have_atomic_inc=no
-if test x"$GCC" = xyes; then
-  if test "x$enable_ansi" = "xyes"; then
-    AC_MSG_RESULT([no])
-  else
-    case $host_cpu in
-      i386)
-        AC_MSG_RESULT([no])
-        ;;
-      i?86)
-        AC_MSG_RESULT([i486])
-        AC_DEFINE_UNQUOTED(DBUS_USE_ATOMIC_INT_486, 1, [Use atomic integer implementation for 486])
-        have_atomic_inc=yes
-        ;;
-      *)
-        AC_MSG_RESULT([no])
-        ;;
-    esac
-  fi
-fi
-if test x$have_atomic_inc = xyes ; then
-  AC_DEFINE_UNQUOTED(DBUS_HAVE_ATOMIC_INT, 1, [Some atomic integer implementation present])
-fi
 
 #### Various functions
-AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket])
-
-AC_CHECK_FUNCS(vsnprintf vasprintf nanosleep usleep poll setenv unsetenv socketpair getgrouplist)
-
-AC_CHECK_HEADERS(execinfo.h, [AC_CHECK_FUNCS(backtrace)])
-
-AC_CACHE_CHECK([for posix getpwnam_r],
-		ac_cv_func_posix_getpwnam_r,
-		[AC_TRY_RUN([
-#include <errno.h>
-#include <pwd.h>
-int main () { 
-    char buffer[10000];
-    struct passwd pwd, *pwptr = &pwd;
-    int error;
-    errno = 0;
-    error = getpwnam_r ("", &pwd, buffer, 
-                        sizeof (buffer), &pwptr);
-   return (error < 0 && errno == ENOSYS) 
-	   || error == ENOSYS; 
-}               ],
-	[ac_cv_func_posix_getpwnam_r=yes],
-	[ac_cv_func_posix_getpwnam_r=no])])
-if test "$ac_cv_func_posix_getpwnam_r" = yes; then
-	AC_DEFINE(HAVE_POSIX_GETPWNAM_R,1,
-		[Have POSIX function getpwnam_r])
-else
-	AC_CACHE_CHECK([for nonposix getpwnam_r],
-		ac_cv_func_nonposix_getpwnam_r,
-		[AC_TRY_LINK([#include <pwd.h>],
-                      	[char buffer[10000];
-                       	struct passwd pwd;
-                       	getpwnam_r ("", &pwd, buffer, 
-                               		sizeof (buffer));],
-			[ac_cv_func_nonposix_getpwnam_r=yes],
-			[ac_cv_func_nonposix_getpwnam_r=no])])
-		if test "$ac_cv_func_nonposix_getpwnam_r" = yes; then
-		AC_DEFINE(HAVE_NONPOSIX_GETPWNAM_R,1,
-			[Have non-POSIX function getpwnam_r])
-	fi
-fi
 
 dnl check for socklen_t
 AC_MSG_CHECKING(whether socklen_t is defined)
@@ -503,53 +252,6 @@ AC_MSG_RESULT($dbus_have_socklen_t)
 if test "x$dbus_have_socklen_t" = "xyes"; then
     AC_DEFINE(HAVE_SOCKLEN_T,1,[Have socklen_t type])
 fi
-
-dnl check for writev header and writev function so we're 
-dnl good to go if HAVE_WRITEV gets defined.
-AC_CHECK_HEADERS(sys/uio.h, [AC_CHECK_FUNCS(writev)])
-
-dnl check for flavours of varargs macros (test from GLib)
-AC_MSG_CHECKING(for ISO C99 varargs macros in C)
-AC_TRY_COMPILE([],[
-int a(int p1, int p2, int p3);
-#define call_a(...) a(1,__VA_ARGS__)
-call_a(2,3);
-],dbus_have_iso_c_varargs=yes,dbus_have_iso_c_varargs=no)
-AC_MSG_RESULT($dbus_have_iso_c_varargs)
-
-AC_MSG_CHECKING(for GNUC varargs macros)
-AC_TRY_COMPILE([],[
-int a(int p1, int p2, int p3);
-#define call_a(params...) a(1,params)
-call_a(2,3);
-],dbus_have_gnuc_varargs=yes,dbus_have_gnuc_varargs=no)
-AC_MSG_RESULT($dbus_have_gnuc_varargs)
-
-dnl Output varargs tests
-if test x$dbus_have_iso_c_varargs = xyes; then
-    AC_DEFINE(HAVE_ISO_VARARGS,1,[Have ISO C99 varargs macros])
-fi
-if test x$dbus_have_gnuc_varargs = xyes; then
-    AC_DEFINE(HAVE_GNUC_VARARGS,1,[Have GNU-style varargs macros])
-fi
-
-dnl Check for various credentials.
-AC_MSG_CHECKING(for struct cmsgcred)
-AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <sys/socket.h>
-],[
-struct cmsgcred cred;
-
-cred.cmcred_pid = 0;
-],dbus_have_struct_cmsgcred=yes,dbus_have_struct_cmsgcred=no)
-AC_MSG_RESULT($dbus_have_struct_cmsgcred)
-
-if test x$dbus_have_struct_cmsgcred = xyes; then
-    AC_DEFINE(HAVE_CMSGCRED,1,[Have cmsgcred structure])
-fi
-
-AC_CHECK_FUNCS(getpeerucred getpeereid)
 
 #### Abstract sockets
 
@@ -652,20 +354,6 @@ XML_CFLAGS=
 
 
 #### Set up final flags
-DBUS_CLIENT_CFLAGS=
-DBUS_CLIENT_LIBS=
-AC_SUBST(DBUS_CLIENT_CFLAGS)
-AC_SUBST(DBUS_CLIENT_LIBS)
-
-DBUS_BUS_CFLAGS=$XML_CFLAGS
-DBUS_BUS_LIBS="$XML_LIBS $SELINUX_LIBS $INTLLIBS"
-AC_SUBST(DBUS_BUS_CFLAGS)
-AC_SUBST(DBUS_BUS_LIBS)
-
-DBUS_TEST_CFLAGS=
-DBUS_TEST_LIBS=
-AC_SUBST(DBUS_TEST_CFLAGS)
-AC_SUBST(DBUS_TEST_LIBS)
 
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.1, have_dbus=yes, have_dbus=no)
 
@@ -872,10 +560,6 @@ echo "
 	compiler:		  ${CC}
 	cflags:		          ${CFLAGS}
 	cppflags:		  ${CPPFLAGS}
-	cxxflags:		  ${CXXFLAGS}
-	64-bit int:		  ${DBUS_INT64_TYPE}
-	32-bit int:		  ${DBUS_INT32_TYPE}
-	16-bit int:		  ${DBUS_INT16_TYPE}
         Doxygen:                  ${DOXYGEN}"
 
 echo "

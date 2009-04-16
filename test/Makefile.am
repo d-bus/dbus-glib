@@ -5,7 +5,6 @@ INCLUDES = \
 	-I$(top_srcdir)				\
 	-I$(top_builddir)			\
 	-I$(top_builddir)/dbus			\
-	$(DBUS_TEST_CFLAGS)			\
 	$(DBUS_CFLAGS)
 
 if DBUS_BUILD_TESTS
