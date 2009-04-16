@@ -39,7 +39,18 @@ endif
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
-noinst_PROGRAMS= test-dbus-glib test-service-glib $(THREAD_APPS) peer-server peer-client test-types test-variant-recursion
+noinst_PROGRAMS= test-dbus-glib test-service-glib $(THREAD_APPS) peer-server peer-client test-types test-5688 test-variant-recursion
+
+test_5688_SOURCES = \
+	my-object.c \
+	my-object.h \
+	my-object-subclass.c \
+	my-object-subclass.h \
+	my-object-marshal.c \
+	5688.c
+test_5688_LDADD = \
+	$(top_builddir)/dbus/libdbus-glib-1.la \
+	$(DBUS_GLIB_THREADS_LIBS)
 
 test_dbus_glib_SOURCES=				\
 	my-object-marshal.c                             \
