@@ -2018,6 +2018,28 @@ object_registration_object_died (gpointer user_data, GObject *dead)
 }
 
 /**
+ * dbus_g_connection_unregister_g_object:
+ * @connection: the D-BUS connection
+ * @object: the object
+ *
+ * Removes @object from the bus. Properties, methods, and signals
+ * of the object can no longer be accessed remotely.
+ */
+void
+dbus_g_connection_unregister_g_object (DBusGConnection *connection,
+                                       GObject *object)
+{
+  ObjectRegistration *o;
+
+  o = g_object_get_data (object, "dbus_glib_object_registration");
+
+  g_return_if_fail (o != NULL);
+
+  dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
+      o->object_path);
+}
+
+/**
  * dbus_g_connection_register_g_object:
  * @connection: the D-BUS connection
  * @at_path: the path where the object will live (the object's name)
@@ -2029,7 +2051,8 @@ object_registration_object_died (gpointer user_data, GObject *dead)
  * with dbus_g_object_type_install_info().
  *
  * The registration will be cancelled if either the #DBusConnection or
- * the #GObject gets finalized.
+ * the #GObject gets finalized, or if dbus_g_connection_unregister_g_object()
+ * is used.
  */
 void
 dbus_g_connection_register_g_object (DBusGConnection       *connection,
