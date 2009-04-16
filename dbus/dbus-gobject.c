@@ -408,6 +408,7 @@ object_registration_free (ObjectRegistration *o)
   if (o->object != NULL)
     {
       g_object_weak_unref (o->object, object_registration_object_died, o);
+      g_object_steal_data (o->object, "dbus_glib_object_registration");
       o->object = NULL;
     }
 
@@ -2036,7 +2037,6 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      GObject               *object)
 {
   GList *info_list;
-  const gchar *already;
   ObjectRegistration *o;
 
   g_return_if_fail (connection != NULL);
@@ -2051,12 +2051,12 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       return;
     }
 
-  already = g_object_get_data (object, "dbus_glib_object_path");
+  o = g_object_get_data (object, "dbus_glib_object_registration");
 
-  if (already != NULL)
+  if (o != NULL)
     {
       g_warning ("Object already registered at %s, can't re-register at %s",
-          already, at_path);
+          o->object_path, at_path);
       return;
     }
 
@@ -2074,8 +2074,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
 
   export_signals (connection, info_list, object);
   g_list_free (info_list);
-  g_object_set_data_full (object, "dbus_glib_object_path", g_strdup (at_path),
-      g_free);
+  g_object_set_data (object, "dbus_glib_object_registration", o);
 }
 
 /**
@@ -2456,7 +2455,14 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, GError *error)
 
 const char * _dbus_gobject_get_path (GObject *obj)
 {
-  return g_object_get_data (obj, "dbus_glib_object_path");
+  ObjectRegistration *o;
+
+  o = g_object_get_data (obj, "dbus_glib_object_registration");
+
+  if (o == NULL)
+    return NULL;
+
+  return o->object_path;
 }
 
 #ifdef DBUS_BUILD_TESTS
