@@ -838,6 +838,7 @@ dbus_binding_tool_output_glib_server (BaseInfo *info, GIOChannel *channel, const
   g_ptr_array_add (argv, "glib-genmarshal");
   g_ptr_array_add (argv, "--header");
   g_ptr_array_add (argv, "--body");
+  g_ptr_array_add (argv, "--skip-source");
   g_ptr_array_add (argv, g_strdup_printf ("--prefix=%s%s", MARSHAL_PREFIX, prefix));
   g_ptr_array_add (argv, tempfile_name);
   g_ptr_array_add (argv, NULL);
