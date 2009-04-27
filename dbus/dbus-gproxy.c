@@ -753,9 +753,16 @@ dbus_g_proxy_manager_replace_name_owner (DBusGProxyManager  *manager,
 	  
 	      names = g_slist_delete_link (names, link);
 
-	      if (names == NULL)
-	        g_hash_table_remove (manager->owner_names, prev_owner);
-	    }
+              if (names == NULL)
+                {
+                  g_hash_table_remove (manager->owner_names, prev_owner);
+                }
+              else
+                {
+                  g_hash_table_insert (manager->owner_names,
+                                       g_strdup (prev_owner), names);
+                }
+            }
         }
 
       if (new_owner[0] == '\0')
