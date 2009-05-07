@@ -29,6 +29,9 @@
     <method name="ThrowError">
     </method>
 
+    <method name="ThrowNotSupported">
+    </method>
+
     <method name="Uppercase">
       <arg type="s" direction="in" />
       <arg type="s" direction="out" />
