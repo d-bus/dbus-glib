@@ -131,6 +131,7 @@ if test -z "$*"; then
 fi
 
 
+libtoolize --force || echo "libtoolize failed"
 gtkdocize || echo "gtkdocize failed"
 
 export AUTOMAKE ACLOCAL

@@ -1,3 +1,4 @@
+ACLOCAL_AMFLAGS = -I m4
 GLIB_PC=dbus-glib-1.pc
 
 SUBDIRS=dbus tools test doc
