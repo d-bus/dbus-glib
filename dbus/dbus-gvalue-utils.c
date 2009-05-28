@@ -23,6 +23,7 @@
 
 #include <config.h>
 #include "dbus/dbus-glib.h"
+#include "dbus-gtype-specialized-priv.h"
 #include "dbus-gvalue-utils.h"
 #include "dbus-gtest.h"
 #include <glib.h>
@@ -1203,11 +1204,11 @@ _dbus_g_type_specialized_builtins_init (void)
     valuearray_set_member
   };
 
-  dbus_g_type_register_collection ("GSList", &slist_vtable, 0);
-  dbus_g_type_register_collection ("GArray", &array_vtable, 0);
-  dbus_g_type_register_collection ("GPtrArray", &ptrarray_vtable, 0);
-  dbus_g_type_register_map ("GHashTable", &hashtable_vtable, 0);
-  dbus_g_type_register_struct ("GValueArray", &valuearray_vtable, 0);
+  _dbus_g_type_register_collection ("GSList", &slist_vtable, 0);
+  _dbus_g_type_register_collection ("GArray", &array_vtable, 0);
+  _dbus_g_type_register_collection ("GPtrArray", &ptrarray_vtable, 0);
+  _dbus_g_type_register_map ("GHashTable", &hashtable_vtable, 0);
+  _dbus_g_type_register_struct ("GValueArray", &valuearray_vtable, 0);
 }
 
 #ifdef DBUS_BUILD_TESTS
