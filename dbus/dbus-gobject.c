@@ -378,16 +378,52 @@ lookup_object_info_by_iface (GObject     *object,
   return data.info;
 }
 
-static void
-gobject_unregister_function (DBusConnection  *connection,
-                             void            *user_data)
+typedef struct {
+    DBusGConnection *connection;
+    gchar *object_path;
+    GObject *object;
+} ObjectRegistration;
+
+static void object_registration_object_died (gpointer user_data, GObject *dead);
+
+static ObjectRegistration *
+object_registration_new (DBusGConnection *connection,
+                         const gchar *object_path,
+                         GObject *object)
 {
-  GObject *object;
+  ObjectRegistration *o = g_slice_new0 (ObjectRegistration);
 
-  object = G_OBJECT (user_data);
+  o->connection = connection;
+  o->object_path = g_strdup (object_path);
+  o->object = object;
 
-  /* FIXME */
+  g_object_weak_ref (o->object, object_registration_object_died, o);
 
+  return o;
+}
+
+static void
+object_registration_free (ObjectRegistration *o)
+{
+  if (o->object != NULL)
+    {
+      g_object_weak_unref (o->object, object_registration_object_died, o);
+      g_object_steal_data (o->object, "dbus_glib_object_registration");
+      o->object = NULL;
+    }
+
+  g_free (o->object_path);
+
+  g_slice_free (ObjectRegistration, o);
+}
+
+/* Called when the object falls off the bus (e.g. because connection just
+ * closed) */
+static void
+object_registration_unregistered (DBusConnection *connection,
+                                  void *user_data)
+{
+  object_registration_free (user_data);
 }
 
 typedef struct
@@ -1530,9 +1566,9 @@ invoke_object_method (GObject         *object,
 }
 
 static DBusHandlerResult
-gobject_message_function (DBusConnection  *connection,
-                          DBusMessage     *message,
-                          void            *user_data)
+object_registration_message (DBusConnection  *connection,
+                             DBusMessage     *message,
+                             void            *user_data)
 {
   GParamSpec *pspec;
   GObject *object;
@@ -1546,8 +1582,10 @@ gobject_message_function (DBusConnection  *connection,
   const DBusGMethodInfo *method;
   const DBusGObjectInfo *object_info;
   DBusMessage *ret;
+  ObjectRegistration *o;
 
-  object = G_OBJECT (user_data);
+  o = user_data;
+  object = G_OBJECT (o->object);
 
   if (dbus_message_is_method_call (message,
                                    DBUS_INTERFACE_INTROSPECTABLE,
@@ -1663,8 +1701,8 @@ gobject_message_function (DBusConnection  *connection,
 }
 
 static const DBusObjectPathVTable gobject_dbus_vtable = {
-  gobject_unregister_function,
-  gobject_message_function,
+  object_registration_unregistered,
+  object_registration_message,
   NULL
 };
 
@@ -2026,13 +2064,20 @@ dbus_g_error_domain_register (GQuark                domain,
   g_static_rw_lock_writer_unlock (&globals_lock);
 }
 
+/* Called when the object is destroyed */
 static void
-unregister_gobject (DBusGConnection *connection, GObject *dead)
+object_registration_object_died (gpointer user_data, GObject *dead)
 {
-  char *path;
-  path = g_object_steal_data (dead, "dbus_glib_object_path");
-  dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection), path);
-  g_free (path);
+  ObjectRegistration *o = user_data;
+
+  g_assert (dead == o->object);
+
+  /* this prevents the weak unref from taking place, which would cause an
+   * assertion failure since the object has already gone... */
+  o->object = NULL;
+
+  /* ... while this results in a call to object_registration_unregistered */
+  dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection), o->object_path);
 }
 
 /**
@@ -2055,6 +2100,8 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      GObject               *object)
 {
   GList *info_list;
+  ObjectRegistration *o;
+
   g_return_if_fail (connection != NULL);
   g_return_if_fail (at_path != NULL);
   g_return_if_fail (G_IS_OBJECT (object));
@@ -2067,20 +2114,30 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       return;
     }
 
+  o = g_object_get_data (object, "dbus_glib_object_registration");
+
+  if (o != NULL)
+    {
+      g_warning ("Object already registered at %s, can't re-register at %s",
+          o->object_path, at_path);
+      return;
+    }
+
+  o = object_registration_new (connection, at_path, object);
+
   if (!dbus_connection_register_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection),
                                              at_path,
                                              &gobject_dbus_vtable,
-                                             object))
+                                             o))
     {
       g_error ("Failed to register GObject with DBusConnection");
+      object_registration_free (o);
       return;
     }
 
   export_signals (connection, info_list, object);
   g_list_free (info_list);
-
-  g_object_set_data (object, "dbus_glib_object_path", g_strdup (at_path));
-  g_object_weak_ref (object, (GWeakNotify)unregister_gobject, connection);
+  g_object_set_data (object, "dbus_glib_object_registration", o);
 }
 
 /**
@@ -2096,10 +2153,17 @@ GObject *
 dbus_g_connection_lookup_g_object (DBusGConnection       *connection,
 				   const char            *at_path)
 {
-  gpointer ret;
-  if (!dbus_connection_get_object_path_data (DBUS_CONNECTION_FROM_G_CONNECTION (connection), at_path, &ret))
+  gpointer p;
+  ObjectRegistration *o;
+
+  if (!dbus_connection_get_object_path_data (DBUS_CONNECTION_FROM_G_CONNECTION (connection), at_path, &p))
     return NULL;
-  return ret;
+
+  if (p == NULL)
+    return NULL;
+
+  o = p;
+  return G_OBJECT (o->object);
 }
 
 typedef struct {
@@ -2454,7 +2518,14 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
 
 const char * _dbus_gobject_get_path (GObject *obj)
 {
-  return g_object_get_data (obj, "dbus_glib_object_path");
+  ObjectRegistration *o;
+
+  o = g_object_get_data (obj, "dbus_glib_object_registration");
+
+  if (o == NULL)
+    return NULL;
+
+  return o->object_path;
 }
 
 #ifdef DBUS_BUILD_TESTS
