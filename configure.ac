@@ -69,6 +69,11 @@ if test x$enable_verbose_mode = xyes; then
     AC_DEFINE(DBUS_ENABLE_VERBOSE_MODE,1,[Support a verbose mode])
 fi
 
+AC_ARG_WITH(dbus-binding-tool,
+  AS_HELP_STRING([--with-dbus-binding-tool=[filename]],[Use external dbus-binding-tool program]),
+  [DBUS_BINDING_TOOL=$withval],[DBUS_BINDING_TOOL=\$\(top_builddir\)/dbus/dbus-binding-tool])
+AC_SUBST(DBUS_BINDING_TOOL)
+
 
 dnl DBUS_BUILD_TESTS controls unit tests built in to .c files 
 dnl and also some stuff in the test/ subdir
