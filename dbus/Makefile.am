@@ -25,6 +25,7 @@ CLEANFILES = $(BUILT_SOURCES)
 
 DBUS_GLIB_INTERNALS = \
 	dbus-gtype-specialized.c	        \
+	dbus-gtype-specialized-priv.h		\
 	dbus-gutils.c				\
 	dbus-gutils.h				\
 	dbus-gsignature.c			\

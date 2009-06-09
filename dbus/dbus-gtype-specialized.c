@@ -22,7 +22,8 @@
  *
  */
 
-#include "dbus-gtype-specialized.h"
+#include "dbus-gtype-specialized-priv.h"
+#include "dbus-gvalue-utils.h"
 #include <glib.h>
 #include <string.h>
 #include <gobject/gvaluecollector.h>
@@ -86,16 +87,24 @@ specialized_type_data_quark ()
   return quark;
 }
 
+static gpointer
+specialized_init (gpointer arg G_GNUC_UNUSED)
+{
+  g_assert (specialized_containers == NULL);
+
+  specialized_containers = g_hash_table_new_full (g_str_hash, g_str_equal,
+      g_free, NULL);
+
+  _dbus_g_type_specialized_builtins_init ();
+  return NULL;
+}
+
 void
 dbus_g_type_specialized_init (void)
 {
-  specialized_containers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-}
+  static GOnce once = G_ONCE_INIT;
 
-static gboolean
-specialized_types_is_initialized (void)
-{
-  return specialized_containers != NULL;
+  g_once (&once, specialized_init, NULL);
 }
 
 static DBusGTypeSpecializedData *
@@ -269,7 +278,16 @@ dbus_g_type_register_collection (const char                                   *n
 				 const DBusGTypeSpecializedCollectionVtable   *vtable,
 				 guint                                         flags)
 {
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
+  _dbus_g_type_register_collection (name, vtable, flags);
+}
+
+void
+_dbus_g_type_register_collection (const char                                   *name,
+				  const DBusGTypeSpecializedCollectionVtable   *vtable,
+				  guint                                         flags)
+{
   register_container (name, DBUS_G_SPECTYPE_COLLECTION, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
@@ -286,7 +304,16 @@ dbus_g_type_register_map (const char                            *name,
 			  const DBusGTypeSpecializedMapVtable   *vtable,
 			  guint                                  flags)
 {
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
+  _dbus_g_type_register_map (name, vtable, flags);
+}
+
+void
+_dbus_g_type_register_map (const char                            *name,
+			   const DBusGTypeSpecializedMapVtable   *vtable,
+			   guint                                  flags)
+{
   register_container (name, DBUS_G_SPECTYPE_MAP, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
@@ -303,7 +330,16 @@ dbus_g_type_register_struct (const char                             *name,
 			     const DBusGTypeSpecializedStructVtable *vtable,
 			     guint                                   flags)
 {
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
+  _dbus_g_type_register_struct (name, vtable, flags);
+}
+
+void
+_dbus_g_type_register_struct (const char                             *name,
+			      const DBusGTypeSpecializedStructVtable *vtable,
+			      guint                                   flags)
+{
   register_container (name, DBUS_G_SPECTYPE_STRUCT, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
@@ -415,7 +451,7 @@ lookup_or_register_specialized (const char  *container,
   char *name;
   const DBusGTypeSpecializedContainer *klass;
 
-  g_return_val_if_fail (specialized_types_is_initialized (), G_TYPE_INVALID);
+  dbus_g_type_specialized_init();
 
   klass = g_hash_table_lookup (specialized_containers, container);
   g_return_val_if_fail (klass != NULL, G_TYPE_INVALID);
@@ -690,7 +726,8 @@ gpointer
 dbus_g_type_specialized_construct (GType gtype)
 {
   DBusGTypeSpecializedData *data;
-  g_return_val_if_fail (specialized_types_is_initialized (), FALSE);
+
+  dbus_g_type_specialized_init();
 
   data = lookup_specialization_data (gtype);
   g_return_val_if_fail (data != NULL, FALSE);
@@ -714,7 +751,8 @@ dbus_g_type_collection_get_fixed (GValue   *value,
   DBusGTypeSpecializedData *data;
   GType gtype;
 
-  g_return_val_if_fail (specialized_types_is_initialized (), FALSE);
+  dbus_g_type_specialized_init();
+
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
@@ -745,7 +783,8 @@ dbus_g_type_collection_value_iterate (const GValue                           *va
   DBusGTypeSpecializedData *data;
   GType gtype;
 
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
   g_return_if_fail (G_VALUE_HOLDS_BOXED (value));
 
   gtype = G_VALUE_TYPE (value);
@@ -779,7 +818,8 @@ dbus_g_type_specialized_init_append (GValue *value, DBusGTypeSpecializedAppendCo
   GType gtype;
   DBusGTypeSpecializedData *specdata;
   
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
   g_return_if_fail (G_VALUE_HOLDS_BOXED (value));
   gtype = G_VALUE_TYPE (value);
   specdata = lookup_specialization_data (gtype);
@@ -860,7 +900,8 @@ dbus_g_type_map_value_iterate (const GValue                           *value,
   DBusGTypeSpecializedData *data;
   GType gtype;
 
-  g_return_if_fail (specialized_types_is_initialized ());
+  dbus_g_type_specialized_init();
+
   g_return_if_fail (G_VALUE_HOLDS_BOXED (value));
 
   gtype = G_VALUE_TYPE (value);
@@ -892,7 +933,8 @@ dbus_g_type_struct_get_member (const GValue *value,
   DBusGTypeSpecializedData *data;
   GType gtype;
 
-  g_return_val_if_fail (specialized_types_is_initialized (), FALSE);
+  dbus_g_type_specialized_init();
+
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
@@ -923,7 +965,8 @@ dbus_g_type_struct_set_member (GValue       *value,
   DBusGTypeSpecializedData *data;
   GType gtype;
 
-  g_return_val_if_fail (specialized_types_is_initialized (), FALSE);
+  dbus_g_type_specialized_init();
+
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
