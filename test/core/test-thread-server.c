@@ -203,7 +203,7 @@ main (int argc, char *argv[])
   dbus_server_setup_with_g_main (server, NULL);
   
   loop = g_main_loop_new (NULL, FALSE);
-  g_main_run (loop);  
+  g_main_loop_run (loop);  
 
   return 0;
 }

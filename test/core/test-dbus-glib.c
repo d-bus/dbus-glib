@@ -1412,7 +1412,7 @@ main (int argc, char **argv)
 
     variant = g_new0 (GValue, 1);
     g_value_init (variant, dbus_g_type_get_collection ("GArray", G_TYPE_INT));
-    g_value_set_boxed_take_ownership (variant, array);
+    g_value_take_boxed (variant, array);
 
     if (!dbus_g_proxy_call (proxy, "ProcessVariantOfArrayOfInts123", &error,
                             G_TYPE_VALUE, variant,

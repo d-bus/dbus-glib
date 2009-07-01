@@ -641,7 +641,7 @@ demarshal_variant (DBusGValueMarshalCtx    *context,
   if (!demarshal_static_variant (context, iter, variant_val, error))
     return FALSE;
   
-  g_value_set_boxed_take_ownership (value, variant_val);
+  g_value_take_boxed (value, variant_val);
   return TRUE;
 }
 
@@ -670,7 +670,7 @@ demarshal_proxy (DBusGValueMarshalCtx    *context,
   dbus_message_iter_get_basic (iter, &objpath);
 
   new_proxy = dbus_g_proxy_new_from_proxy (context->proxy, NULL, objpath);
-  g_value_set_object_take_ownership (value, new_proxy);
+  g_value_take_object (value, new_proxy);
 
   return TRUE;
 }
@@ -813,7 +813,7 @@ demarshal_strv (DBusGValueMarshalCtx    *context,
       dbus_message_iter_next (&subiter);
     }
 
-  g_value_set_boxed_take_ownership (value, arr->data);
+  g_value_take_boxed (value, arr->data);
   g_array_free (arr, FALSE);
   
   return TRUE;
@@ -878,7 +878,7 @@ demarshal_valuearray (DBusGValueMarshalCtx    *context,
       dbus_message_iter_next (&subiter);
     }
 
-  g_value_set_boxed_take_ownership (value, ret);
+  g_value_take_boxed (value, ret);
   
   return TRUE;
 }
@@ -926,7 +926,7 @@ demarshal_map (DBusGValueMarshalCtx    *context,
   value_gtype = dbus_g_type_get_map_value_specialization (gtype);
 
   ret = dbus_g_type_specialized_construct (gtype);
-  g_value_set_boxed_take_ownership (value, ret);
+  g_value_take_boxed (value, ret);
 
   dbus_g_type_specialized_init_append (value, &appendctx);
 
@@ -990,7 +990,7 @@ demarshal_struct (DBusGValueMarshalCtx    *context,
 
   dbus_message_iter_recurse (iter, &subiter);
 
-  g_value_set_boxed_take_ownership (value,
+  g_value_take_boxed (value,
     dbus_g_type_specialized_construct (G_VALUE_TYPE (value)));
 
   size = dbus_g_type_get_struct_size (G_VALUE_TYPE (value));
@@ -1122,7 +1122,7 @@ demarshal_collection_ptrarray (DBusGValueMarshalCtx    *context,
     }
 
   instance = dbus_g_type_specialized_construct (coltype);
-  g_value_set_boxed_take_ownership (value, instance);
+  g_value_take_boxed (value, instance);
 
   dbus_g_type_specialized_init_append (value, &ctx);
 
@@ -1179,7 +1179,7 @@ demarshal_collection_array (DBusGValueMarshalCtx    *context,
   if (msgarray_len)
     g_array_append_vals (ret, msgarray, (guint) msgarray_len);
 
-  g_value_set_boxed_take_ownership (value, ret);
+  g_value_take_boxed (value, ret);
   
   return TRUE;
 }

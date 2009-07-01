@@ -825,12 +825,12 @@ dbus_binding_tool_output_glib_server (BaseInfo *info, GIOChannel *channel, const
   if (error && *error != NULL)
     {
       ret = FALSE;
-      g_io_channel_close (data.channel);
+      g_io_channel_shutdown (data.channel, TRUE, error);
       g_io_channel_unref (data.channel);
       goto io_lose;
     }
 
-  g_io_channel_close (data.channel);
+  g_io_channel_shutdown (data.channel, TRUE, error);
   g_io_channel_unref (data.channel);
   
   /* Now spawn glib-genmarshal to insert all our required marshallers */
@@ -867,7 +867,7 @@ dbus_binding_tool_output_glib_server (BaseInfo *info, GIOChannel *channel, const
   if (iostatus != G_IO_STATUS_EOF)
     goto io_lose;
 
-  g_io_channel_close (genmarshal_stdout);
+  g_io_channel_shutdown (genmarshal_stdout, TRUE, error);
 
   WRITE_OR_LOSE ("#include <dbus/dbus-glib.h>\n");
 

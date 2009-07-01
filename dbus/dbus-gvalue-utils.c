@@ -1310,7 +1310,7 @@ _dbus_gvalue_utils_test (const char *datadir)
     g_assert (g_hash_table_size (instance) == 2);
 
     g_value_init (&val, type);
-    g_value_set_boxed_take_ownership (&val, instance);
+    g_value_take_boxed (&val, instance);
     hashdata.seen_foo = FALSE;
     hashdata.seen_baz = FALSE;
     dbus_g_type_map_value_iterate (&val,
@@ -1336,7 +1336,7 @@ _dbus_gvalue_utils_test (const char *datadir)
 
     instance = dbus_g_type_specialized_construct (type);
     g_value_init (&val, type);
-    g_value_set_boxed_take_ownership (&val, instance);
+    g_value_take_boxed (&val, instance);
 
     dbus_g_type_specialized_init_append (&val, &ctx);
 
@@ -1350,7 +1350,7 @@ _dbus_gvalue_utils_test (const char *datadir)
       eltval = g_new0 (GValue, 1);
       g_value_init (eltval, G_TYPE_UINT);
       g_value_set_uint (eltval, 20);
-      g_value_set_boxed_take_ownership (&valval, eltval);
+      g_value_take_boxed (&valval, eltval);
       dbus_g_type_specialized_map_append (&ctx, &keyval, &valval);
     }
 
@@ -1363,7 +1363,7 @@ _dbus_gvalue_utils_test (const char *datadir)
       eltval = g_new0 (GValue, 1);
       g_value_init (eltval, G_TYPE_STRING);
       g_value_set_string (eltval, "bar");
-      g_value_set_boxed_take_ownership (&valval, eltval);
+      g_value_take_boxed (&valval, eltval);
       dbus_g_type_specialized_map_append (&ctx, &keyval, &valval);
     }
 
@@ -1473,7 +1473,7 @@ _dbus_gvalue_utils_test (const char *datadir)
     g_assert (instance->len == 0);
 
     g_value_init (&val, type);
-    g_value_set_boxed_take_ownership (&val, instance);
+    g_value_take_boxed (&val, instance);
 
     dbus_g_type_specialized_init_append (&val, &ctx);
 
@@ -1516,7 +1516,7 @@ _dbus_gvalue_utils_test (const char *datadir)
     g_assert (instance->n_values == 3);
 
     g_value_init (&val, type);
-    g_value_set_boxed_take_ownership (&val, instance);
+    g_value_take_boxed (&val, instance);
 
     g_value_init (&memval, G_TYPE_STRING);
     g_value_set_static_string (&memval, "foo");
@@ -1569,7 +1569,7 @@ _dbus_gvalue_utils_test (const char *datadir)
     g_assert (instance->n_values == 3);
 
     g_value_init (&val, type);
-    g_value_set_boxed_take_ownership (&val, instance);
+    g_value_take_boxed (&val, instance);
 
     dbus_g_type_struct_set (&val,
                             0,"foo",

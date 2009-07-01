@@ -91,7 +91,7 @@ main (int argc, char *argv[])
     }
 
   loop = g_main_loop_new (NULL, FALSE);
-  g_main_run (loop);  
+  g_main_loop_run (loop);  
   
   return 0;
 }
