@@ -160,6 +160,8 @@ void       dbus_g_error_domain_register        (GQuark                domain,
 void       dbus_g_connection_register_g_object (DBusGConnection       *connection,
 						const char            *at_path,
 						GObject               *object);
+void       dbus_g_connection_unregister_g_object (DBusGConnection *connection,
+                                                  GObject *object);
 GObject *  dbus_g_connection_lookup_g_object   (DBusGConnection       *connection,
 						const char            *at_path);
 
