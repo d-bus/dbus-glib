@@ -229,9 +229,9 @@ description_load_from_string (const char  *str,
               g_set_error (error,
                            G_MARKUP_ERROR,
                            G_MARKUP_ERROR_PARSE,
-                           "Error in D-BUS description XML, line %d, column %d: %s\n",
-                           XML_GetCurrentLineNumber (expat),
-                           XML_GetCurrentColumnNumber (expat),
+                           "Error in D-BUS description XML, line %ld, column %ld: %s\n",
+                           (gulong)XML_GetCurrentLineNumber (expat),
+                           (gulong)XML_GetCurrentColumnNumber (expat),
                            XML_ErrorString (e));
         }
       

@@ -1094,8 +1094,8 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 
 static DBusMessage *
 gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
-			      DBusMessage     *message,
-			      GError          *error)
+			      DBusMessage           *message,
+			      const GError          *error)
 {
   DBusMessage *reply;
 

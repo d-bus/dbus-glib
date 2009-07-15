@@ -774,7 +774,7 @@ main (int argc, char **argv)
     lose ("ThrowNotSupported call unexpectedly succeeded!");
 
   if (error->domain != DBUS_GERROR || error->code != DBUS_GERROR_NOT_SUPPORTED)
-    lose ("ThrowNotSupported call returned unexpected error: %s #%u: %s",
+    lose ("ThrowNotSupported call returned unexpected error: %s #%u: %s %s",
           g_quark_to_string (error->domain), error->code,
           dbus_g_error_get_name (error), error->message);
 
