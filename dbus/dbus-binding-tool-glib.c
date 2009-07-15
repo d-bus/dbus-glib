@@ -1202,7 +1202,7 @@ write_formal_declarations_for_direction (InterfaceInfo *iface, MethodInfo *metho
      {
        ArgInfo *arg;
       GType gtype;
-      const char *type_str, *type_suffix;
+      const char *type_str, *type_suffix, *type_initializer = "";
       int dir;
 
        arg = args->data;
@@ -1230,7 +1230,10 @@ write_formal_declarations_for_direction (InterfaceInfo *iface, MethodInfo *metho
 	  if (direction == ARG_IN)
 	    type_suffix = "*";
 	  else
-	    type_suffix = "";
+	    {
+	      type_suffix = "";
+	      type_initializer = " = { 0, }";
+	    }
 	}
       else if ((g_type_is_a (gtype, G_TYPE_BOXED)
 	      || g_type_is_a (gtype, G_TYPE_OBJECT)
@@ -1251,9 +1254,10 @@ write_formal_declarations_for_direction (InterfaceInfo *iface, MethodInfo *metho
            goto io_lose;
          break;
        case ARG_OUT:
-         if (!write_printf_to_iochannel ("  %s%s OUT_%s;\n", channel, error,
+         if (!write_printf_to_iochannel ("  %s%s OUT_%s%s;\n", channel, error,
                                          type_str, type_suffix,
-                                         arg_info_get_name (arg)))
+                                         arg_info_get_name (arg),
+                                         type_initializer))
            goto io_lose;
          break;
        case ARG_INVALID:
