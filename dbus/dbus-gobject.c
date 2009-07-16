@@ -640,7 +640,7 @@ introspect_interfaces (GObject *object, GString *xml)
         }
 
       propsig = info->exported_signals;
-      while (*propsig)
+      while (propsig != NULL && *propsig)
         {
           const char *iface;
           const char *signame;
@@ -652,7 +652,7 @@ introspect_interfaces (GObject *object, GString *xml)
         }
 
       propsig = info->exported_properties;
-      while (*propsig)
+      while (propsig != NULL && *propsig)
         {
           const char *iface;
           const char *propname;
