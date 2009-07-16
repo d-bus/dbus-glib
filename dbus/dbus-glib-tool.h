@@ -23,7 +23,7 @@
 #ifndef DBUS_BINDING_TOOL_H
 #define DBUS_BINDING_TOOL_H
 
-#include <glib/gquark.h>
+#include <glib.h>
 
 typedef enum
 {
