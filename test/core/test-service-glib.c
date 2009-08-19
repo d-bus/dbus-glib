@@ -66,6 +66,10 @@ main (int argc, char **argv)
   dbus_g_connection_register_g_object (connection,
                                        "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
                                        obj);
+  /* Register a second time; we want the object to also be reachable through this interface */
+  dbus_g_connection_register_g_object (connection,
+                                       "/org/freedesktop/DBus/GLib/Tests/Compat/MyTestObjectCompat",
+                                       obj);
   dbus_g_connection_register_g_object (connection,
                                        "/org/freedesktop/DBus/GLib/Tests/MyTestObject2",
                                        obj2);
