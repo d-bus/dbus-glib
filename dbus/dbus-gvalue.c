@@ -585,8 +585,7 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
 	return TRUE;
       }
     default:
-      g_assert_not_reached ();
-      return FALSE;
+      /* fall through to invalid_type */
     }
   invalid_type:
     g_set_error (error,
