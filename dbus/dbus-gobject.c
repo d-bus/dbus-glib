@@ -414,7 +414,9 @@ object_registration_free (ObjectRegistration *o)
        */
       registrations = g_object_steal_data (o->object, "dbus_glib_object_registrations");
       registrations = g_slist_remove (registrations, o);
-      g_object_set_data (o->object, "dbus_glib_object_registrations", registrations);
+
+      if (registrations != NULL)
+        g_object_set_data (o->object, "dbus_glib_object_registrations", registrations);
 
       g_object_weak_unref (o->object, object_registration_object_died, o);
     }
