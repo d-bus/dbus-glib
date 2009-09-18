@@ -765,6 +765,47 @@ dbus_g_bus_get (DBusBusType     type,
   return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
 }
 
+/**
+ * dbus_g_bus_get_private:
+ * @type: bus type
+ * @error: address where an error can be returned.
+ *
+ * Returns a connection to the given bus. The connection will be a private
+ * non-shared connection and should be closed when usage is complete.
+ * 
+ * Internally this function calls dbus_bus_get_private() then calls
+ * dbus_connection_setup_with_g_main() on the result; see the documentation
+ * of the former function for more information on private connections.
+ *
+ * Returns: a DBusConnection
+ */
+DBusGConnection*
+dbus_g_bus_get_private (DBusBusType     type,
+                        GError        **error)
+{
+  DBusConnection *connection;
+  DBusError derror;
+
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+  _dbus_g_value_types_init ();
+
+  dbus_error_init (&derror);
+
+  connection = dbus_bus_get_private (type, &derror);
+  if (connection == NULL)
+    {
+      dbus_set_g_error (error, &derror);
+      dbus_error_free (&derror);
+      return NULL;
+    }
+
+  /* does nothing if it's already been done */
+  dbus_connection_setup_with_g_main (connection, NULL);
+
+  return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
+}
+
 /** @} */ /* end of public API */
 
 #ifdef DBUS_BUILD_TESTS

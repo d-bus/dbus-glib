@@ -105,6 +105,9 @@ DBusGConnection* dbus_g_connection_open (const gchar  *address,
                                          GError      **error);
 DBusGConnection* dbus_g_bus_get         (DBusBusType   type,
                                          GError      **error);
+DBusGConnection* dbus_g_bus_get_private (DBusBusType   type,
+                                         GError      **error);
+
 
 typedef struct _DBusGObjectInfo DBusGObjectInfo;
 typedef struct _DBusGMethodInfo DBusGMethodInfo;
