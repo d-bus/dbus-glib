@@ -15,6 +15,7 @@ static const char *await_terminating_service = NULL;
 static int n_times_foo_received = 0;
 static int n_times_frobnicate_received = 0;
 static int n_times_frobnicate_received_2 = 0;
+static int n_times_compat_frobnicate_received = 0;
 static int n_times_sig0_received = 0;
 static int n_times_sig1_received = 0;
 static int n_times_sig2_received = 0;
@@ -136,6 +137,20 @@ frobnicate_signal_handler_2 (DBusGProxy  *proxy,
 
   g_assert (val == 42);
   g_print ("Got Frobnicate signal (again)\n");
+}
+
+static void
+frobnicate_signal_handler_compat (DBusGProxy  *proxy,
+                                  int          val,
+                                  void        *user_data)
+{
+  n_times_compat_frobnicate_received += 1;
+
+  g_assert (val == 42);
+  g_print ("Got Frobnicate signal (compat)\n");
+
+  g_main_loop_quit (loop);
+  g_source_remove (exit_timeout);
 }
 
 static void
@@ -1885,6 +1900,32 @@ main (int argc, char **argv)
   g_object_unref (G_OBJECT (proxy2));
 
   run_mainloop ();
+
+  /* Tests for a "compatibilty" object path.  This is the same object as above, just
+   * at a different path.
+   */
+  proxy = dbus_g_proxy_new_for_name_owner (connection,
+                                           "org.freedesktop.DBus.GLib.TestService",
+                                           "/org/freedesktop/DBus/GLib/Tests/Compat/MyTestObjectCompat",
+                                           "org.freedesktop.DBus.GLib.Tests.MyObject",
+                                           &error);
+  dbus_g_proxy_add_signal (proxy, "Frobnicate", G_TYPE_INT, G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (proxy, "Frobnicate",
+                               G_CALLBACK (frobnicate_signal_handler_compat),
+                               NULL, NULL);
+
+  g_print ("Calling EmitFrobnicate (compat)\n");
+  if (!dbus_g_proxy_call (proxy, "EmitFrobnicate", &error,
+                          G_TYPE_INVALID, G_TYPE_INVALID))
+    lose_gerror ("Failed to complete EmitFrobnicate call on compat proxy", error);
+
+  g_main_loop_run (loop);
+
+  if (n_times_compat_frobnicate_received != 1)
+    lose ("Frobnicate signal received %d times for compat proxy, should have been 1", n_times_compat_frobnicate_received);
+
+  g_object_unref (proxy);
 
   /* Test introspection */
   proxy = dbus_g_proxy_new_for_name_owner (connection,

@@ -407,9 +407,18 @@ object_registration_free (ObjectRegistration *o)
 {
   if (o->object != NULL)
     {
+      GSList *registrations;
+
+      /* Ok, the object is still around; clear out this particular registration
+       * from the registrations list.
+       */
+      registrations = g_object_steal_data (o->object, "dbus_glib_object_registrations");
+      registrations = g_slist_remove (registrations, o);
+
+      if (registrations != NULL)
+        g_object_set_data (o->object, "dbus_glib_object_registrations", registrations);
+
       g_object_weak_unref (o->object, object_registration_object_died, o);
-      g_object_steal_data (o->object, "dbus_glib_object_registration");
-      o->object = NULL;
     }
 
   g_free (o->object_path);
@@ -1741,30 +1750,19 @@ dbus_g_signal_closure_finalize (gpointer data,
 }
 
 static void
-signal_emitter_marshaller (GClosure        *closure,
-			   GValue          *retval,
-			   guint            n_param_values,
-			   const GValue    *param_values,
-			   gpointer         invocation_hint,
-			   gpointer         marshal_data)
+emit_signal_for_registration (ObjectRegistration *o,
+                              DBusGSignalClosure *sigclosure,
+                              GValue             *retval,
+                              guint               n_param_values,
+                              const GValue       *param_values)
 {
-  DBusGSignalClosure *sigclosure;
   DBusMessage *signal;
   DBusMessageIter iter;
   guint i;
-  const char *path;
 
-  sigclosure = (DBusGSignalClosure *) closure;
-  
-  g_assert (retval == NULL);
-
-  path = _dbus_gobject_get_path (sigclosure->object);
-
-  g_assert (path != NULL);
-
-  signal = dbus_message_new_signal (path,
-				    sigclosure->sigiface,
-				    sigclosure->signame);
+  signal = dbus_message_new_signal (o->object_path,
+                                    sigclosure->sigiface,
+                                    sigclosure->signame);
   if (!signal)
     {
       g_error ("out of memory");
@@ -1777,17 +1775,42 @@ signal_emitter_marshaller (GClosure        *closure,
   for (i = 1; i < n_param_values; i++)
     {
       if (!_dbus_gvalue_marshal (&iter,
-				(GValue *) (&(param_values[i]))))
-	{
-	  g_warning ("failed to marshal parameter %d for signal %s",
-		     i, sigclosure->signame);
-	  goto out;
-	}
+                                (GValue *) (&(param_values[i]))))
+        {
+          g_warning ("failed to marshal parameter %d for signal %s",
+                     i, sigclosure->signame);
+          goto out;
+        }
     }
   dbus_connection_send (DBUS_CONNECTION_FROM_G_CONNECTION (sigclosure->connection),
-			signal, NULL);
- out:
+                        signal, NULL);
+out:
   dbus_message_unref (signal);
+}
+
+static void
+signal_emitter_marshaller (GClosure        *closure,
+			   GValue          *retval,
+			   guint            n_param_values,
+			   const GValue    *param_values,
+			   gpointer         invocation_hint,
+			   gpointer         marshal_data)
+{
+  DBusGSignalClosure *sigclosure;
+  GSList *registrations, *iter;
+
+  sigclosure = (DBusGSignalClosure *) closure;
+
+  g_assert (retval == NULL);
+
+  registrations = g_object_get_data (sigclosure->object, "dbus_glib_object_registrations");
+
+  for (iter = registrations; iter; iter = iter->next)
+    {
+      ObjectRegistration *o = iter->data;
+
+      emit_signal_for_registration (o, sigclosure, retval, n_param_values, param_values);
+    }
 }
 
 static void
@@ -2092,14 +2115,24 @@ void
 dbus_g_connection_unregister_g_object (DBusGConnection *connection,
                                        GObject *object)
 {
-  ObjectRegistration *o;
+  GList *registrations, *iter;
 
-  o = g_object_get_data (object, "dbus_glib_object_registration");
+  /* Copy the list before iterating it: it will be modified in
+   * object_registration_free() each time an object path is unregistered.
+   */
+  registrations = g_list_copy (g_object_get_data (object, "dbus_glib_object_registrations"));
 
-  g_return_if_fail (o != NULL);
+  g_return_if_fail (registrations != NULL);
 
-  dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
-      o->object_path);
+  for (iter = registrations; iter; iter = iter->next)
+    {
+      ObjectRegistration *o = iter->data;
+      dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
+          o->object_path);
+    }
+
+  g_list_free (registrations);
+  g_assert (g_object_get_data (object, "dbus_glib_object_registrations") == NULL);
 }
 
 /**
@@ -2116,6 +2149,9 @@ dbus_g_connection_unregister_g_object (DBusGConnection *connection,
  * The registration will be cancelled if either the #DBusConnection or
  * the #GObject gets finalized, or if dbus_g_connection_unregister_g_object()
  * is used.
+ *
+ * Note: If an object is registered multiple times, the first registration
+ * takes priority for cases such as turning an object into an object path.
  */
 void
 dbus_g_connection_register_g_object (DBusGConnection       *connection,
@@ -2123,28 +2159,44 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      GObject               *object)
 {
   GList *info_list;
+  GSList *registrations, *iter;
   ObjectRegistration *o;
+  gboolean is_first_registration;
 
   g_return_if_fail (connection != NULL);
   g_return_if_fail (at_path != NULL);
   g_return_if_fail (G_IS_OBJECT (object));
 
-  info_list = lookup_object_info (object);
-  if (info_list == NULL)
+  /* This is a GSList of ObjectRegistration*  */
+  registrations = g_object_steal_data (object, "dbus_glib_object_registrations");
+
+  for (iter = registrations; iter; iter = iter->next)
     {
-      g_warning ("No introspection data registered for object class \"%s\"",
-		 g_type_name (G_TYPE_FROM_INSTANCE (object)));
-      return;
+      o = iter->data;
+
+      /* Silently ignore duplicate registrations */
+      if (strcmp (o->object_path, at_path) == 0)
+        return;
     }
 
-  o = g_object_get_data (object, "dbus_glib_object_registration");
+  is_first_registration = registrations == NULL;
 
-  if (o != NULL)
+  /* This is used to hook up signals below, but we do this check
+   * before trying to register the object to make sure we have
+   * introspection data for it.
+   */
+  if (is_first_registration)
     {
-      g_warning ("Object already registered at %s, can't re-register at %s",
-          o->object_path, at_path);
-      return;
+      info_list = lookup_object_info (object);
+      if (info_list == NULL)
+        {
+          g_warning ("No introspection data registered for object class \"%s\"",
+                     g_type_name (G_TYPE_FROM_INSTANCE (object)));
+          return;
+        }
     }
+  else
+    info_list = NULL;
 
   o = object_registration_new (connection, at_path, object);
 
@@ -2155,12 +2207,22 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
     {
       g_error ("Failed to register GObject with DBusConnection");
       object_registration_free (o);
+      g_list_free (info_list);
       return;
     }
 
-  export_signals (connection, info_list, object);
-  g_list_free (info_list);
-  g_object_set_data (object, "dbus_glib_object_registration", o);
+  if (is_first_registration)
+    {
+      /* This adds a hook into every signal for the object.  Only do this
+       * on the first registration, because inside the signal marshaller
+       * we emit a signal for each registration.
+       */
+      export_signals (connection, info_list, object);
+      g_list_free (info_list);
+    }
+
+  registrations = g_slist_append (registrations, o);
+  g_object_set_data (object, "dbus_glib_object_registrations", registrations);
 }
 
 /**
@@ -2539,14 +2601,19 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
   g_free (context);
 }
 
-const char * _dbus_gobject_get_path (GObject *obj)
+const char *
+_dbus_gobject_get_path (GObject *obj)
 {
+  GSList *registrations;
   ObjectRegistration *o;
 
-  o = g_object_get_data (obj, "dbus_glib_object_registration");
+  registrations = g_object_get_data (obj, "dbus_glib_object_registrations");
 
-  if (o == NULL)
+  if (registrations == NULL)
     return NULL;
+
+  /* First one to have been registered wins */
+  o = registrations->data;
 
   return o->object_path;
 }
