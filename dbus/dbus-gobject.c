@@ -2478,7 +2478,7 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
    * carry it over through the async invocation to here.
    */
   if (!context->send_reply)
-    return;
+    goto out;
 
   reply = dbus_message_new_method_return (dbus_g_message_get_message (context->message));
   out_sig = method_output_signature_from_object_info (context->object, context->method);
@@ -2506,11 +2506,13 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
   dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
   dbus_message_unref (reply);
 
+  g_free (out_sig);
+  g_array_free (argsig, TRUE);
+
+out:
   dbus_g_connection_unref (context->connection);
   dbus_g_message_unref (context->message);
   g_free (context);
-  g_free (out_sig);
-  g_array_free (argsig, TRUE);
 }
 
 /**
@@ -2525,15 +2527,16 @@ void
 dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
 {
   DBusMessage *reply;
-  
+
   /* See comment in dbus_g_method_return */
   if (!context->send_reply)
-    return;  
-  
+    goto out;
+
   reply = gerror_to_dbus_error_message (context->object, dbus_g_message_get_message (context->message), error);
   dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
   dbus_message_unref (reply);
-  
+
+out:
   dbus_g_connection_unref (context->connection);
   dbus_g_message_unref (context->message);
   g_free (context);
