@@ -13,6 +13,7 @@ DISTCLEANFILES = 		\
 EXTRA_DIST =			\
 	HACKING			\
 	NEWS			\
+	dbus-bus-introspect.xml \
 	dbus-glib-1.pc.in
 
 # Creating ChangeLog from git log:

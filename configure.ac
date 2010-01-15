@@ -516,18 +516,6 @@ fi
 AC_SUBST(TEST_SOCKET_DIR)
 AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test sockets])
 
-#### Test if we should generate daemon introspection xml
-use_introspect_xml=false
-
-if ! test -z "$with_introspect_xml" ; then
-  use_introspect_xml=true
-  INTROSPECT_XML_PATH="$with_introspect_xml"
-  AC_DEFINE(INTROSPECT_XML_PATH, "$INTROSPECT_XML_PATH", [Path to pregenerated xml for dbus daemon introspection])
-  AC_SUBST(INTROSPECT_XML_PATH)
-fi
-
-AM_CONDITIONAL(USE_INTROSPECT_XML, $use_introspect_xml)
-
 AC_OUTPUT([
 Makefile
 m4/Makefile
