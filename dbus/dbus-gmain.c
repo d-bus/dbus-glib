@@ -768,6 +768,7 @@ dbus_g_bus_get (DBusBusType     type,
 /**
  * dbus_g_bus_get_private:
  * @type: bus type
+ * @context: Mainloop context to attach to
  * @error: address where an error can be returned.
  *
  * Returns a connection to the given bus. The connection will be a private
@@ -781,6 +782,7 @@ dbus_g_bus_get (DBusBusType     type,
  */
 DBusGConnection*
 dbus_g_bus_get_private (DBusBusType     type,
+                        GMainContext   *context,
                         GError        **error)
 {
   DBusConnection *connection;
@@ -801,7 +803,7 @@ dbus_g_bus_get_private (DBusBusType     type,
     }
 
   /* does nothing if it's already been done */
-  dbus_connection_setup_with_g_main (connection, NULL);
+  dbus_connection_setup_with_g_main (connection, context);
 
   return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
 }

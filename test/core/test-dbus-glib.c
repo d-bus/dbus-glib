@@ -2123,6 +2123,27 @@ main (int argc, char **argv)
     lose ("Duplicate proxy wasn'tdestroyed");
 
   g_print ("Proxy and duplicate destroyed successfully\n");
+  
+  g_print ("Beginning private connection tests\n");
+  
+  {
+    DBusGConnection *privconn = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, &error);
+    
+    if (privconn == NULL)
+      lose_gerror ("Failed to open private connection to bus", error);
+    g_assert (privconn != connection);
+    
+    proxy = dbus_g_proxy_new_for_name (privconn,
+                                       "org.freedesktop.DBus.GLib.TestService",
+                                       "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
+                                       "org.freedesktop.DBus.GLib.Tests.MyObject");
+    
+    g_print ("[private connection] Calling (wrapped) do_nothing\n");
+    if (!org_freedesktop_DBus_GLib_Tests_MyObject_do_nothing (proxy, &error))
+      lose_gerror ("Failed to complete (wrapped) DoNothing call", error);
+    
+    g_object_unref (G_OBJECT (proxy));
+  }
 
   g_object_unref (G_OBJECT (driver));
 

@@ -106,6 +106,7 @@ DBusGConnection* dbus_g_connection_open (const gchar  *address,
 DBusGConnection* dbus_g_bus_get         (DBusBusType   type,
                                          GError      **error);
 DBusGConnection* dbus_g_bus_get_private (DBusBusType   type,
+                                         GMainContext *context,
                                          GError      **error);
 
 
