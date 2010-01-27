@@ -586,6 +586,7 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
       }
     default:
       /* fall through to invalid_type */
+      break;
     }
   invalid_type:
     g_set_error (error,
