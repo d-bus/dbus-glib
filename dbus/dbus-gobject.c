@@ -1093,18 +1093,9 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
     }
   else
     {
-      char *domain_member, *code_member;
-
-      /* TODO should further validate these */
-      domain_member = uscore_to_wincaps (domain_str);
-      code_member = uscore_to_wincaps (code_str);
-
-      dbus_error_name = g_string_new (domain_member);
+      dbus_error_name = g_string_new (domain_str);
       g_string_append_c (dbus_error_name, '.');
-      g_string_append (dbus_error_name, code_member);
-
-      g_free (domain_member);
-      g_free (code_member);
+      g_string_append (dbus_error_name, code_str);
     }
 
   return g_string_free (dbus_error_name, FALSE);
