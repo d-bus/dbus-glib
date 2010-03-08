@@ -1977,13 +1977,13 @@ dbus_error_to_gerror_code (const char *derr)
  * programs can use as a conditional source.  Because a GError
  * only has one string, we use a hack to encode both values:
  *
- * <human readable string><null><error name><null>
+ * &lt;human readable string&gt;&lt;null&gt;&lt;error name&gt;&lt;null&gt;
  * 
  * You can use the following code to retrieve both values:
  * 
- * const char *msg = error->message;
+ * |[const char *msg = error->message;
  * size_t len = strlen(msg);
- * const char *error_name = msg+len+1;
+ * const char *error_name = msg+len+1;]|
  */
 void
 dbus_set_g_error (GError    **gerror,
