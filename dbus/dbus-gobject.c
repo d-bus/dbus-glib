@@ -1582,6 +1582,10 @@ invoke_object_method (GObject         *object,
       g_array_free (out_param_values, TRUE);
       g_value_array_free (out_param_gvalues);
     }
+
+  if (gerror != NULL)
+    g_clear_error (&gerror);
+
   g_value_array_free (value_array);
   return result;
  nomem:
