@@ -1072,7 +1072,6 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 	{
 	  GEnumValue *value;
 	  GEnumClass *klass;
-          const char *p;
 
 	  klass = g_type_class_ref (info->code_enum);
 	  value = g_enum_get_value (klass, code);
@@ -1194,7 +1193,7 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
               name = DBUS_ERROR_FILE_NOT_FOUND;
               break;
             case DBUS_GERROR_REMOTE_EXCEPTION:
-              name = dbus_g_error_get_name (error);
+              name = dbus_g_error_get_name ((GError*) error);
               break;
             }
 
