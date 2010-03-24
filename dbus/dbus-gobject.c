@@ -301,9 +301,10 @@ dbus_g_object_type_dbus_metadata_quark (void)
   return quark;
 }
 
-typedef void (*ForeachObjectInfoFn) (const DBusGObjectInfo *info,
-                                     GType                 gtype,
-                                     gpointer              user_data);
+/* Iterator function should return FALSE to stop iteration, TRUE to continue */
+typedef gboolean (*ForeachObjectInfoFn) (const DBusGObjectInfo *info,
+                                         GType                 gtype,
+                                         gpointer              user_data);
 
 static void
 foreach_object_info (GObject *object,
@@ -320,7 +321,10 @@ foreach_object_info (GObject *object,
     {
       info = g_type_get_qdata (*p, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-	callback (info, *p, user_data);
+        {
+	  if (!callback (info, *p, user_data))
+	    break;
+	}
     }
 
   g_free (interfaces);
@@ -329,12 +333,15 @@ foreach_object_info (GObject *object,
     {
       info = g_type_get_qdata (classtype, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-	callback (info, classtype, user_data);
+	{
+	  if (!callback (info, classtype, user_data))
+	    break;
+	}
     }
 
 }
 
-static void
+static gboolean
 lookup_object_info_cb (const DBusGObjectInfo *info,
                        GType gtype,
 		       gpointer user_data)
@@ -342,6 +349,7 @@ lookup_object_info_cb (const DBusGObjectInfo *info,
   GList **list = (GList **) user_data;
 
   *list = g_list_prepend (*list, (gpointer) info);
+  return TRUE;
 }
 
 static GList *
@@ -361,29 +369,26 @@ typedef struct {
   GType iface_type;
 } LookupObjectInfoByIfaceData;
 
-static void
+static gboolean
 lookup_object_info_by_iface_cb (const DBusGObjectInfo *info,
 				GType gtype,
 				gpointer user_data)
 {
   LookupObjectInfoByIfaceData *lookup_data = (LookupObjectInfoByIfaceData *) user_data;
 
-  if (lookup_data->info)
-    return;
-
   /* If interface is not specified, choose the first info */
   if (lookup_data->fallback && (!lookup_data->iface || strlen (lookup_data->iface) == 0))
     {
       lookup_data->info = info;
       lookup_data->iface_type = gtype;
-      return;
     }
-
-  if (info->exported_properties && !strcmp (info->exported_properties, lookup_data->iface))
+  else if (info->exported_properties && !strcmp (info->exported_properties, lookup_data->iface))
     {
       lookup_data->info = info;
       lookup_data->iface_type = gtype;
     }
+
+  return !lookup_data->info;
 }
 
 static const DBusGObjectInfo *
