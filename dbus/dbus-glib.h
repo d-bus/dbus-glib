@@ -157,6 +157,10 @@ struct _DBusGObjectInfo
 void       dbus_g_object_type_install_info     (GType                 object_type,
                                                 const DBusGObjectInfo *info);
 
+void       dbus_g_object_type_register_shadow_property (GType         object_type,
+                                                        const char    *dbus_prop_name,
+                                                        const char    *shadow_prop_name);
+
 void       dbus_g_error_domain_register        (GQuark                domain,
 						const char *          default_iface,
 						GType                 code_enum);

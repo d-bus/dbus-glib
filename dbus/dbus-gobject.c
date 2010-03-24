@@ -35,6 +35,10 @@
 #include "dbus-gvalue-utils.h"
 #include <string.h>
 
+static char *lookup_property_name (GObject    *object,
+                                   const char *wincaps_propiface,
+                                   const char *wincaps_propname);
+
 typedef struct
 {
   char *default_iface;
@@ -297,9 +301,13 @@ dbus_g_object_type_dbus_metadata_quark (void)
   return quark;
 }
 
+typedef void (*ForeachObjectInfoFn) (const DBusGObjectInfo *info,
+                                     GType                 gtype,
+                                     gpointer              user_data);
+
 static void
 foreach_object_info (GObject *object,
-		     GFunc callback,
+		     ForeachObjectInfoFn callback,
 		     gpointer user_data)
 {
   GType *interfaces, *p;
@@ -312,7 +320,7 @@ foreach_object_info (GObject *object,
     {
       info = g_type_get_qdata (*p, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-	callback ((gpointer) info, user_data);
+	callback (info, *p, user_data);
     }
 
   g_free (interfaces);
@@ -321,18 +329,19 @@ foreach_object_info (GObject *object,
     {
       info = g_type_get_qdata (classtype, dbus_g_object_type_dbus_metadata_quark ());
       if (info != NULL && info->format_version >= 0)
-	callback ((gpointer) info, user_data);
+	callback (info, classtype, user_data);
     }
 
 }
 
 static void
-lookup_object_info_cb (gpointer data,
+lookup_object_info_cb (const DBusGObjectInfo *info,
+                       GType gtype,
 		       gpointer user_data)
 {
   GList **list = (GList **) user_data;
 
-  *list = g_list_prepend (*list, data);
+  *list = g_list_prepend (*list, (gpointer) info);
 }
 
 static GList *
@@ -347,40 +356,53 @@ lookup_object_info (GObject *object)
 
 typedef struct {
   const char *iface;
-  DBusGObjectInfo *info;
+  const DBusGObjectInfo *info;
+  gboolean fallback;
+  GType iface_type;
 } LookupObjectInfoByIfaceData;
 
 static void
-lookup_object_info_by_iface_cb (gpointer data,
+lookup_object_info_by_iface_cb (const DBusGObjectInfo *info,
+				GType gtype,
 				gpointer user_data)
 {
-  DBusGObjectInfo *info = (DBusGObjectInfo *) data;
   LookupObjectInfoByIfaceData *lookup_data = (LookupObjectInfoByIfaceData *) user_data;
 
   if (lookup_data->info)
     return;
 
   /* If interface is not specified, choose the first info */
-  if (!lookup_data->iface || strlen (lookup_data->iface) == 0)
+  if (lookup_data->fallback && (!lookup_data->iface || strlen (lookup_data->iface) == 0))
     {
       lookup_data->info = info;
+      lookup_data->iface_type = gtype;
       return;
     }
 
   if (info->exported_properties && !strcmp (info->exported_properties, lookup_data->iface))
-    lookup_data->info = info;
+    {
+      lookup_data->info = info;
+      lookup_data->iface_type = gtype;
+    }
 }
 
-static DBusGObjectInfo *
+static const DBusGObjectInfo *
 lookup_object_info_by_iface (GObject     *object,
-			     const char  *iface)
+			     const char  *iface,
+			     gboolean     fallback,
+			     GType       *out_iface_type)
 {
   LookupObjectInfoByIfaceData data;
 
   data.iface = iface;
   data.info = NULL;
+  data.fallback = fallback;
+  data.iface_type = 0;
 
   foreach_object_info (object, lookup_object_info_by_iface_cb, &data);
+
+  if (out_iface_type && data.info)
+    *out_iface_type = data.iface_type;
 
   return data.info;
 }
@@ -444,6 +466,7 @@ object_registration_unregistered (DBusConnection *connection,
 
 typedef struct
 {
+  GObject *object;
   GString *xml;
   GType gtype;
   const DBusGObjectInfo *object_info;
@@ -560,7 +583,7 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
       propname = properties->data;
       spec = NULL;
 
-      s = _dbus_gutils_wincaps_to_uscore (propname);
+      s = lookup_property_name (data->object, name, propname);
 
       spec = g_object_class_find_property (g_type_class_peek (data->gtype), s);
       g_assert (spec != NULL);
@@ -683,6 +706,7 @@ introspect_interfaces (GObject *object, GString *xml)
       data.xml = xml;
       data.gtype = G_TYPE_FROM_INSTANCE (object);
       data.object_info = info;
+      data.object = object;
 
       g_hash_table_foreach (interfaces, write_interface, &data);
       g_hash_table_destroy (interfaces);
@@ -871,10 +895,112 @@ get_object_property (DBusConnection *connection,
   return ret;
 }
 
+#define SHADOW_PROP_QUARK (dbus_g_object_type_dbus_shadow_property_quark ())
+
+static GQuark
+dbus_g_object_type_dbus_shadow_property_quark (void)
+{
+  static GQuark quark;
+
+  if (!quark)
+    quark = g_quark_from_static_string ("DBusGObjectTypeDBusShadowPropertyQuark");
+  return quark;
+}
+
+/* Look for shadow properties on the given interface first, otherwise
+ * just return the original property name.  This allows implementations to
+ * get around the glib limitation of unique property names among all
+ * GInterfaces by registering a "shadow" property name that the get/set
+ * request will be redirected to.
+ *
+ * Shadow property data is stored as qdata on each GInterface.  If there
+ * is no interface info, or there is no registered shadow property, just
+ * return the original property name.
+ */
+static char *
+lookup_property_name (GObject    *object,
+                      const char *wincaps_propiface,
+                      const char *wincaps_propname)
+{
+  const DBusGObjectInfo *object_info;
+  GHashTable *shadow_props;
+  char *shadow_prop_name = NULL, *uscore_name;
+  GType iface_type = 0;
+
+  g_assert (wincaps_propiface != NULL);
+  g_assert (wincaps_propname != NULL);
+
+  uscore_name = _dbus_gutils_wincaps_to_uscore (wincaps_propname);
+
+  object_info = lookup_object_info_by_iface (object, wincaps_propiface, FALSE, &iface_type);
+  if (!object_info)
+    return uscore_name;
+
+  shadow_props = (GHashTable *) g_type_get_qdata (iface_type, SHADOW_PROP_QUARK);
+  if (shadow_props)
+    {
+      shadow_prop_name = g_strdup (g_hash_table_lookup (shadow_props, wincaps_propname));
+      g_free (uscore_name);
+    }
+
+  return shadow_prop_name ? shadow_prop_name : uscore_name;
+}
+
+/**
+ * dbus_g_object_type_register_shadow_property:
+ * @iface_type: #GType for the #GInterface
+ * @dbus_prop_name: D-Bus property name (as specified in the introspection data)
+ *  to override with the shadow property name (as specified in the GType's
+ *  initialization function, ie glib-style)
+ * @shadow_prop_name: property name which should override the shadow property
+ *
+ * Registers a new property name @shadow_prop_name that overrides the
+ * @dbus_prop_name in D-Bus property get/set requests.  Since all properties for
+ * all interfaces implemented by a GObject exist in the same namespace, this
+ * allows implementations to use the same property name in two or more D-Bus
+ * interfaces implemented by the same GObject, as long as one of those D-Bus
+ * interface properties is registered with a shadow property name.
+ *
+ * For example, if both org.foobar.Baz.InterfaceA and org.foobar.Baz.InterfaceB
+ * have a D-Bus property called "Bork", the developer assigns a shadow property
+ * name to the conflicting property name in one or both of these GInterfaces to
+ * resolve the conflict.  Assume the GInterface implementing
+ * org.foobar.Baz.InterfaceA registers a shadow property called "a-bork", while
+ * the GInterface implementing org.foobar.Baz.InterfaceB registers a shadow
+ * property called "b-bork".  The GObject implementing both these GInterfaces
+ * would then use #g_object_class_override_property() to implement both
+ * "a-bork" and "b-bork" and D-Bus requests for "Bork" on either D-Bus interface
+ * will not conflict.
+ */
+void
+dbus_g_object_type_register_shadow_property (GType      iface_type,
+                                             const char *dbus_prop_name,
+                                             const char *shadow_prop_name)
+{
+  GHashTable *shadow_props;
+
+  g_return_if_fail (G_TYPE_IS_CLASSED (iface_type) || G_TYPE_IS_INTERFACE (iface_type));
+  g_return_if_fail (dbus_prop_name != NULL);
+  g_return_if_fail (shadow_prop_name != NULL);
+
+  shadow_props = (GHashTable *) g_type_get_qdata (iface_type, SHADOW_PROP_QUARK);
+  if (!shadow_props)
+    {
+      shadow_props = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+      g_type_set_qdata (iface_type,
+                        dbus_g_object_type_dbus_shadow_property_quark (),
+                        shadow_props);
+    }
+
+  g_assert (shadow_props);
+  g_hash_table_insert (shadow_props, g_strdup (dbus_prop_name), g_strdup (shadow_prop_name));
+}
+
 static DBusMessage*
 get_all_object_properties (DBusConnection        *connection,
                            DBusMessage           *message,
                            const DBusGObjectInfo *object_info,
+                           const char            *wincaps_propiface,
                            GObject               *object)
 {
   DBusMessage *ret;
@@ -924,7 +1050,7 @@ get_all_object_properties (DBusConnection        *connection,
         p++;
       p++;
 
-      uscore_propname = _dbus_gutils_wincaps_to_uscore (prop_name);
+      uscore_propname = lookup_property_name (object, wincaps_propiface, prop_name);
 
       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), uscore_propname);
       if (pspec == NULL)
@@ -1661,9 +1787,9 @@ object_registration_message (DBusConnection  *connection,
 
   if (getall)
     {
-      object_info = lookup_object_info_by_iface (object, wincaps_propiface);
+      object_info = lookup_object_info_by_iface (object, wincaps_propiface, TRUE, NULL);
       if (object_info != NULL)
-          ret = get_all_object_properties (connection, message, object_info, object);
+          ret = get_all_object_properties (connection, message, object_info, wincaps_propiface, object);
       else
           return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
     }
@@ -1677,7 +1803,7 @@ object_registration_message (DBusConnection  *connection,
       dbus_message_iter_get_basic (&iter, &wincaps_propname);
       dbus_message_iter_next (&iter);
 
-      s = _dbus_gutils_wincaps_to_uscore (wincaps_propname);
+      s = lookup_property_name (object, wincaps_propiface, wincaps_propname);
 
       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
                                             s);

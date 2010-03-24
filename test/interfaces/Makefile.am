@@ -16,7 +16,7 @@ else
 TESTS=
 endif
 
-EXTRA_DIST=run-test.sh test-goodbye.xml  test-hello.xml  test-song.xml
+EXTRA_DIST=run-test.sh test-goodbye.xml  test-hello.xml  test-song.xml test-dup-prop-a.xml test-dup-prop-b.xml
 
 if DBUS_BUILD_TESTS
 
@@ -27,6 +27,8 @@ noinst_PROGRAMS = test-service test-client
 test_service_SOURCES = \
 	test-interfaces.c \
 	test-interfaces.h \
+	test-dup-prop.c \
+	test-dup-prop.h \
 	test-objects.c \
 	test-objects.h \
 	test-server.c
@@ -42,9 +44,15 @@ BUILT_SOURCES = \
 	test-song-glue.h		\
 	test-hello-glue.h		\
 	test-goodbye-glue.h	\
+	test-dup-prop-a-glue.h	\
+	test-dup-prop-b-glue.h	\
 	test-song-bindings.h	\
 	test-hello-bindings.h	\
-	test-goodbye-bindings.h
+	test-goodbye-bindings.h	\
+	test-dup-prop-a-bindings.h \
+	test-dup-prop-a-bindings.h \
+	test-dup-prop-b-bindings.h \
+	test-dup-prop-b-bindings.h
 
 test-song-glue.h: test-song.xml $(top_builddir)/dbus/dbus-binding-tool
 	$(DBUS_BINDING_TOOL) --prefix=test_song --mode=glib-server --output=test-song-glue.h $(srcdir)/test-song.xml
@@ -63,6 +71,18 @@ test-goodbye-glue.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
 
 test-goodbye-bindings.h: test-goodbye.xml $(top_builddir)/dbus/dbus-binding-tool
 	$(DBUS_BINDING_TOOL) --prefix=test_goodbye --mode=glib-client --output=test-goodbye-bindings.h $(srcdir)/test-goodbye.xml
+
+test-dup-prop-a-glue.h: test-dup-prop-a.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(DBUS_BINDING_TOOL) --prefix=test_dup_prop_a --mode=glib-server --output=test-dup-prop-a-glue.h $(srcdir)/test-dup-prop-a.xml
+
+test-dup-prop-a-bindings.h: test-dup-prop-a.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(DBUS_BINDING_TOOL) --prefix=test_dup_prop_a --mode=glib-client --output=test-dup-prop-a-bindings.h $(srcdir)/test-dup-prop-a.xml
+
+test-dup-prop-b-glue.h: test-dup-prop-b.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(DBUS_BINDING_TOOL) --prefix=test_dup_prop_b --mode=glib-server --output=test-dup-prop-b-glue.h $(srcdir)/test-dup-prop-b.xml
+
+test-dup-prop-b-bindings.h: test-dup-prop-b.xml $(top_builddir)/dbus/dbus-binding-tool
+	$(DBUS_BINDING_TOOL) --prefix=test_dup_prop_b --mode=glib-client --output=test-dup-prop-b-bindings.h $(srcdir)/test-dup-prop-b.xml
 
 
 CLEANFILES = \

@@ -2,9 +2,11 @@
 #include "dbus/dbus-glib.h"
 #include "tools/dbus-glib-bindings.h"
 #include "test-objects.h"
+#include "test-dup-prop.h"
 
 #define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Test.Interfaces"
 #define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/Interfaces"
+#define TEST_DP_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/DupPropInterfaces"
 
 static GMainLoop *loop = NULL;
 
@@ -17,6 +19,7 @@ main (int    argc,
 	GError *error = NULL;
 	guint32 ret;
 	TestBeatlesSong *song;
+	TestDpObj *dp_obj;
 
 	g_type_init ();
 
@@ -50,6 +53,11 @@ main (int    argc,
 	dbus_g_connection_register_g_object (connection,
 					     TEST_OBJECT_PATH,
 					     G_OBJECT (song));
+
+	dp_obj = test_dp_obj_new ();
+	dbus_g_connection_register_g_object (connection,
+					     TEST_DP_OBJECT_PATH,
+					     G_OBJECT (dp_obj));
 
 	loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (loop);
