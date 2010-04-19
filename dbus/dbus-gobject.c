@@ -2324,7 +2324,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       o = iter->data;
 
       /* Silently ignore duplicate registrations */
-      if (strcmp (o->object_path, at_path) == 0)
+      if (strcmp (o->object_path, at_path) == 0 && o->connection == connection)
         return;
     }
 
