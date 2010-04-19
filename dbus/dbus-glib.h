@@ -154,6 +154,8 @@ struct _DBusGObjectInfo
   const char *exported_properties; 
 };
 
+void       dbus_glib_global_set_disable_legacy_property_access (void);
+
 void       dbus_g_object_type_install_info     (GType                 object_type,
                                                 const DBusGObjectInfo *info);
 

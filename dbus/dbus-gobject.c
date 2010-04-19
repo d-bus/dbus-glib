@@ -37,7 +37,7 @@
 
 static char *lookup_property_name (GObject    *object,
                                    const char *wincaps_propiface,
-                                   const char *wincaps_propname);
+                                   const char *requested_propname);
 
 typedef struct
 {
@@ -46,6 +46,8 @@ typedef struct
 } DBusGErrorInfo;
 
 static GStaticRWLock globals_lock = G_STATIC_RW_LOCK_INIT;
+/* See comments in check_property_access */
+static gboolean disable_legacy_property_access = FALSE;
 static GHashTable *marshal_table = NULL;
 static GData *error_metadata = NULL;
 
@@ -81,6 +83,23 @@ uscore_to_wincaps_full (const char *uscore,
     }
 
   return g_string_free (str, FALSE);
+}
+
+/* Ugly yes - but we have to accept strings from both formats */
+static gboolean
+compare_strings_ignoring_uscore_vs_dash (const char *a, const char *b)
+{
+  guint i;
+
+  for (i = 0; a[i] && b[i]; i++)
+    {
+      if ((a[i] == '-' && b[i] == '_')
+          || (a[i] == '_' && b[i] == '-'))
+        continue;
+      if (a[i] != b[i])
+        return FALSE;
+    }
+  return (a[i] == '\0') && (b[i] == '\0');
 }
 
 static char *
@@ -281,7 +300,7 @@ method_output_signature_from_object_info (const DBusGObjectInfo *object,
 }
 
 static const char *
-propsig_iterate (const char *data, const char **iface, const char **name)
+signal_iterate (const char *data, const char **iface, const char **name)
 {
   *iface = data;
 
@@ -289,6 +308,108 @@ propsig_iterate (const char *data, const char **iface, const char **name)
   *name = data;
 
   return string_table_next (data);
+}
+
+static const char *
+property_iterate (const char  *data,
+                  int          format_version,
+                  const char **iface,
+                  const char **exported_name,
+                  const char **name_uscored,
+                  const char **access_type)
+{
+  *iface = data;
+
+  data = string_table_next (data);
+  *exported_name = data;
+
+  data = string_table_next (data);
+  if (format_version == 1)
+    {
+      *name_uscored = data;
+      data = string_table_next (data);
+      *access_type = data;
+      return string_table_next (data);
+    }
+  else
+    {
+      /* This tells the caller they need to compute it */
+      *name_uscored = NULL;
+      /* We don't know here, however note that we will still check against the
+       * readable/writable flags from GObject's metadata.
+       */
+      *access_type = "readwrite";
+      return data;
+    }
+}
+
+/**
+ * property_info_from_object_info:
+ * @object: introspection data
+ * @interface_name: (allow-none): Expected interface name, or %NULL for any
+ * @property_name: Expected property name (can use "-" or "_" as separator)
+ * @access_type: (out): Can be one of "read", "write", "readwrite"
+ *
+ * Look up property introspection data for the given interface/name pair.
+ *
+ * Returns: %TRUE if property was found
+ */
+static gboolean
+property_info_from_object_info (const DBusGObjectInfo  *object,
+                                const char             *interface_name,
+                                const char             *property_name,
+                                const char            **access_type)
+{
+  const char *properties_iter;
+
+  properties_iter = object->exported_properties;
+  while (properties_iter != NULL && *properties_iter)
+    {
+      const char *cur_interface_name;
+      const char *cur_property_name;
+      const char *cur_uscore_property_name;
+      const char *cur_access_type;
+
+
+      properties_iter = property_iterate (properties_iter, object->format_version,
+                                          &cur_interface_name, &cur_property_name,
+                                          &cur_uscore_property_name, &cur_access_type);
+
+      if (interface_name && strcmp (interface_name, cur_interface_name) != 0)
+        continue;
+
+      /* This big pile of ugly is necessary to support the matrix resulting from multiplying
+       * (v0 data, v1 data) * (FooBar, foo-bar)
+       * In v1 data we have both forms of string, so we do a comparison against both without
+       * having to malloc.
+       * For v0 data, we need to reconstruct the foo-bar form.
+       *
+       * Adding to the complexity is that we *also* have to ignore the distinction between
+       * '-' and '_', because g_object_{get,set} does.
+       */
+      /* First, compare against the primary property name - no malloc required */
+      if (!compare_strings_ignoring_uscore_vs_dash (property_name, cur_property_name))
+        {
+          if (cur_uscore_property_name != NULL
+              && !compare_strings_ignoring_uscore_vs_dash (property_name, cur_uscore_property_name))
+            continue;
+          else
+            {
+              /* v0 metadata, construct uscore */
+              char *tmp_uscored;
+              gboolean matches;
+              tmp_uscored = _dbus_gutils_wincaps_to_uscore (cur_property_name);
+              matches = compare_strings_ignoring_uscore_vs_dash (property_name, tmp_uscored);
+              g_free (tmp_uscored);
+              if (!matches)
+                continue;
+            }
+        }
+
+      *access_type = cur_access_type;
+      return TRUE;
+    }
+  return FALSE;
 }
 
 static GQuark
@@ -578,15 +699,19 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
 
   for (; properties; properties = properties->next)
     {
+      const char *iface;
       const char *propname;
+      const char *propname_uscore;
+      const char *access_type;
       GParamSpec *spec;
       char *dbus_type;
       gboolean can_set;
       gboolean can_get;
       char *s;
 
-      propname = properties->data;
       spec = NULL;
+
+      property_iterate (properties->data, object_info->format_version, &iface, &propname, &propname_uscore, &access_type);
 
       s = lookup_property_name (data->object, name, propname);
 
@@ -596,12 +721,13 @@ write_interface (gpointer key, gpointer val, gpointer user_data)
       
       dbus_type = _dbus_gtype_to_signature (G_PARAM_SPEC_VALUE_TYPE (spec));
       g_assert (dbus_type != NULL);
-      
-      can_set = ((spec->flags & G_PARAM_WRITABLE) != 0 &&
-		 (spec->flags & G_PARAM_CONSTRUCT_ONLY) == 0);
-      
+
+      can_set = strcmp (access_type, "readwrite") == 0
+                    && ((spec->flags & G_PARAM_WRITABLE) != 0
+                    && (spec->flags & G_PARAM_CONSTRUCT_ONLY) == 0);
+
       can_get = (spec->flags & G_PARAM_READABLE) != 0;
-      
+
       if (can_set || can_get)
 	{
 	  g_string_append_printf (xml, "    <property name=\"%s\" ", propname);
@@ -689,7 +815,7 @@ introspect_interfaces (GObject *object, GString *xml)
           const char *iface;
           const char *signame;
 
-          propsig = propsig_iterate (propsig, &iface, &signame);
+          propsig = signal_iterate (propsig, &iface, &signame);
 
           values = lookup_values (interfaces, iface);
           values->signals = g_slist_prepend (values->signals, (gpointer) signame);
@@ -700,13 +826,15 @@ introspect_interfaces (GObject *object, GString *xml)
         {
           const char *iface;
           const char *propname;
+          const char *propname_uscore;
+          const char *access_type;
 
-          propsig = propsig_iterate (propsig, &iface, &propname);
+          propsig = property_iterate (propsig, info->format_version, &iface, &propname, &propname_uscore, &access_type);
 
           values = lookup_values (interfaces, iface);
-          values->properties = g_slist_prepend (values->properties, (gpointer) propname);
+          values->properties = g_slist_prepend (values->properties, (gpointer)iface);
         }
-      
+
       memset (&data, 0, sizeof (data));
       data.xml = xml;
       data.gtype = G_TYPE_FROM_INSTANCE (object);
@@ -925,7 +1053,7 @@ dbus_g_object_type_dbus_shadow_property_quark (void)
 static char *
 lookup_property_name (GObject    *object,
                       const char *wincaps_propiface,
-                      const char *wincaps_propname)
+                      const char *requested_propname)
 {
   const DBusGObjectInfo *object_info;
   GHashTable *shadow_props;
@@ -933,9 +1061,9 @@ lookup_property_name (GObject    *object,
   GType iface_type = 0;
 
   g_assert (wincaps_propiface != NULL);
-  g_assert (wincaps_propname != NULL);
+  g_assert (requested_propname != NULL);
 
-  uscore_name = _dbus_gutils_wincaps_to_uscore (wincaps_propname);
+  uscore_name = _dbus_gutils_wincaps_to_uscore (requested_propname);
 
   object_info = lookup_object_info_by_iface (object, wincaps_propiface, FALSE, &iface_type);
   if (!object_info)
@@ -944,7 +1072,7 @@ lookup_property_name (GObject    *object,
   shadow_props = (GHashTable *) g_type_get_qdata (iface_type, SHADOW_PROP_QUARK);
   if (shadow_props)
     {
-      shadow_prop_name = g_strdup (g_hash_table_lookup (shadow_props, wincaps_propname));
+      shadow_prop_name = g_strdup (g_hash_table_lookup (shadow_props, requested_propname));
       if (shadow_prop_name)
         g_free (uscore_name);
     }
@@ -1037,24 +1165,14 @@ get_all_object_properties (DBusConnection        *connection,
     {
       const char *prop_ifname;
       const char *prop_name;
+      const char *prop_uscored;
+      const char *access_flags;
       GParamSpec *pspec;
       GType value_gtype;
       GValue value = {0, };
       gchar *variant_sig;
 
-      prop_ifname = p;
-
-      while (*p != '\0')
-        p++;
-      p++;
-      if (*p == '\0') {
-        g_warning ("malformed exported_properties in object_info");
-        break;
-      }
-      prop_name = p;
-      while (*p != '\0')
-        p++;
-      p++;
+      p = property_iterate (p, object_info->format_version, &prop_ifname, &prop_name, &prop_uscored, &access_flags);
 
       uscore_propname = lookup_property_name (object, wincaps_propiface, prop_name);
 
@@ -1729,6 +1847,70 @@ invoke_object_method (GObject         *object,
   goto done;
 }
 
+static gboolean
+check_property_access (DBusConnection  *connection,
+                       DBusMessage     *message,
+                       GObject         *object,
+                       const char      *wincaps_propiface,
+                       const char      *requested_propname,
+                       const char      *uscore_propname,
+                       gboolean         is_set)
+{
+  const DBusGObjectInfo *object_info;
+  const char *access_type;
+  DBusMessage *ret;
+
+  if (!is_set && !disable_legacy_property_access)
+    return TRUE;
+
+  object_info = lookup_object_info_by_iface (object, wincaps_propiface, TRUE, NULL);
+  if (!object_info)
+    {
+      ret = dbus_message_new_error_printf (message,
+                                           DBUS_ERROR_ACCESS_DENIED,
+                                           "Interface \"%s\" isn't exported (or may not exist), can't access property \"%s\"",
+                                           wincaps_propiface,
+                                           requested_propname);
+      dbus_connection_send (connection, ret, NULL);
+      dbus_message_unref (ret);
+      return FALSE;
+    }
+
+  /* Try both forms of property names: "foo_bar" or "FooBar"; for historical
+   * reasons we accept both.
+   */
+  if (object_info
+      && !(property_info_from_object_info (object_info, wincaps_propiface, requested_propname, &access_type)
+           || property_info_from_object_info (object_info, wincaps_propiface, uscore_propname, &access_type)))
+    {
+      ret = dbus_message_new_error_printf (message,
+                                           DBUS_ERROR_ACCESS_DENIED,
+                                           "Property \"%s\" of interface \"%s\" isn't exported (or may not exist)",
+                                           requested_propname,
+                                           wincaps_propiface);
+      dbus_connection_send (connection, ret, NULL);
+      dbus_message_unref (ret);
+      return FALSE;
+    }
+
+  if (strcmp (access_type, "readwrite") == 0)
+    return TRUE;
+  else if (is_set ? strcmp (access_type, "read") == 0
+             : strcmp (access_type, "write") == 0)
+    {
+       ret = dbus_message_new_error_printf (message,
+                                           DBUS_ERROR_ACCESS_DENIED,
+                                           "Property \"%s\" of interface \"%s\" is not %s",
+                                           requested_propname,
+                                           wincaps_propiface,
+                                           is_set ? "settable" : "readable");
+      dbus_connection_send (connection, ret, NULL);
+      dbus_message_unref (ret);
+      return FALSE;
+    }
+  return TRUE;
+}
+
 static DBusHandlerResult
 object_registration_message (DBusConnection  *connection,
                              DBusMessage     *message,
@@ -1740,7 +1922,7 @@ object_registration_message (DBusConnection  *connection,
   gboolean getter;
   gboolean getall;
   char *s;
-  const char *wincaps_propname;
+  const char *requested_propname;
   const char *wincaps_propiface;
   DBusMessageIter iter;
   const DBusGMethodInfo *method;
@@ -1762,7 +1944,8 @@ object_registration_message (DBusConnection  *connection,
     return invoke_object_method (object, object_info, method, connection, message);
 
   /* If no metainfo, we can still do properties and signals
-   * via standard GLib introspection
+   * via standard GLib introspection.  Note we do now check
+   * property access against the metainfo if available.
    */
   getter = FALSE;
   setter = FALSE;
@@ -1811,10 +1994,16 @@ object_registration_message (DBusConnection  *connection,
           g_warning ("Property get or set does not have a property name string as second arg\n");
           return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
         }
-      dbus_message_iter_get_basic (&iter, &wincaps_propname);
+      dbus_message_iter_get_basic (&iter, &requested_propname);
       dbus_message_iter_next (&iter);
 
-      s = lookup_property_name (object, wincaps_propiface, wincaps_propname);
+      s = lookup_property_name (object, wincaps_propiface, requested_propname);
+
+      if (!check_property_access (connection, message, object, wincaps_propiface, requested_propname, s, setter))
+        {
+          g_free (s);
+          return DBUS_HANDLER_RESULT_HANDLED;
+        }
 
       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
                                             s);
@@ -1850,7 +2039,7 @@ object_registration_message (DBusConnection  *connection,
         {
           ret = dbus_message_new_error_printf (message,
                                                DBUS_ERROR_INVALID_ARGS,
-                                               "No such property %s", wincaps_propname);
+                                               "No such property %s", requested_propname);
         }
     }
 
@@ -1992,8 +2181,8 @@ export_signals (DBusGConnection *connection, const GList *info_list, GObject *ob
           GClosure *closure;
           char *s;
 
-          sigdata = propsig_iterate (sigdata, &iface, &signame);
-          
+          sigdata = signal_iterate (sigdata, &iface, &signame);
+
           s = _dbus_gutils_wincaps_to_uscore (signame);
 
           id = g_signal_lookup (s, gtype);
@@ -2165,6 +2354,28 @@ dbus_g_error_info_free (gpointer p)
  *
  * FIXME
  */
+
+/**
+ * dbus_glib_global_set_disable_legacy_property_access:
+ *
+ * For historical reasons, DBus-GLib will allow read-only
+ * access to every GObject property of an object exported
+ * to the bus, regardless of whether or not the property
+ * is listed in the type info installed with
+ * dbus_g_object_type_install_info().  (Write access is
+ * denied however).
+ *
+ * If you wish to restrict even read-only access, you
+ * can call this method to globally change the behavior
+ * for the entire process.
+ *
+ * Since: 0.88
+ */
+void
+dbus_glib_global_set_disable_legacy_property_access (void)
+{
+  disable_legacy_property_access = TRUE;
+}
 
 /**
  * dbus_g_object_type_install_info:
@@ -2950,23 +3161,23 @@ _dbus_gobject_test (const char *test_data_dir)
 
   sigdata = dbus_glib_internal_test_object_info.exported_signals;
   g_assert (*sigdata != '\0');
-  sigdata = propsig_iterate (sigdata, &iface, &signame);
+  sigdata = signal_iterate (sigdata, &iface, &signame);
   g_assert (!strcmp (iface, "org.freedesktop.DBus.Tests.MyObject"));
   g_assert (!strcmp (signame, "Frobnicate"));
   g_assert (*sigdata != '\0');
-  sigdata = propsig_iterate (sigdata, &iface, &signame);
+  sigdata = signal_iterate (sigdata, &iface, &signame);
   g_assert (!strcmp (iface, "org.freedesktop.DBus.Tests.FooObject"));
   g_assert (!strcmp (signame, "Sig0"));
   g_assert (*sigdata != '\0');
-  sigdata = propsig_iterate (sigdata, &iface, &signame);
+  sigdata = signal_iterate (sigdata, &iface, &signame);
   g_assert (!strcmp (iface, "org.freedesktop.DBus.Tests.FooObject"));
   g_assert (!strcmp (signame, "Sig1"));
   g_assert (*sigdata != '\0');
-  sigdata = propsig_iterate (sigdata, &iface, &signame);
+  sigdata = signal_iterate (sigdata, &iface, &signame);
   g_assert (!strcmp (iface, "org.freedesktop.DBus.Tests.FooObject"));
   g_assert (!strcmp (signame, "Sig2"));
   g_assert (*sigdata == '\0');
-  
+
 
   i = 0;
   while (i < (int) G_N_ELEMENTS (name_pairs))

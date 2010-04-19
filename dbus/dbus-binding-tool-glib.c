@@ -38,6 +38,10 @@
 #include <string.h>
 #include <unistd.h>
 
+/* Remember to grep for ->format_version in the code if you change this,
+ * most changes should be in dbus-gobject.c. */
+#define FORMAT_VERSION 1
+
 #define MARSHAL_PREFIX "dbus_glib_marshal_"
 
 typedef struct
@@ -466,14 +470,13 @@ generate_glue_toplevel (BaseInfo *base, DBusBindingToolCData *data, GError **err
 {
   GString *object_introspection_data_blob;
   GIOChannel *channel;
-  
-  channel = data->channel;
-  
-  object_introspection_data_blob = g_string_new_len ("", 0);
 
+  channel = data->channel;
+
+  object_introspection_data_blob = g_string_new_len ("", 0);
   data->blob = object_introspection_data_blob;
   data->count = 0;
-  
+
   data->signal_blob = g_string_new_len ("", 0);
   data->property_blob = g_string_new_len ("", 0);
 
@@ -490,10 +493,9 @@ generate_glue_toplevel (BaseInfo *base, DBusBindingToolCData *data, GError **err
   WRITE_OR_LOSE ("};\n\n");
   /* Information about the object. */
 
-  if (!write_printf_to_iochannel ("const DBusGObjectInfo dbus_glib_%s_object_info = {\n",
-                                  channel, error, data->prefix))
+  if (!write_printf_to_iochannel ("const DBusGObjectInfo dbus_glib_%s_object_info = {  %d,\n",
+                                  channel, error, data->prefix, FORMAT_VERSION))
     goto io_lose;
-  WRITE_OR_LOSE ("  0,\n");
   if (!write_printf_to_iochannel ("  dbus_glib_%s_methods,\n", channel, error, data->prefix))
     goto io_lose;
   if (!write_printf_to_iochannel ("  %d,\n", channel, error, data->count))
@@ -753,13 +755,36 @@ generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
       for (tmp = properties; tmp != NULL; tmp = g_slist_next (tmp))
         {
           PropertyInfo *prop;
-	  
-	  prop = tmp->data;
+          PropertyAccessFlags access_flags;
+          const char *access_string;
+          char *uscored;
 
-	  g_string_append (data->property_blob, interface_info_get_name (interface));
-	  g_string_append_c (data->property_blob, '\0');
-	  g_string_append (data->property_blob, property_info_get_name (prop));
-	  g_string_append_c (data->property_blob, '\0');
+          prop = tmp->data;
+
+          access_flags = property_info_get_access (prop);
+          if ((access_flags & PROPERTY_READ) && (access_flags & PROPERTY_WRITE))
+            access_string = "readwrite";
+          else if (access_flags & PROPERTY_READ)
+            access_string = "read";
+          else if (access_flags & PROPERTY_WRITE)
+            access_string = "write";
+          else
+            continue;
+
+          /* We append both in the blob so we have to malloc() less when processing
+           * properties */
+          uscored = _dbus_gutils_wincaps_to_uscore (property_info_get_name (prop));
+
+          g_string_append (data->property_blob, interface_info_get_name (interface));
+          g_string_append_c (data->property_blob, '\0');
+          g_string_append (data->property_blob, property_info_get_name (prop));
+          g_string_append_c (data->property_blob, '\0');
+          g_string_append (data->property_blob, uscored);
+          g_string_append_c (data->property_blob, '\0');
+          g_string_append (data->property_blob, access_string);
+          g_string_append_c (data->property_blob, '\0');
+
+          g_free (uscored);
 	}
     }
   return TRUE;

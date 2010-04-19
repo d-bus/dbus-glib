@@ -3,6 +3,8 @@
 <node name="/org/freedesktop/DBus/GLib/Tests/MyTestObject">
   <interface name="org.freedesktop.DBus.GLib.Tests.MyObject">
     <property name="this_is_a_string" type="s" access="readwrite"/>
+    <property name="no-touching" type="u" access="read"/>
+    <property name="SuperStudly" type="d" access="readwrite"/>
 
     <method name="DoNothing">
     </method>
@@ -171,6 +173,9 @@
     </method>
 
     <method name="EmitFrobnicate">
+    </method>
+
+    <method name="UnsafeDisableLegacyPropertyAccess">
     </method>
 
     <!-- Export signals -->

@@ -13,7 +13,10 @@ struct MyObject
 {
   GObject parent;
   char *this_is_a_string;
+  guint notouching;
   guint val;
+  gdouble super_studly;
+  gboolean should_be_hidden;
 };
 
 struct MyObjectClass
@@ -109,5 +112,7 @@ gboolean my_object_terminate (MyObject *obj, GError **error);
 void my_object_async_increment (MyObject *obj, gint32 x, DBusGMethodInvocation *context);
 
 void my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context);
+
+void my_object_unsafe_disable_legacy_property_access (MyObject *obj);
 
 #endif

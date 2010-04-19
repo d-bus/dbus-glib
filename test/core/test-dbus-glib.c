@@ -324,38 +324,48 @@ test_base_class_get_all (DBusGConnection *connection,
                             G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
                             G_TYPE_INVALID,
                             DBUS_TYPE_G_MAP_OF_VARIANT, &hash, G_TYPE_INVALID))
-      lose_gerror ("Unexpected error for GetProperty call of base class interface\n", error);
+      lose_gerror ("Unexpected error for GetProperty call of base class interface", error);
     g_clear_error (&error);
 
     if (!hash)
       {
         lose ("%s: Unexpected NULL hash table returned for GetAll call of base "
-              "class interface\n", object_path);
+              "class interface", object_path);
       }
 
-    if (g_hash_table_size (hash) != 1)
+    if (g_hash_table_size (hash) != 3)
       {
-        lose ("%s: Unexpected hash table size %d (expected 1) returned for GetAll "
-              " call of base class interface\n", object_path, g_hash_table_size (hash));
+        lose ("%s: Unexpected hash table size %d (expected 3) returned for GetAll "
+              " call of base class interface", object_path, g_hash_table_size (hash));
       }
     value = g_hash_table_lookup (hash, "this_is_a_string");
     if (!value)
       {
         lose ("%s: Unexpected missing 'this_is_a_string' property for GetAll "
-              "call of base class interface\n", object_path);
+              "call of base class interface", object_path);
       }
     if (!G_VALUE_HOLDS_STRING (value))
       {
         lose ("%s: Unexpected wrong type for 'this_is_a_string' property for "
-              "GetAll call of base class interface\n", object_path);
+              "GetAll call of base class interface", object_path);
       }
     foo = g_value_get_string (value);
     if (!foo || strcmp (foo, expected_string_value))
       {
         lose ("%s: Unexpected value for 'this_is_a_string' property for GetAll "
-              "call of base class interface\n", object_path);
+              "call of base class interface", object_path);
       }
 
+    value = g_hash_table_lookup (hash, "no-touching");
+    if (!value)
+      lose ("%s: Unexpected missing 'no-touching' property for GetAll "
+            "call of base class interface", object_path);
+    if (!G_VALUE_HOLDS_UINT (value))
+      lose ("%s: Unexpected wrong type for 'no-touching' property for "
+            "GetAll call of base class interface", object_path);
+    if (g_value_get_uint (value) != 42)
+      lose ("%s: Unexpected wrong value \"%d\" for 'no-touching' property for "
+            "GetAll call of base class interface", object_path, g_value_get_uint (value));
     g_hash_table_destroy (hash);
     hash = NULL;
   }
@@ -1987,9 +1997,10 @@ main (int argc, char **argv)
 	  {
 	    GSList *elt;
 	    gboolean found_manyargs;
-	    
+	    gboolean found_no_touching = FALSE;
+
 	    found_myobject = TRUE;
-	    
+
 	    found_manyargs = FALSE;
 	    for (elt = interface_info_get_methods (iface); elt; elt = elt->next)
 	      {
@@ -2004,6 +2015,23 @@ main (int argc, char **argv)
 	      }
 	    if (!found_manyargs)
 	      lose ("Missing method org.freedesktop.DBus.GLib.Tests.MyObject.ManyArgs");
+	    for (elt = interface_info_get_properties (iface); elt; elt = elt->next)
+	      {
+	        PropertyInfo *prop = elt->data;
+
+	        if (strcmp (property_info_get_name (prop), "no-touching") == 0)
+	          {
+	            if (property_info_get_access (prop) != PROPERTY_READ)
+	              lose ("property no-touching had incorrect access %d", property_info_get_access (prop));
+	            else
+	              {
+	                found_no_touching = TRUE;
+	                break;
+	              }
+	          }
+	      }
+	    if (!found_no_touching)
+	      lose ("didn't find property \"no-touching\" in org.freedesktop.DBus.GLib.Tests.MyObject");
 	  }
 	else if (!found_fooobject && strcmp (interface_info_get_name (iface), "org.freedesktop.DBus.GLib.Tests.FooObject") == 0)
 	  found_fooobject = TRUE;
@@ -2019,6 +2047,8 @@ main (int argc, char **argv)
 
   /* Properties tests */
   property_proxy = dbus_g_proxy_new_from_proxy (proxy, DBUS_INTERFACE_PROPERTIES, NULL);
+  g_object_unref (proxy);
+  proxy = NULL;
 
   g_print ("Calling GetProperty (1)\n");
   {
@@ -2047,6 +2077,48 @@ main (int argc, char **argv)
     g_value_unset (&value);
   }
 
+  g_print ("Calling GetProperty of read-only property\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "no-touching",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty no-touching call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_UINT));
+    g_assert (g_value_get_uint (&value) == 42);
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling SetProperty (1)\n");
+  {
+    GValue value = {0,};
+    g_value_init (&value, G_TYPE_UINT);
+    g_value_set_uint (&value, 40);
+    if (dbus_g_proxy_call (property_proxy, "Set", &error,
+                           G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                           G_TYPE_STRING, "no-touching",
+                           G_TYPE_VALUE, &value, G_TYPE_INVALID, G_TYPE_INVALID))
+      lose ("Unexpected success from SetProperty call for read-only value \"no-touching\"");
+    g_clear_error (&error);
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty of read-only property (again)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "no-touching",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_UINT));
+    g_assert (g_value_get_uint (&value) == 42);
+    g_value_unset (&value);
+  }
+
   g_print ("Calling GetProperty (2)\n");
   {
     GValue value = {0,};
@@ -2061,7 +2133,46 @@ main (int argc, char **argv)
     g_value_unset (&value);
   }
 
-  g_print ("Calling GetProperty (3)\n");
+  g_print ("Calling GetProperty: SuperStudly\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "SuperStudly",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_DOUBLE));
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty: super-studly\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "super-studly",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_DOUBLE));
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty: super_studly\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "super_studly",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed to complete GetProperty call", error);
+    g_assert (G_VALUE_HOLDS (&value, G_TYPE_DOUBLE));
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty on unknown property\n");
   {
     GValue value = {0,};
     if (dbus_g_proxy_call (property_proxy, "Get", &error,
@@ -2069,13 +2180,68 @@ main (int argc, char **argv)
                             G_TYPE_STRING, "SomeUnknownProperty", 
                             G_TYPE_INVALID,
                             G_TYPE_VALUE, &value, G_TYPE_INVALID))
-      lose_gerror ("Unexpected success for GetProperty call of unknown property", error);
+      lose ("Unexpected success for GetProperty call of unknown property");
 
     g_clear_error (&error);
   }
 
-  g_object_unref (property_proxy);
-  property_proxy = NULL;
+  /* These two are expected to pass unless we call disable_legacy_property_access */
+
+  g_print ("Calling GetProperty on not-exported property (legacy enabled)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "should-be-hidden",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed GetProperty call of \"should-be-hidden\" property", error);
+    g_assert (G_VALUE_HOLDS_BOOLEAN (&value));
+    g_assert (g_value_get_boolean (&value) == FALSE);
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling GetProperty on not-exported property (legacy enabled)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "ShouldBeHidden",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed GetProperty call of \"ShouldBeHidden\" property", error);
+
+    g_value_unset (&value);
+  }
+
+  g_print ("Calling SetProperty on not-exported property (legacy enabled)\n");
+  {
+    GValue value = {0,};
+    g_value_init (&value, G_TYPE_BOOLEAN);
+    g_value_set_boolean (&value, TRUE);
+    if (dbus_g_proxy_call (property_proxy, "Set", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "should-be-hidden",
+                            G_TYPE_VALUE, &value,
+                            G_TYPE_INVALID, G_TYPE_INVALID))
+      lose ("Unexpected success from SetProperty call of \"should-be-hidden\" property");
+    g_value_unset (&value);
+    g_clear_error (&error);
+  }
+
+  g_print ("Calling GetProperty on not-exported property (legacy enabled)\n");
+  {
+    GValue value = {0,};
+    if (!dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "should-be-hidden",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose_gerror ("Failed GetProperty call of \"should-be-hidden\" property", error);
+    g_assert (G_VALUE_HOLDS_BOOLEAN (&value));
+    g_assert (g_value_get_boolean (&value) == FALSE);
+    g_value_unset (&value);
+  }
 
   /* Test GetAll */
   /* 'testing value' set earlier by the SetProperty tests */
@@ -2094,6 +2260,64 @@ main (int argc, char **argv)
    * the right properties are returned (fdo #19145)
    */
   test_subclass_get_all (connection, "/org/freedesktop/DBus/GLib/Tests/MyTestObjectSubclass");
+
+  /* Now, call disable_legacy_property_access */
+
+  g_assert (proxy == NULL);
+  proxy = dbus_g_proxy_new_for_name_owner (connection,
+                                           "org.freedesktop.DBus.GLib.TestService",
+                                           "/org/freedesktop/DBus/GLib/Tests/MyTestObject",
+                                           "org.freedesktop.DBus.GLib.Tests.MyObject",
+                                           &error);
+
+  if (!dbus_g_proxy_call (proxy, "UnsafeDisableLegacyPropertyAccess", &error,
+                          G_TYPE_INVALID, G_TYPE_INVALID))
+    lose_gerror ("Failed to invoke UnsafeDisableLegacyPropertyAccess", error);
+
+  g_object_unref (proxy);
+  proxy = NULL;
+
+  g_print ("Calling GetProperty on not-exported property (legacy *disabled*)\n");
+  {
+    GValue value = {0,};
+    if (dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "should-be-hidden",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose ("Unexpected success from GetProperty call of \"should-be-hidden\" property");
+    g_clear_error (&error);
+  }
+
+  g_print ("Calling GetProperty on not-exported property (legacy *disabled*)\n");
+  {
+    GValue value = {0,};
+    if (dbus_g_proxy_call (property_proxy, "Get", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "ShouldBeHidden",
+                            G_TYPE_INVALID,
+                            G_TYPE_VALUE, &value, G_TYPE_INVALID))
+      lose ("Unexpected success from GetProperty call of \"ShouldBeHidden\" property");
+    g_clear_error (&error);
+  }
+
+  g_print ("Calling SetProperty on not-exported property (legacy *disabled*)\n");
+  {
+    GValue value = {0,};
+    g_value_init (&value, G_TYPE_BOOLEAN);
+    g_value_set_boolean (&value, FALSE);
+    if (dbus_g_proxy_call (property_proxy, "Set", &error,
+                            G_TYPE_STRING, "org.freedesktop.DBus.GLib.Tests.MyObject",
+                            G_TYPE_STRING, "should-be-hidden",
+                            G_TYPE_VALUE, &value,
+                            G_TYPE_INVALID, G_TYPE_INVALID))
+      lose ("Unexpected success from SetProperty call of \"should-be-hidden\" property");
+    g_value_unset (&value);
+    g_clear_error (&error);
+  }
+
+  g_object_unref (property_proxy);
+  property_proxy = NULL;
 
   test_terminate_proxy1 = dbus_g_proxy_new_for_name_owner (connection,
                             "org.freedesktop.DBus.GLib.TestService",

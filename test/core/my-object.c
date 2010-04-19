@@ -11,7 +11,10 @@
 enum
 {
   PROP_0,
-  PROP_THIS_IS_A_STRING
+  PROP_THIS_IS_A_STRING,
+  PROP_NO_TOUCHING,
+  PROP_SUPER_STUDLY,
+  PROP_SHOULD_BE_HIDDEN
 };
 
 enum
@@ -53,7 +56,19 @@ my_object_set_property (GObject      *object,
       g_free (mobject->this_is_a_string);
       mobject->this_is_a_string = g_value_dup_string (value);
       break;
-      
+
+    case PROP_NO_TOUCHING:
+      mobject->notouching = g_value_get_uint (value);
+      break;
+
+    case PROP_SUPER_STUDLY:
+      mobject->super_studly = g_value_get_double (value);
+      break;
+
+    case PROP_SHOULD_BE_HIDDEN:
+      mobject->should_be_hidden = g_value_get_boolean (value);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -75,7 +90,19 @@ my_object_get_property (GObject      *object,
     case PROP_THIS_IS_A_STRING:
       g_value_set_string (value, mobject->this_is_a_string);
       break;
-      
+
+    case PROP_NO_TOUCHING:
+      g_value_set_uint (value, mobject->notouching);
+      break;
+
+    case PROP_SUPER_STUDLY:
+      g_value_set_double (value, mobject->super_studly);
+      break;
+
+    case PROP_SHOULD_BE_HIDDEN:
+      g_value_set_boolean (value, mobject->should_be_hidden);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -86,6 +113,7 @@ static void
 my_object_init (MyObject *obj)
 {
   obj->val = 0;
+  obj->notouching = 42;
 }
 
 static void
@@ -107,6 +135,30 @@ my_object_class_init (MyObjectClass *mobject_class)
                                                         _("Example of a string property"),
                                                         "default value",
                                                         G_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_NO_TOUCHING,
+                                   g_param_spec_uint ("no_touching",
+                                                      _("Don't touch"),
+                                                      _("Example of a readonly property (for export)"),
+                                                      0, 100, 42,
+                                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class,
+                				   PROP_SUPER_STUDLY,
+				                   g_param_spec_double ("super-studly",
+                                                        _("In Studly Caps"),
+                                                        _("Example of a StudlyCaps property"),
+                                                        0, 256, 128,
+                                                        G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class,
+                				   PROP_SHOULD_BE_HIDDEN,
+				                   g_param_spec_boolean ("should-be-hidden",
+                                                        _("A non-exported property"),
+                                                        _("Example of a property we don't want exported"),
+                                                        FALSE,
+                                                        G_PARAM_READWRITE));
+
   signals[FROBNICATE] =
     g_signal_new ("frobnicate",
 		  G_OBJECT_CLASS_TYPE (mobject_class),
@@ -785,6 +837,11 @@ my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context)
   g_idle_add ((GSourceFunc)do_async_error,  data);
 }
 
+void
+my_object_unsafe_disable_legacy_property_access (MyObject *obj)
+{
+  dbus_glib_global_set_disable_legacy_property_access ();
+}
 
 extern GMainLoop *loop;
 
