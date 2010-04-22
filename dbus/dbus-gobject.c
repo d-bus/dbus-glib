@@ -1218,16 +1218,21 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 
   if (!domain_str || !code_str)
     {
+      const char *domain_string;
       /* If we can't map it sensibly, make up an error name */
-      char *domain_from_quark;
       
       dbus_error_name = g_string_new ("org.freedesktop.DBus.GLib.UnmappedError.");
 
-      domain_from_quark = uscore_to_wincaps (g_quark_to_string (domain));
-      g_string_append (dbus_error_name, domain_from_quark);
-      g_free (domain_from_quark);
-	
-      g_string_append_printf (dbus_error_name, ".Code%d", code);
+      domain_string = g_quark_to_string (domain);
+      if (domain_string != NULL)
+        {
+          char *uscored = uscore_to_wincaps (domain_string);
+          g_string_append (dbus_error_name, uscored);
+          g_string_append_c (dbus_error_name, '.');
+          g_free (uscored);
+        }
+
+      g_string_append_printf (dbus_error_name, "Code%d", code);
     }
   else
     {

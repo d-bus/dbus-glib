@@ -246,6 +246,18 @@ my_object_throw_error_multi_word (MyObject *obj, GError **error)
   return FALSE;
 }
 
+gboolean
+my_object_throw_unregistered_error (MyObject *obj, GError **error)
+{
+  /* Unregistered errors shouldn't cause a dbus abort.  See
+   * https://bugzilla.redhat.com/show_bug.cgi?id=581794
+   */
+  g_set_error (error, 0, 0,
+	       "%s",
+	       "this method always loses more");
+  return FALSE;
+}
+
 
 gboolean
 my_object_uppercase (MyObject *obj, const char *str, char **ret, GError **error)

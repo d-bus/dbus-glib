@@ -52,6 +52,7 @@ gint32   my_object_increment_retval_error (MyObject *obj, gint32 x, GError **err
 gboolean my_object_throw_error (MyObject *obj, GError **error);
 gboolean my_object_throw_not_supported (MyObject *obj, GError **error);
 gboolean my_object_throw_error_multi_word (MyObject *obj, GError **error);
+gboolean my_object_throw_unregistered_error (MyObject *obj, GError **error);
 
 gboolean my_object_uppercase (MyObject *obj, const char *str, char **ret, GError **error);
 

@@ -796,6 +796,14 @@ main (int argc, char **argv)
   g_print ("ThrowNotSupported correctly returned error: %s\n", error->message);
   g_clear_error (&error);
 
+  g_print ("Calling ThrowUnregisteredError\n");
+  if (dbus_g_proxy_call (proxy, "ThrowUnregisteredError", &error,
+			 G_TYPE_INVALID, G_TYPE_INVALID) != FALSE)
+    lose ("ThrowError call unexpectedly succeeded!");
+
+  g_print ("ThrowUnregisteredError failed (as expected) returned error: %s\n", error->message);
+  g_clear_error (&error);
+
   g_print ("Calling IncrementRetvalError (for error)\n");
   error = NULL;
   v_UINT32_2 = 0;
