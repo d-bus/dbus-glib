@@ -21,6 +21,13 @@
  *
  */
 
+/* This test uses Unix-specific facilities */
+#ifdef G_OS_WIN32
+#define TEST_PROFILE_DISABLED
+#endif
+
+#ifndef TEST_PROFILE_DISABLED
+
 #include <config.h>
 #include <glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -1090,13 +1097,15 @@ print_result (const ProfileRunVTable *vtable,
               seconds/baseline, vtable->name,
               seconds, seconds / N_ITERATIONS);
 }
+#endif
 
 int
 main (int argc, char *argv[])
 {
+#ifndef TEST_PROFILE_DISABLED
   g_thread_init (NULL);
   dbus_g_thread_init ();
-  
+
 #ifndef DBUS_DISABLE_ASSERT
   g_printerr ("You should probably --disable-asserts before you profile as they have noticeable overhead\n");
 #endif
@@ -1145,6 +1154,6 @@ main (int argc, char *argv[])
 
   /* Make valgrind happy */
   dbus_shutdown ();
-  
+#endif  /* TEST_PROFILE_DISABLED */
   return 0;
 }
