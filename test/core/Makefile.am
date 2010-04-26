@@ -93,13 +93,13 @@ test_service_glib_SOURCES=				\
 	test-service-glib.c 
 test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
 
-test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
+test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object --mode=glib-server --output=test-service-glib-glue.h $(srcdir)/test-service-glib.xml
 
-test-service-glib-subclass-glue.h: test-service-glib-subclass.xml $(top_builddir)/dbus/dbus-binding-tool
+test-service-glib-subclass-glue.h: test-service-glib-subclass.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object_subclass --mode=glib-server --output=test-service-glib-subclass-glue.h $(srcdir)/test-service-glib-subclass.xml
 
-test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool
+test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object --mode=glib-client --output=test-service-glib-bindings.h $(srcdir)/test-service-glib.xml
 
 my-object-marshal.c: Makefile my-object-marshal.list
