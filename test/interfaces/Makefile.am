@@ -38,7 +38,7 @@ test_service_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.l
 test_client_SOURCES = \
 	test-client.c
 
-test_client_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
+test_client_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-gtool.la $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_LIBS)
 
 BUILT_SOURCES = \
 	test-song-glue.h		\

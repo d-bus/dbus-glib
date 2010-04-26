@@ -76,7 +76,7 @@ test_dbus_glib_SOURCES=				\
 	my-object-marshal.c                             \
 	test-dbus-glib.c
 
-test_dbus_glib_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
+test_dbus_glib_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-gtool.la $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_LIBS)
 
 test_variant_recursion_SOURCES=test-variant-recursion.c
 
