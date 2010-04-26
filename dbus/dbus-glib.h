@@ -233,14 +233,14 @@ GType             dbus_g_proxy_get_type              (void) G_GNUC_CONST;
 DBusGProxy*       dbus_g_proxy_new_for_name          (DBusGConnection   *connection,
                                                       const char        *name,
                                                       const char        *path,
-                                                      const char        *interface);
+                                                      const char        *iface);
 DBusGProxy*       dbus_g_proxy_new_for_name_owner    (DBusGConnection   *connection,
                                                       const char        *name,
                                                       const char        *path,
-                                                      const char        *interface,
+                                                      const char        *iface,
                                                       GError           **error);
 DBusGProxy*       dbus_g_proxy_new_from_proxy        (DBusGProxy        *proxy,
-                                                      const char        *interface,
+                                                      const char        *iface,
                                                       const char        *path_name);
 DBusGProxy*       dbus_g_proxy_new_for_peer          (DBusGConnection   *connection,
                                                       const char        *path_name,

@@ -80,7 +80,7 @@ const char*         node_info_get_name            (NodeInfo            *info);
 GSList*             node_info_get_interfaces      (NodeInfo            *info);
 GSList*             node_info_get_nodes           (NodeInfo            *info);
 void                node_info_add_interface       (NodeInfo            *info,
-                                                   InterfaceInfo       *interface);
+                                                   InterfaceInfo       *iface);
 void                node_info_add_node            (NodeInfo            *info,
                                                    NodeInfo            *child);
 void                node_info_replace_node        (NodeInfo            *info,
