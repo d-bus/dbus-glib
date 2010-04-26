@@ -21,6 +21,9 @@
  *
  */
 
+#include <config.h>
+#include <glib.h>
+
 /* This test uses Unix-specific facilities */
 #ifdef G_OS_WIN32
 #define TEST_PROFILE_DISABLED
@@ -28,8 +31,6 @@
 
 #ifndef TEST_PROFILE_DISABLED
 
-#include <config.h>
-#include <glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <stdlib.h>
 #include <unistd.h>
