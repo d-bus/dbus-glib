@@ -3,7 +3,7 @@ AC_PREREQ(2.52)
 
 AC_INIT(dbus-glib, 0.86, [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
 
-AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([1.9])
 
