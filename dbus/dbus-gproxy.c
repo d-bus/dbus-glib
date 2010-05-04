@@ -2740,11 +2740,10 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
   call_id = DBUS_G_PROXY_CALL_TO_ID (call);
 
   pending = g_hash_table_lookup (priv->pending_calls, GUINT_TO_POINTER (call_id));
+  g_hash_table_remove (priv->pending_calls, GUINT_TO_POINTER (call_id));
   g_return_if_fail (pending != NULL);
 
   dbus_pending_call_cancel (pending);
-
-  g_hash_table_remove (priv->pending_calls, GUINT_TO_POINTER (call_id));
 }
 
 /**
