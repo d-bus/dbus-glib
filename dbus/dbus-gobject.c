@@ -2195,13 +2195,33 @@ dbus_g_object_type_install_info (GType                  object_type,
 
 /**
  * dbus_g_error_domain_register:
- * @domain: the #GError domain 
- * @default_iface: the D-BUS interface used for error values by default, or #NULL
+ * @domain: the #GError domain
+ * @default_iface: the prefix used for error values, or %NULL
  * @code_enum: a #GType for a #GEnum of the error codes
  *
- * Register a #GError domain and set of codes with D-BUS.  You must
- * have created a GEnum for the error codes.  This function will not
- * be needed with an introspection-capable GLib.
+ * Register a #GError domain and set of codes with D-Bus. When an object
+ * raises a #GError in the domain @domain from one of its D-Bus methods,
+ * the D-Bus error name used will be @default_iface, followed by a dot,
+ * followed by the #GEnumValue.value_nick corresponding to the #GError.code.
+ * For D-Bus, it's conventional to use an error name (value_nick) that is
+ * in CamelCase.
+ *
+ * (For instance, if a D-Bus method <code>com.example.MyObject.GetThings</code>
+ * can raise a #GError with domain <code>MY_ERROR</code> and code
+ * <code>MY_ERROR_NOT_HAPPY</code>, you could call
+ * <code>dbus_g_error_domain_register (MY_ERROR, "com.example.MyError",
+ * MY_TYPE_ERROR)</code>, and set up the value_nick for
+ * <code>MY_ERROR_NOT_HAPPY</code> to be <code>NotHappy</code>,
+ * resulting in the D-Bus error string
+ * <code>com.example.MyError.NotHappy</code>.)
+ *
+ * If @default_iface is %NULL, the D-Bus interface of the method that failed
+ * will be used.
+ *
+ * (For instance, if the above example had called
+ * <code>dbus_g_error_domain_register (MY_ERROR, NULL, MY_TYPE_ERROR)</code>
+ * instead, then the D-Bus error string would be
+ * <code>com.example.MyObject.NotHappy</code>.)
  */
 void
 dbus_g_error_domain_register (GQuark                domain,
