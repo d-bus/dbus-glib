@@ -32,7 +32,8 @@
     why -  design, licensing, indentation style, we  would rather know
     than not know.</para>
 
-    <para>D-Bus' only  *required* dependency is an  XML parser (either
+    <para>D-Bus' only <emphasis>required</emphasis> dependency is an
+    XML parser (either
     libxml  or expat). D-Bus  includes many  language bindings  to the
     D-Bus system,  if you  want to build  those. The list  of projects
     using D-Bus  is growing and they  provide a wealth  of examples of
@@ -43,9 +44,9 @@
       pretty well these  days, and when it isn't  bug reports are very
       welcome.</para>
 
-    <para>
-    HomePage: <ulink url="http://http://www.freedesktop.org/wiki/Software/dbus">
-    http://http://www.freedesktop.org/wiki/Software/dbus</ulink>
+    <para>For more information on D-Bus, see
+      <ulink url="http://www.freedesktop.org/wiki/Software/dbus">
+       http://www.freedesktop.org/wiki/Software/dbus</ulink>.
     </para>
 
   </chapter>
@@ -59,7 +60,9 @@
     libdbus  with  a much  higher-level  approach.   The higher  level
     approach  is  possible  because  GLib  defines  a  main  loop,  an
     object/type system, and an out-of-memory handling policy (it exits
-    the program).  See http://www.gtk.org for GLib information.</para>
+    the program).  See <ulink
+    url="http://www.gtk.org">http://www.gtk.org</ulink> for GLib
+    information.</para>
     <para>To manipulate remote objects, use DBusGProxy. </para>
     </sect1>
 
