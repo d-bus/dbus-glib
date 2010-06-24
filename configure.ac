@@ -385,7 +385,7 @@ fi
 AC_SUBST(DBUS_DAEMONDIR)
 
 # Glib detection
-PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.10, have_glib=yes, have_glib=no)
+PKG_CHECK_MODULES(DBUS_GLIB, gobject-2.0 >= 2.24, have_glib=yes, have_glib=no)
 PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.6, have_glib_threads=yes, have_glib_threads=no)
 
 if test x$have_glib = xno ; then
