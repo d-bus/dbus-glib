@@ -48,7 +48,8 @@ noinst_PROGRAMS = \
 	test-types \
 	test-5688 \
 	test-unregister \
-	test-variant-recursion
+	test-variant-recursion \
+	test-gvariant
 
 test_5688_SOURCES = \
 	my-object.c \
@@ -125,6 +126,10 @@ peer_client_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LI
 test_types_SOURCES = \
 	test-types.c
 test_types_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
+
+test_gvariant_SOURCES = \
+	test-gvariant.c
+test_gvariant_LDADD=$(top_builddir)/dbus/libdbus-glib-1.la
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
