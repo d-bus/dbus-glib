@@ -100,6 +100,135 @@ test_g_variant_equivalent (GVariant *one,
     }
 }
 
+/* test_g_variant_equivalent tests */
+static void
+test_simple_equiv (void)
+{
+  GVariant *v1, *v2;
+
+  v1 = g_variant_new_int32 (1984);
+  v2 = g_variant_new_int32 (1984);
+
+  g_assert (test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+static void
+test_simple_not_equiv (void)
+{
+  GVariant *v1, *v2;
+
+  v1 = g_variant_new_int32 (1982);
+  v2 = g_variant_new_int32 (1984);
+
+  g_assert (!test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+static void
+test_array_not_equiv (void)
+{
+  GVariantBuilder b;
+  GVariant *v1, *v2;
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("av"));
+  g_variant_builder_add (&b, "v", g_variant_new_int32 (1984));
+  g_variant_builder_add (&b, "v", g_variant_new_string ("Orwell"));
+  g_variant_builder_add (&b, "v", g_variant_new_object_path ("/cats/escher"));
+  v1 = g_variant_builder_end (&b);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("av"));
+  /* note the order has changed */
+  g_variant_builder_add (&b, "v", g_variant_new_string ("Orwell"));
+  g_variant_builder_add (&b, "v", g_variant_new_int32 (1984));
+  g_variant_builder_add (&b, "v", g_variant_new_object_path ("/cats/escher"));
+  v2 = g_variant_builder_end (&b);
+
+  g_assert (!test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+static void
+test_map_equiv (void)
+{
+  GVariantBuilder b;
+  GVariant *v1, *v2;
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
+  v1 = g_variant_builder_end (&b);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  /* note the order has changed */
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
+  v2 = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+static void
+test_map_not_equiv1 (void)
+{
+  GVariantBuilder b;
+  GVariant *v1, *v2;
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
+  v1 = g_variant_builder_end (&b);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
+  g_variant_builder_add (&b, "{os}", "/cats/rory", "Rory Cat");
+  v2 = g_variant_builder_end (&b);
+
+  g_assert (!test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+static void
+test_map_not_equiv2 (void)
+{
+  GVariantBuilder b;
+  GVariant *v1, *v2;
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
+  v1 = g_variant_builder_end (&b);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
+  g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
+  g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Cat");
+  v2 = g_variant_builder_end (&b);
+
+  g_assert (!test_g_variant_equivalent (v1, v2));
+
+  g_variant_unref (v1);
+  g_variant_unref (v2);
+}
+
+/* dbus_g_value_build_g_variant tests */
 static void
 test_i (void)
 {
@@ -278,6 +407,21 @@ main (int argc,
 
   g_test_init (&argc, &argv, NULL);
 
+  /* test_g_variant_equivalent tests */
+  g_test_add_func ("/test_g_variant_equivalent/test_simple_equiv",
+      test_simple_equiv);
+  g_test_add_func ("/test_g_variant_equivalent/test_simple_not_equiv",
+      test_simple_not_equiv);
+  g_test_add_func ("/test_g_variant_equivalent/test_array_not_equiv",
+      test_array_not_equiv);
+  g_test_add_func ("/test_g_variant_equivalent/test_map_equiv",
+      test_map_equiv);
+  g_test_add_func ("/test_g_variant_equivalent/test_map_not_equiv1",
+      test_map_not_equiv1);
+  g_test_add_func ("/test_g_variant_equivalent/test_map_not_equiv2",
+      test_map_not_equiv2);
+
+  /* dbus_g_value_build_g_variant tests */
   g_test_add_func ("/gvalue-to-gvariant/i", test_i);
   g_test_add_func ("/gvalue-to-gvariant/s", test_s);
   g_test_add_func ("/gvalue-to-gvariant/o", test_o);
