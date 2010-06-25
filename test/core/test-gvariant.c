@@ -1,6 +1,105 @@
 #include <dbus/dbus-glib.h>
 #include <gio/gio.h>
 
+/**
+ * test_g_variant_equivalent:
+ *
+ * The function g_variant_equal() cannot be used for dictionaries because it
+ * cares about the ordering of dictionaries, which breaks our tests.
+ */
+static gboolean
+test_g_variant_equivalent (GVariant *one,
+    GVariant *two)
+{
+  if (!g_variant_type_equal (
+        g_variant_get_type (one),
+        g_variant_get_type (two)))
+    {
+      return FALSE;
+    }
+  else if (g_variant_is_of_type (one, G_VARIANT_TYPE_DICTIONARY) &&
+           g_variant_is_of_type (two, G_VARIANT_TYPE_DICTIONARY))
+    {
+      GHashTable *hash;
+      GVariantIter iter;
+      GVariant *child;
+      gboolean equal = TRUE;
+
+      if (g_variant_n_children (one) != g_variant_n_children (two))
+        return FALSE;
+
+      /* pack @one into a hash table */
+      hash = g_hash_table_new_full (g_variant_hash, g_variant_equal,
+          (GDestroyNotify) g_variant_unref, (GDestroyNotify) g_variant_unref);
+
+      g_variant_iter_init (&iter, one);
+      while ((child = g_variant_iter_next_value (&iter)))
+        {
+          g_hash_table_insert (hash,
+              g_variant_get_child_value (child, 0),
+              g_variant_get_child_value (child, 1));
+          g_variant_unref (child);
+        }
+
+      /* now iterate @two to check for the keys in @hash */
+      g_variant_iter_init (&iter, two);
+      while (equal && (child = g_variant_iter_next_value (&iter)))
+        {
+          GVariant *k, *v1, *v2;
+
+          k = g_variant_get_child_value (child, 0);
+          v1 = g_variant_get_child_value (child, 1);
+
+          v2 = g_hash_table_lookup (hash, k);
+
+          if (v2 == NULL || !test_g_variant_equivalent (v1, v2))
+            equal = FALSE;
+          else
+            g_hash_table_remove (hash, k);
+
+          g_variant_unref (k);
+          g_variant_unref (v1);
+          g_variant_unref (child);
+        }
+
+      if (g_hash_table_size (hash) > 0)
+        equal = FALSE;
+
+      g_hash_table_destroy (hash);
+
+      return equal;
+    }
+  else if (g_variant_is_container (one) &&
+           g_variant_is_container (two))
+    {
+      guint i, size;
+      gboolean equal = TRUE;
+
+      if (g_variant_n_children (one) != g_variant_n_children (two))
+        return FALSE;
+
+      size = g_variant_n_children (one);
+      for (i = 0; equal && i < size; i++)
+        {
+          GVariant *child1, *child2;
+
+          child1 = g_variant_get_child_value (one, i);
+          child2 = g_variant_get_child_value (two, i);
+
+          equal = test_g_variant_equivalent (child1, child2);
+
+          g_variant_unref (child1);
+          g_variant_unref (child2);
+        }
+
+      return equal;
+    }
+  else
+    {
+      return g_variant_equal (one, two);
+    }
+}
+
 static void
 test_i (void)
 {
@@ -15,7 +114,7 @@ test_i (void)
 
   varc = g_variant_new_int32 (1984);
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
@@ -35,7 +134,7 @@ test_s (void)
 
   varc = g_variant_new_string ("Orwell");
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
@@ -55,7 +154,7 @@ test_o (void)
 
   varc = g_variant_new_object_path ("/cats/escher");
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
@@ -83,7 +182,7 @@ test_us (void)
 
   varc = g_variant_new ("(us)", 1984, "Orwell");
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
@@ -115,13 +214,12 @@ test_a_os (void)
   g_value_unset (&v);
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("a{os}"));
-  /* WARNING: ordering must match hash table for g_variant_equal to work */
   g_variant_builder_add (&b, "{os}", "/cats/escher", "Escher Moonbeam");
-  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
   g_variant_builder_add (&b, "{os}", "/cats/harvey", "Harvey Nomcat");
+  g_variant_builder_add (&b, "{os}", "/cats/josh", "Josh Smith");
   varc = g_variant_builder_end (&b);
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
@@ -165,7 +263,7 @@ test_av (void)
   g_variant_builder_add (&b, "v", g_variant_new_object_path ("/cats/escher"));
   varc = g_variant_builder_end (&b);
 
-  g_assert (g_variant_equal (var, varc));
+  g_assert (test_g_variant_equivalent (var, varc));
 
   g_variant_unref (var);
   g_variant_unref (varc);
