@@ -945,7 +945,8 @@ lookup_property_name (GObject    *object,
   if (shadow_props)
     {
       shadow_prop_name = g_strdup (g_hash_table_lookup (shadow_props, wincaps_propname));
-      g_free (uscore_name);
+      if (shadow_prop_name)
+        g_free (uscore_name);
     }
 
   return shadow_prop_name ? shadow_prop_name : uscore_name;
