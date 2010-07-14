@@ -398,6 +398,26 @@ test_av (void)
   g_variant_unref (varc);
 }
 
+static void
+test_g (void)
+{
+  GValue v = { 0, };
+  GVariant *var, *varc;
+
+  g_value_init (&v, DBUS_TYPE_G_SIGNATURE);
+  g_value_set_boxed (&v, "a{u(ua{sa{sv}})}");
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  varc = g_variant_new_signature ("a{u(ua{sa{sv}})}");
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
 int
 main (int argc,
     char **argv)
@@ -428,6 +448,7 @@ main (int argc,
   g_test_add_func ("/gvalue-to-gvariant/us", test_us);
   g_test_add_func ("/gvalue-to-gvariant/a{os}", test_a_os);
   g_test_add_func ("/gvalue-to-gvariant/av", test_av);
+  g_test_add_func ("/gvalue-to-gvariant/g", test_g);
 
   return g_test_run ();
 }

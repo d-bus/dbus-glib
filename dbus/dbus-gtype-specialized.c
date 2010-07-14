@@ -1213,6 +1213,8 @@ dbus_g_value_build_g_variant (const GValue *value)
     return g_variant_new_strv (g_value_get_boxed (value), -1);
   else if (type == DBUS_TYPE_G_OBJECT_PATH)
     return g_variant_new_object_path (g_value_get_boxed (value));
+  else if (type == DBUS_TYPE_G_SIGNATURE)
+    return g_variant_new_signature (g_value_get_boxed (value));
   else if (type == G_TYPE_VALUE)
     return g_variant_new_variant (
         dbus_g_value_build_g_variant (g_value_get_boxed (value)));
