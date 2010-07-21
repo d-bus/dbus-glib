@@ -581,7 +581,11 @@ generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
 
           if (!write_printf_to_iochannel ("  { (GCallback) %s, ", channel, error,
 					  method_c_name))
-	    goto io_lose;
+            {
+	      g_free (method_c_name);
+              goto io_lose;
+            }
+          g_free (method_c_name);
 
           marshaller_name = compute_marshaller_name (method, data->prefix, error);
 	  if (!marshaller_name)
@@ -1580,7 +1584,10 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
 	  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\ngboolean\n");
 	  if (!write_printf_to_iochannel ("%s (DBusGProxy *proxy", channel, error,
 					  method_c_name))
-	    goto io_lose;
+            {
+	      g_free (method_c_name);
+              goto io_lose;
+            }
 	  g_free (method_c_name);
 
 	  if (!write_formal_parameters (interface, method, channel, error))
