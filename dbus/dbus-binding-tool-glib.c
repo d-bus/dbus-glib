@@ -1138,12 +1138,12 @@ static gboolean
 write_args_for_direction (InterfaceInfo *iface, MethodInfo *method, GIOChannel *channel, int direction, GError **error)
 {
   GSList *args;
+  char *type_lookup = NULL;
 
   for (args = method_info_get_args (method); args; args = args->next)
     {
       ArgInfo *arg;
       GType gtype;
-      char *type_lookup;
 
       arg = args->data;
 
@@ -1178,6 +1178,7 @@ write_args_for_direction (InterfaceInfo *iface, MethodInfo *method, GIOChannel *
 
   return TRUE;
  io_lose:
+  g_free (type_lookup);
   return FALSE;
 }
 
@@ -1374,15 +1375,15 @@ write_formal_parameters_for_direction (InterfaceInfo *iface, MethodInfo *method,
 
 static gboolean
 write_typed_args_for_direction (InterfaceInfo *iface, MethodInfo *method, GIOChannel *channel, const int direction, GError **error)
- {
+{
   GSList *args;
+  char *type_lookup = NULL;
   
   for (args = method_info_get_args (method); args; args = args->next)
     {
       ArgInfo *arg;
       int dir;
       GType gtype;
-      const char *type_lookup;
       
       arg = args->data;
 
@@ -1395,10 +1396,12 @@ write_typed_args_for_direction (InterfaceInfo *iface, MethodInfo *method, GIOCha
       type_lookup = dbus_g_type_get_lookup_function (gtype);
 
       if (!write_printf_to_iochannel ("%s, &%s_%s, ", channel, error, type_lookup, direction == ARG_IN ? "IN" : "OUT", arg_info_get_name (arg)))
-          goto io_lose;
+        goto io_lose;
+      g_free (type_lookup);
     }
   return TRUE;
  io_lose:
+  g_free (type_lookup);
   return FALSE;
 }
 
