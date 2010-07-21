@@ -656,7 +656,8 @@ dbus_server_setup_with_g_main (DBusServer   *server,
       cs = connection_setup_new_from_old (context, old_setup);
       
       /* Nuke the old setup */
-      dbus_server_set_data (server, server_slot, NULL, NULL);
+      if (!dbus_server_set_data (server, server_slot, NULL, NULL))
+        goto nomem;
       old_setup = NULL;
     }
 
