@@ -158,6 +158,7 @@ sm_server_create_machine (SMServer *server, const char *name, GError **error)
 			   NULL, 0);
 
   g_signal_emit (server, sm_server_signals[MACHINE_CREATED], 0, name, path);
+  g_free (path);
   
   return TRUE;
 }
