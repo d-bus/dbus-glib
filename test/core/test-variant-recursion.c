@@ -85,5 +85,7 @@ main (int argc, char **argv)
 
   g_object_unref (G_OBJECT (proxy));
 
+  g_main_loop_unref (loop);
+
   return 0;
 }
