@@ -102,6 +102,7 @@ filter_test_message (DBusConnection     *connection,
   if (strcmp (expected_str, str) != 0)
     {
       g_print ("Wrong string '%s', expected '%s'\n", str, expected_str);
+      g_free (expected_str);
       goto out;
     }
   g_free (expected_str);
