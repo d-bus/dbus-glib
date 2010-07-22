@@ -794,16 +794,12 @@ introspect_interfaces (GObject *object, GString *xml)
 
       for (i = 0; i < info->n_method_infos; i++)
         {
-          const char *method_name;
           const char *method_interface;
-          const char *method_args;
           const DBusGMethodInfo *method;
 
           method = &(info->method_infos[i]);
 
           method_interface = method_interface_from_object_info (info, method);
-          method_name = method_name_from_object_info (info, method);
-          method_args = method_arg_info_from_object_info (info, method);
 
           values = lookup_values (interfaces, method_interface);
           values->methods = g_slist_prepend (values->methods, (gpointer) method);
