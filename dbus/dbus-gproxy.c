@@ -2418,7 +2418,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
  *
  * Asynchronously invokes a method on a remote interface. The method
  * call will not be sent over the wire until the application returns
- * to the main loop, or blocks in dbus_connection_flush() to write out
+ * to the main loop, or blocks in dbus_g_connection_flush() to write out
  * pending data.  The call will be completed after a timeout, or when
  * a reply is received.  When the call returns, the callback specified
  * will be invoked; you can then collect the results of the call
@@ -2471,7 +2471,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  *
  * Asynchronously invokes a method on a remote interface. The method
  * call will not be sent over the wire until the application returns
- * to the main loop, or blocks in dbus_connection_flush() to write out
+ * to the main loop, or blocks in dbus_g_connection_flush() to write out
  * pending data.  The call will be completed after a timeout, or when
  * a reply is received.  When the call returns, the callback specified
  * will be invoked; you can then collect the results of the call
@@ -2755,7 +2755,7 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
  * Sends a message to the interface we're proxying for.  Does not
  * block or wait for a reply. The message is only actually written out
  * when you return to the main loop or block in
- * dbus_connection_flush().
+ * dbus_g_connection_flush().
  *
  * The message is modified to be addressed to the target interface.
  * That is, a destination name field or whatever is needed will be
