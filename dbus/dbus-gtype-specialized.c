@@ -22,6 +22,7 @@
  *
  */
 
+#include "dbus-glib.h"
 #include "dbus-gtype-specialized-priv.h"
 #include "dbus-gvalue-utils.h"
 #include <glib.h>
@@ -1094,3 +1095,131 @@ error:
   return FALSE;
 }
 
+static void
+_collection_iterator (const GValue *value,
+    gpointer user_data)
+{
+  GPtrArray *children = user_data;
+
+  g_ptr_array_add (children, dbus_g_value_build_g_variant (value));
+}
+
+static void
+_map_iterator (const GValue *kvalue,
+    const GValue *vvalue,
+    gpointer user_data)
+{
+  GPtrArray *children = user_data;
+
+  g_ptr_array_add (children,
+      g_variant_new_dict_entry (
+        dbus_g_value_build_g_variant (kvalue),
+        dbus_g_value_build_g_variant (vvalue)));
+}
+
+/**
+ * dbus_g_value_build_g_variant:
+ * @value: a simple or specialized #GValue to convert to a #GVariant
+ *
+ * Recurses @value and converts its contents to a #GVariant.
+ *
+ * The value must either be a simple value (integer, string, boolean,
+ * object path etc.) or a specialized container registered with
+ * dbus_g_type_get_collection(), dbus_g_type_get_map() or
+ * dbus_g_type_get_struct(). Providing any other type is a programming error
+ * (including as a child type).
+ *
+ * Returns: a new #GVariant containing @value with a floating reference
+ */
+GVariant *
+dbus_g_value_build_g_variant (const GValue *value)
+{
+  GType type;
+
+  g_return_val_if_fail (G_IS_VALUE (value), NULL);
+
+  type = G_VALUE_TYPE (value);
+
+  if (dbus_g_type_is_collection (type))
+    {
+      GVariant *variant;
+      GPtrArray *children;
+
+      children = g_ptr_array_new ();
+      dbus_g_type_collection_value_iterate (value, _collection_iterator,
+          children);
+
+      variant = g_variant_new_array (NULL, (GVariant **) children->pdata,
+          children->len);
+      g_ptr_array_free (children, TRUE);
+
+      return variant;
+    }
+  else if (dbus_g_type_is_map (type))
+    {
+      GVariant *variant;
+      GPtrArray *children;
+
+      children = g_ptr_array_new ();
+      dbus_g_type_map_value_iterate (value, _map_iterator, children);
+
+      variant = g_variant_new_array (NULL, (GVariant **) children->pdata,
+          children->len);
+      g_ptr_array_free (children, TRUE);
+
+      return variant;
+    }
+  else if (dbus_g_type_is_struct (type))
+    {
+      GVariant *variant, **children;
+      guint size, i;
+
+      size = dbus_g_type_get_struct_size (type);
+      children = g_new0 (GVariant *, size);
+
+      for (i = 0; i < size; i++)
+        {
+          GValue cvalue = { 0, };
+
+          g_value_init (&cvalue, dbus_g_type_get_struct_member_type (type, i));
+          dbus_g_type_struct_get_member (value, i, &cvalue);
+
+          children[i] = dbus_g_value_build_g_variant (&cvalue);
+          g_value_unset (&cvalue);
+        }
+
+      variant = g_variant_new_tuple (children, size);
+      g_free (children);
+
+      return variant;
+    }
+  else if (type == G_TYPE_BOOLEAN)
+    return g_variant_new_boolean (g_value_get_boolean (value));
+  else if (type == G_TYPE_UCHAR)
+    return g_variant_new_byte (g_value_get_uchar (value));
+  else if (type == G_TYPE_INT)
+    return g_variant_new_int32 (g_value_get_int (value));
+  else if (type == G_TYPE_UINT)
+    return g_variant_new_uint32 (g_value_get_uint (value));
+  else if (type == G_TYPE_INT64)
+    return g_variant_new_int64 (g_value_get_int64 (value));
+  else if (type == G_TYPE_UINT64)
+    return g_variant_new_uint64 (g_value_get_uint64 (value));
+  else if (type == G_TYPE_DOUBLE)
+    return g_variant_new_double (g_value_get_double (value));
+  else if (type == G_TYPE_STRING)
+    return g_variant_new_string (g_value_get_string (value));
+  else if (type == G_TYPE_STRV)
+    return g_variant_new_strv (g_value_get_boxed (value), -1);
+  else if (type == DBUS_TYPE_G_OBJECT_PATH)
+    return g_variant_new_object_path (g_value_get_boxed (value));
+  else if (type == DBUS_TYPE_G_SIGNATURE)
+    return g_variant_new_signature (g_value_get_boxed (value));
+  else if (type == G_TYPE_VALUE)
+    return g_variant_new_variant (
+        dbus_g_value_build_g_variant (g_value_get_boxed (value)));
+  else
+    {
+      g_error ("%s: Unknown type: %s", G_STRFUNC, g_type_name (type));
+    }
+}

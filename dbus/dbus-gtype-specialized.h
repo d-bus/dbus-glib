@@ -169,6 +169,8 @@ const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (
 
 const DBusGTypeSpecializedStructVtable* dbus_g_type_struct_peek_vtable (GType struct_type);
 
+GVariant *dbus_g_value_build_g_variant (const GValue *value);
+
 G_END_DECLS
 
 #endif

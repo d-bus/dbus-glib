@@ -164,6 +164,7 @@ dbus_g_type_register_map
 dbus_g_type_map_peek_vtable
 dbus_g_type_collection_peek_vtable
 dbus_g_type_register_struct
+dbus_g_value_build_g_variant
 DBUS_TYPE_G_BOOLEAN_ARRAY
 DBUS_TYPE_G_UCHAR_ARRAY
 DBUS_TYPE_G_UINT_ARRAY
