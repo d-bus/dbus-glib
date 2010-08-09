@@ -7,6 +7,9 @@ INCLUDES = \
 	$(DBUS_GTK_THREADS_CFLAGS)		\
 	-DDBUS_COMPILATION
 
+LDADD = $(top_builddir)/dbus/libdbus-glib-1.la \
+	$(DBUS_GLIB_LIBS)
+
 ## Makefile.am bits for sample client/server pair
 
 noinst_PROGRAMS= statemachine-server
@@ -18,10 +21,9 @@ noinst_PROGRAMS= statemachine-server
 EXTRA_DIST = statemachine.h statemachine-server.h sm-marshal.list statemachine-server.xml statemachine.xml
 
 statemachine_server_SOURCES= statemachine-server.c sm-marshal.c statemachine.c
-statemachine_server_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 #statemachine_client_SOURCES= statemachine-client.c sm-marshal.c statemachine.h
-#statemachine_client_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GTK_THREADS_LIBS)
+#statemachine_client_LDADD= $(LDADD) $(DBUS_GTK_THREADS_LIBS)
 
 BUILT_SOURCES = statemachine-server-glue.h statemachine-glue.h
 

@@ -6,6 +6,10 @@ INCLUDES = \
 	$(DBUS_GLIB_CFLAGS)			\
 	-DDBUS_COMPILATION
 
+LDADD = $(DBUS_GLIB_LIBS) \
+	$(top_builddir)/dbus/libdbus-glib-1.la \
+	$(top_builddir)/dbus/libdbus-gtool.la
+
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 
 ## TESTS
@@ -33,12 +37,8 @@ test_service_SOURCES = \
 	test-objects.h \
 	test-server.c
 
-test_service_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
-
 test_client_SOURCES = \
 	test-client.c
-
-test_client_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-gtool.la $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_LIBS)
 
 BUILT_SOURCES = \
 	test-song-glue.h		\

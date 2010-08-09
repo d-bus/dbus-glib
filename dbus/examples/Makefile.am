@@ -8,15 +8,17 @@ INCLUDES = \
 	$(DBUS_GLIB_CFLAGS)			\
 	-DDBUS_COMPILATION
 
+LDADD = \
+	$(DBUS_GLIB_LIBS) \
+	$(top_builddir)/dbus/libdbus-glib-1.la
+
 ## Makefile.am bits for sample client/server pair
 
 noinst_PROGRAMS= example-client example-service 
 
 example_client_SOURCES= example-client.c
-example_client_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 example_service_SOURCES= example-service.c
-example_service_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 BUILT_SOURCES = example-service-glue.h
 
@@ -29,10 +31,8 @@ example-service-glue.h: example-service.xml
 noinst_PROGRAMS += example-signal-recipient example-signal-emitter
 
 example_signal_recipient_SOURCES= example-signal-recipient.c
-example_signal_recipient_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 example_signal_emitter_SOURCES= example-signal-emitter.c
-example_signal_emitter_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 BUILT_SOURCES += example-signal-emitter-glue.h
 

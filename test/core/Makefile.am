@@ -7,6 +7,17 @@ INCLUDES = \
 	$(DBUS_GLIB_CFLAGS)			\
 	-DDBUS_COMPILATION
 
+LDADD = \
+	$(DBUS_GLIB_THREADS_LIBS) \
+	$(DBUS_GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_builddir)/dbus/libdbus-glib-1.la
+
+tool_ldadd = \
+	$(LDADD) \
+	$(DBUS_GLIB_TOOL_LIBS) \
+	$(top_builddir)/dbus/libdbus-gtool.la
+
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 
 ## TESTS
@@ -28,13 +39,9 @@ test_thread_server_SOURCES=				\
 	test-thread-server.c				\
 	test-thread.h
 
-test_thread_server_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
-
 test_thread_client_SOURCES=				\
 	test-thread-client.c				\
 	test-thread.h
-
-test_thread_client_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
 endif
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
@@ -58,9 +65,6 @@ test_5688_SOURCES = \
 	my-object-subclass.h \
 	my-object-marshal.c \
 	5688.c
-test_5688_LDADD = \
-	$(top_builddir)/dbus/libdbus-glib-1.la \
-	$(DBUS_GLIB_THREADS_LIBS)
 
 test_unregister_SOURCES = \
 	my-object.c \
@@ -69,19 +73,16 @@ test_unregister_SOURCES = \
 	my-object-subclass.h \
 	my-object-marshal.c \
 	unregister.c
-test_unregister_LDADD = \
-	$(top_builddir)/dbus/libdbus-glib-1.la \
-	$(DBUS_GLIB_THREADS_LIBS)
 
 test_dbus_glib_SOURCES=				\
 	my-object-marshal.c                             \
 	test-dbus-glib.c
 
-test_dbus_glib_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-gtool.la $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_LIBS)
+test_dbus_glib_LDADD= $(tool_ldadd)
 
 test_variant_recursion_SOURCES=test-variant-recursion.c
 
-test_variant_recursion_LDADD= $(DBUS_GLIB_TOOL_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la $(top_builddir)/dbus/libdbus-gtool.la
+test_variant_recursion_LDADD= $(tool_ldadd)
 
 BUILT_SOURCES = test-service-glib-glue.h test-service-glib-subclass-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
 
@@ -92,7 +93,6 @@ test_service_glib_SOURCES=				\
 	my-object-subclass.h                    \
 	my-object-marshal.c                             \
 	test-service-glib.c 
-test_service_glib_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS) 
 
 test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object --mode=glib-server --output=test-service-glib-glue.h $(srcdir)/test-service-glib.xml
@@ -117,19 +117,15 @@ peer_server_SOURCES = \
 	my-object-subclass.h                    \
 	my-object-marshal.c                             \
 	peer-server.c
-peer_server_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS)
 
 peer_client_SOURCES = \
 	peer-client.c
-peer_client_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la $(DBUS_GLIB_THREADS_LIBS)
 
 test_types_SOURCES = \
 	test-types.c
-test_types_LDADD= $(top_builddir)/dbus/libdbus-glib-1.la
 
 test_gvariant_SOURCES = \
 	test-gvariant.c
-test_gvariant_LDADD=$(top_builddir)/dbus/libdbus-glib-1.la
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
@@ -147,6 +143,4 @@ endif
 if HAVE_GLIB_THREADS
 test_profile_SOURCES=				\
 	test-profile.c
-
-test_profile_LDADD= $(DBUS_GLIB_THREADS_LIBS) $(top_builddir)/dbus/libdbus-glib-1.la 
 endif
