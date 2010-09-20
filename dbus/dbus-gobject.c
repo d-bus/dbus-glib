@@ -53,7 +53,8 @@ static GData *error_metadata = NULL;
 
 static char*
 uscore_to_wincaps_full (const char *uscore,
-                        gboolean    uppercase_first)
+                        gboolean    uppercase_first,
+                        gboolean    strip_underscores)
 {
   const char *p;
   GString *str;
@@ -65,7 +66,7 @@ uscore_to_wincaps_full (const char *uscore,
   p = uscore;
   while (p && *p)
     {
-      if (*p == '-' || *p == '_')
+      if (*p == '-' || (strip_underscores && *p == '_'))
         {
           last_was_uscore = TRUE;
         }
@@ -105,7 +106,7 @@ compare_strings_ignoring_uscore_vs_dash (const char *a, const char *b)
 static char *
 uscore_to_wincaps (const char *uscore)
 {
-  return uscore_to_wincaps_full (uscore, TRUE);
+  return uscore_to_wincaps_full (uscore, TRUE, TRUE);
 }
 
 static const char *
@@ -1358,7 +1359,7 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
        * reasons; if someone had a lowercase enumeration value,
        * previously we'd just send it across unaltered.
        */
-      code_str_wincaps = uscore_to_wincaps_full (code_str, FALSE);
+      code_str_wincaps = uscore_to_wincaps_full (code_str, FALSE, FALSE);
       g_string_append (dbus_error_name, code_str_wincaps);
       g_free (code_str_wincaps);
     }
