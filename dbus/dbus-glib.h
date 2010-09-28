@@ -192,9 +192,11 @@ GObject *  dbus_g_connection_lookup_g_object   (DBusGConnection       *connectio
 
 #define DBUS_TYPE_G_STRING_STRING_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRING))
 
+typedef gchar DBusGObjectPath;
 GType        dbus_g_object_path_get_g_type         (void) G_GNUC_CONST;
 #define DBUS_TYPE_G_OBJECT_PATH (dbus_g_object_path_get_g_type ())
 
+typedef gchar DBusGSignature;
 GType        dbus_g_signature_get_g_type           (void) G_GNUC_CONST;
 #define DBUS_TYPE_G_SIGNATURE (dbus_g_signature_get_g_type ())
 

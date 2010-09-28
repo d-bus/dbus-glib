@@ -357,9 +357,27 @@ _dbus_g_value_types_init (void)
 }
 
 /**
- * Get the GLib type ID for a DBusGObjectPath boxed type.
+ * DBusGObjectPath:
  *
- * Returns: GLib type
+ * A typedef for a string used to represent D-Bus object paths.
+ * Its GType is %DBUS_TYPE_G_OBJECT_PATH, derived from %G_TYPE_BOXED.
+ *
+ * Prior to version 0.FIXME this was used as the type name of
+ * %DBUS_TYPE_G_OBJECT_PATH, but did not actually exist as a typedef.
+ *
+ * Since: 0.FIXME
+ */
+
+/**
+ * DBUS_TYPE_G_OBJECT_PATH:
+ *
+ * The #GType of a #DBusGObjectPath, which is a boxed type containing a
+ * D-Bus object path as a zero-terminated string. Object paths can be
+ * copied with g_strdup() and freed with g_free(), just like %G_TYPE_STRING,
+ * but have a distinct boxed type to allow them to be distinguished when
+ * stored in a #GValue.
+ *
+ * Returns: a type derived from %G_TYPE_BOXED
  */
 GType
 dbus_g_object_path_get_g_type (void)
@@ -374,9 +392,27 @@ dbus_g_object_path_get_g_type (void)
 }
 
 /**
- * Get the GLib type ID for a DBusGSignature boxed type.
+ * DBusGSignature:
  *
- * Returns: GLib type
+ * A typedef for a string used to represent D-Bus signatures.
+ * Its GType is %DBUS_TYPE_G_SIGNATURE, derived from %G_TYPE_BOXED.
+ *
+ * Prior to version 0.FIXME this was used as the type name of
+ * %DBUS_TYPE_G_SIGNATURE, but did not actually exist as a typedef.
+ *
+ * Since: 0.FIXME
+ */
+
+/**
+ * DBUS_TYPE_G_SIGNATURE:
+ *
+ * The #GType of a #DBusGSignature, which is a boxed type containing a
+ * D-Bus signature as a zero-terminated string. Signatures can be
+ * copied with g_strdup() and freed with g_free(), just like %G_TYPE_STRING,
+ * but have a distinct boxed type to allow them to be distinguished when
+ * stored in a #GValue.
+ *
+ * Returns: a type derived from %G_TYPE_BOXED
  */
 GType
 dbus_g_signature_get_g_type (void)
