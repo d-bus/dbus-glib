@@ -13,22 +13,12 @@ else
 TEST_BINARIES=
 endif
 
-if DBUS_GCOV_ENABLED
-GCOV_BINARIES=decode-gcov
-else
-GCOV_BINARIES=
-endif
-
-noinst_PROGRAMS= $(TEST_BINARIES) $(GCOV_BINARIES)
-
-decode_gcov_SOURCES=				\
-	decode-gcov.c
+noinst_PROGRAMS= $(TEST_BINARIES)
 
 test_service_SOURCES=				\
 	test-service.c
 
 test_service_LDADD=$(DBUS_LIBS)
-decode_gcov_LDADD=$(DBUS_LIBS)
 
 EXTRA_DIST = data/nested-introspect.xml test-compile-nested.sh
 
