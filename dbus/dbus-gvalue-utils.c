@@ -845,6 +845,164 @@ array_constructor (GType type)
   return array;
 }
 
+static void
+array_iterator (GType garray_type,
+    gpointer instance,
+    DBusGTypeSpecializedCollectionIterator iterator,
+    gpointer user_data)
+{
+  GArray *array;
+  GType elt_gtype;
+  guint i;
+
+  array = instance;
+
+  elt_gtype = dbus_g_type_get_collection_specialization (garray_type);
+
+  for (i = 0; i < array->len; i++)
+    {
+      GValue val = {0, };
+      g_value_init (&val, elt_gtype);
+
+      switch (elt_gtype)
+        {
+          case G_TYPE_BOOLEAN:
+            g_value_set_boolean (&val, !!g_array_index (array, gboolean, i));
+            break;
+
+          case G_TYPE_FLOAT:
+            g_value_set_float (&val, g_array_index (array, gfloat, i));
+            break;
+
+          case G_TYPE_DOUBLE:
+            g_value_set_double (&val, g_array_index (array, gdouble, i));
+            break;
+
+          case G_TYPE_CHAR:
+            g_value_set_char (&val, g_array_index (array, gchar, i));
+            break;
+
+          case G_TYPE_UCHAR:
+            g_value_set_uchar (&val, g_array_index (array, guchar, i));
+            break;
+
+          case G_TYPE_INT:
+            g_value_set_int (&val, g_array_index (array, gint, i));
+            break;
+
+          case G_TYPE_UINT:
+            g_value_set_uint (&val, g_array_index (array, guint, i));
+            break;
+
+          case G_TYPE_LONG:
+            g_value_set_long (&val, g_array_index (array, glong, i));
+            break;
+
+          case G_TYPE_ULONG:
+            g_value_set_ulong (&val, g_array_index (array, gulong, i));
+            break;
+
+          case G_TYPE_INT64:
+            g_value_set_int64 (&val, g_array_index (array, gint64, i));
+            break;
+
+          case G_TYPE_UINT64:
+            g_value_set_uint64 (&val, g_array_index (array, guint64, i));
+            break;
+
+          default:
+            g_assert_not_reached ();
+        }
+
+      iterator (&val, user_data);
+    }
+}
+
+static void
+array_append (DBusGTypeSpecializedAppendContext *ctx,
+    GValue *value)
+{
+  GArray *array = g_value_get_boxed (ctx->val);
+  GType elt_gtype;
+  union {
+      guint64 u64;
+      gint64 i64;
+      gulong ul;
+      glong l;
+      guint u;
+      gint i;
+      guchar uc;
+      gchar c;
+      gboolean b;
+      gfloat f;
+      gdouble d;
+  } tmp;
+
+  elt_gtype = dbus_g_type_get_collection_specialization (
+      G_VALUE_TYPE (ctx->val));
+
+  switch (elt_gtype)
+    {
+      case G_TYPE_BOOLEAN:
+        tmp.b = g_value_get_boolean (value);
+        g_array_append_val (array, tmp.b);
+        break;
+
+      case G_TYPE_FLOAT:
+        tmp.f = g_value_get_float (value);
+        g_array_append_val (array, tmp.f);
+        break;
+
+      case G_TYPE_DOUBLE:
+        tmp.d = g_value_get_double (value);
+        g_array_append_val (array, tmp.d);
+        break;
+
+      case G_TYPE_CHAR:
+        tmp.c = g_value_get_char (value);
+        g_array_append_val (array, tmp.c);
+        break;
+
+      case G_TYPE_UCHAR:
+        tmp.uc = g_value_get_uchar (value);
+        g_array_append_val (array, tmp.uc);
+        break;
+
+      case G_TYPE_INT:
+        tmp.i = g_value_get_int (value);
+        g_array_append_val (array, tmp.i);
+        break;
+
+      case G_TYPE_UINT:
+        tmp.u = g_value_get_uint (value);
+        g_array_append_val (array, tmp.u);
+        break;
+
+      case G_TYPE_LONG:
+        tmp.l = g_value_get_long (value);
+        g_array_append_val (array, tmp.l);
+        break;
+
+      case G_TYPE_ULONG:
+        tmp.ul = g_value_get_ulong (value);
+        g_array_append_val (array, tmp.ul);
+        break;
+
+      case G_TYPE_INT64:
+        tmp.i64 = g_value_get_int64 (value);
+        g_array_append_val (array, tmp.i64);
+        break;
+
+      case G_TYPE_UINT64:
+        tmp.u64 = g_value_get_uint64 (value);
+        g_array_append_val (array, tmp.u64);
+        break;
+
+      default:
+        g_assert_not_reached ();
+    }
+}
+
 static gpointer
 array_copy (GType type, gpointer src)
 {
@@ -1141,8 +1299,8 @@ _dbus_g_type_specialized_builtins_init (void)
       NULL,
     },
     array_fixed_accessor,
-    NULL,
-    NULL,
+    array_iterator,
+    array_append,
     NULL
   };
 
