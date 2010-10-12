@@ -399,6 +399,217 @@ test_av (void)
 }
 
 static void
+test_ab (void)
+{
+  GValue v = { 0, };
+  gboolean bools[] = { TRUE, FALSE };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType ab = dbus_g_type_get_collection ("GArray", G_TYPE_BOOLEAN);
+  GArray *array;
+
+  g_value_init (&v, ab);
+  array = dbus_g_type_specialized_construct (ab);
+
+  g_array_append_vals (array, bools, 2);
+  g_assert_cmpint (g_array_index (array, gboolean, 0), ==, TRUE);
+  g_assert_cmpint (g_array_index (array, gboolean, 1), ==, FALSE);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("ab"));
+  g_variant_builder_add (&b, "b", TRUE);
+  g_variant_builder_add (&b, "b", FALSE);
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
+test_ai (void)
+{
+  GValue v = { 0, };
+  gint ints[] = { 1984, 1066 };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType ai = dbus_g_type_get_collection ("GArray", G_TYPE_INT);
+  GArray *array;
+
+  g_value_init (&v, ai);
+  array = dbus_g_type_specialized_construct (ai);
+
+  g_array_append_vals (array, ints, 2);
+  g_assert_cmpint (g_array_index (array, gint, 0), ==, 1984);
+  g_assert_cmpint (g_array_index (array, gint, 1), ==, 1066);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("ai"));
+  g_variant_builder_add (&b, "i", 1984);
+  g_variant_builder_add (&b, "i", 1066);
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
+test_au (void)
+{
+  GValue v = { 0, };
+  guint uints[] = { 1984, 1066 };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType au = dbus_g_type_get_collection ("GArray", G_TYPE_UINT);
+  GArray *array;
+
+  g_value_init (&v, au);
+  array = dbus_g_type_specialized_construct (au);
+
+  g_array_append_vals (array, uints, 2);
+  g_assert_cmpuint (g_array_index (array, guint, 0), ==, 1984);
+  g_assert_cmpuint (g_array_index (array, guint, 1), ==, 1066);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("au"));
+  g_variant_builder_add (&b, "u", 1984);
+  g_variant_builder_add (&b, "u", 1066);
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
+test_ax (void)
+{
+  GValue v = { 0, };
+  gint64 ints[] = { G_GINT64_CONSTANT (-0xAAABBBBCCCCDDDD), 1066 };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType ax = dbus_g_type_get_collection ("GArray", G_TYPE_INT64);
+  GArray *array;
+
+  g_value_init (&v, ax);
+  array = dbus_g_type_specialized_construct (ax);
+
+  g_array_append_vals (array, ints, 2);
+  g_assert_cmpint ((g_array_index (array, gint64, 0)
+        / G_GINT64_CONSTANT (0x100000000)), ==,
+      -0xAAABBBB);
+  g_assert_cmpuint ((-(g_array_index (array, gint64, 0)))
+      % G_GINT64_CONSTANT (0x100000000), ==, 0xCCCCDDDDu);
+  g_assert_cmpint ((g_array_index (array, gint64, 1)
+        / G_GINT64_CONSTANT (0x100000000)), ==, 0);
+  g_assert_cmpuint ((g_array_index (array, gint64, 1))
+      % G_GINT64_CONSTANT (0x100000000), ==, 1066);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("ax"));
+  g_variant_builder_add (&b, "x", G_GINT64_CONSTANT (-0xAAABBBBCCCCDDDD));
+  g_variant_builder_add (&b, "x", G_GINT64_CONSTANT (1066));
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
+test_at (void)
+{
+  GValue v = { 0, };
+  guint64 uints[] = { G_GUINT64_CONSTANT (0xAAAABBBBCCCCDDDD), 1066 };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType at = dbus_g_type_get_collection ("GArray", G_TYPE_UINT64);
+  GArray *array;
+
+  g_value_init (&v, at);
+  array = dbus_g_type_specialized_construct (at);
+
+  g_array_append_vals (array, uints, 2);
+  g_assert_cmpuint ((g_array_index (array, guint64, 0)
+        / G_GUINT64_CONSTANT (0x100000000)), ==, 0xAAAABBBBu);
+  g_assert_cmpuint ((g_array_index (array, guint64, 0)
+        % G_GUINT64_CONSTANT (0x100000000)), ==, 0xCCCCDDDDu);
+  g_assert_cmpuint ((g_array_index (array, guint64, 1)
+        / G_GUINT64_CONSTANT (0x100000000)), ==, 0);
+  g_assert_cmpuint ((g_array_index (array, guint64, 1)
+        % G_GUINT64_CONSTANT (0x100000000)), ==, 1066);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("at"));
+  g_variant_builder_add (&b, "t", G_GUINT64_CONSTANT (0xAAAABBBBCCCCDDDD));
+  g_variant_builder_add (&b, "t", G_GUINT64_CONSTANT (1066));
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
+test_ay (void)
+{
+  GValue v = { 0, };
+  guchar bytes[] = { 23, 42 };
+  GVariantBuilder b;
+  GVariant *var, *varc;
+  GType ay = dbus_g_type_get_collection ("GArray", G_TYPE_UCHAR);
+  GArray *array;
+
+  g_value_init (&v, ay);
+  array = dbus_g_type_specialized_construct (ay);
+
+  g_array_append_vals (array, bytes, 2);
+  g_assert_cmpint (g_array_index (array, guchar, 0), ==, 23);
+  g_assert_cmpint (g_array_index (array, guchar, 1), ==, 42);
+
+  g_value_take_boxed (&v, array);
+
+  var = dbus_g_value_build_g_variant (&v);
+  g_value_unset (&v);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("ay"));
+  g_variant_builder_add (&b, "y", 23);
+  g_variant_builder_add (&b, "y", 42);
+  varc = g_variant_builder_end (&b);
+
+  g_assert (test_g_variant_equivalent (var, varc));
+
+  g_variant_unref (var);
+  g_variant_unref (varc);
+}
+
+static void
 test_g (void)
 {
   GValue v = { 0, };
@@ -448,6 +659,12 @@ main (int argc,
   g_test_add_func ("/gvalue-to-gvariant/us", test_us);
   g_test_add_func ("/gvalue-to-gvariant/a{os}", test_a_os);
   g_test_add_func ("/gvalue-to-gvariant/av", test_av);
+  g_test_add_func ("/gvalue-to-gvariant/ab", test_ab);
+  g_test_add_func ("/gvalue-to-gvariant/ai", test_ai);
+  g_test_add_func ("/gvalue-to-gvariant/au", test_au);
+  g_test_add_func ("/gvalue-to-gvariant/ax", test_ax);
+  g_test_add_func ("/gvalue-to-gvariant/at", test_at);
+  g_test_add_func ("/gvalue-to-gvariant/ay", test_ay);
   g_test_add_func ("/gvalue-to-gvariant/g", test_g);
 
   return g_test_run ();
