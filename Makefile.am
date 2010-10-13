@@ -40,29 +40,4 @@ $(srcdir)/ChangeLog: FORCE
 
 all-local: Doxyfile
 
-if DBUS_GCOV_ENABLED
-clean-gcov:
-	find -name "*.da" -o -name "*.gcov" | xargs rm || true
-
-clean-bbg:
-	find -name "*.bbg" -o -name "*.bb" | xargs rm || true
-
-GCOV_DIRS=$(GLIB_SUBDIR)
-
-coverage-report.txt: FORCE
-	echo "we just don't know" > $@
-
-check-coverage: clean-gcov all check coverage-report.txt
-	cat coverage-report.txt
-
-else
-coverage-report.txt:
-	echo "Need to reconfigure with --enable-gcov"
-
-check-coverage:
-	echo "Need to reconfigure with --enable-gcov"
-
-endif
-
-FORCE:
-
+include tools/lcov.am

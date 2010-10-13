@@ -2,6 +2,8 @@
 *.o
 *.lo
 *.deps
+*.gcno
+*.gcda
 *.libs
 *.lineno
 dbus-glib-*.tar.gz
@@ -76,6 +78,8 @@ gtk-doc.make
 install-sh
 libtool
 ltmain.sh
+/lcov.info
+/lcov.html/
 m4/Makefile
 m4/Makefile.in
 /m4/libtool.m4
