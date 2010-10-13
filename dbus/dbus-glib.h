@@ -330,6 +330,8 @@ typedef struct {
 
 #undef DBUS_INSIDE_DBUS_GLIB_H
 
+#include <dbus/dbus-gvalue-parse-variant.h>
+
 G_END_DECLS
 
 #endif /* DBUS_GLIB_H */

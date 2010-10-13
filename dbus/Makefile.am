@@ -47,11 +47,13 @@ libdbus_glib_1_la_SOURCES = 			\
 	dbus-gtest.h				\
 	dbus-gvalue.c				\
 	dbus-gvalue.h				\
+	dbus-gvalue-parse-variant.c		\
 	dbus-gthread.c				\
 	$(DBUS_GLIB_INTERNALS)
 
 libdbus_glib_HEADERS =                  \
 	dbus-gtype-specialized.h	\
+        dbus-gvalue-parse-variant.h	\
 	dbus-glib.h			\
         dbus-glib-lowlevel.h		\
         dbus-glib-error-enum.h
