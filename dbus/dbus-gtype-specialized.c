@@ -866,8 +866,8 @@ dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext
 /**
  * dbus_g_type_specialized_map_append:
  * @ctx: a context created by #dbus_g_type_specialized_init_append
- * @key: a GValue containing a key
- * @val: a GValue containing a value 
+ * @key: a GValue containing a key, whose contents will be stolen by @ctx
+ * @val: a GValue containing a value, whose contents will be stolen by @ctx
  * @deprecated: maybe i'll deprecate this as its a bit wank.
  *
  * Inserts the given key/value pair into the map instance.
