@@ -127,13 +127,12 @@ dbus_g_value_basic_array_parse_variant (GVariant *variant,
                 gsize n = g_variant_n_children (variant);
                 gsize i;
                 GPtrArray *pa = g_ptr_array_sized_new (n);
-                gchar signature[] = { type_char, '\0' };
 
                 for (i = 0; i < n; i++)
                   {
-                    gchar *s;
+                    gchar *s = g_variant_dup_string (
+                        g_variant_get_child_value (variant, i), NULL);
 
-                    g_variant_get_child (variant, i, signature, &s);
                     g_ptr_array_add (pa, s);
                   }
 
