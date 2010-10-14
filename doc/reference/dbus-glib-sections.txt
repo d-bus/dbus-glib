@@ -19,7 +19,6 @@ dbus_g_connection_get_g_type
 
 <SECTION>
 <FILE>dbus-gobject</FILE>
-DBUS_TYPE_G_OBJECT_PATH
 <TITLE>DBus GObject related functions</TITLE>
 DBusGObjectInfo
 dbus_g_object_type_install_info
@@ -174,7 +173,10 @@ DBUS_TYPE_G_UINT64_ARRAY
 DBUS_TYPE_G_INT64_ARRAY
 DBUS_TYPE_G_OBJECT_ARRAY
 DBUS_TYPE_G_STRING_STRING_HASHTABLE
+DBusGSignature
 DBUS_TYPE_G_SIGNATURE
+DBusGObjectPath
+DBUS_TYPE_G_OBJECT_PATH
 </SECTION>
 
 <SUBSECTION Private>
