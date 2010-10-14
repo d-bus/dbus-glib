@@ -218,7 +218,7 @@ dbus_g_value_basic_array_parse_variant (GVariant *variant,
       arr = g_array_sized_new (FALSE, FALSE, dg_size, n);
       g_value_take_boxed (value, arr);
 
-      if (dg_size == gv_size && 0)
+      if (dg_size == gv_size)
         {
           /* fast path: we can just memcpy them in */
           g_array_append_vals (arr, blob, n);
