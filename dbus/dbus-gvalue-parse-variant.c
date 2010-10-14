@@ -263,8 +263,8 @@ dbus_g_value_tuple_parse_variant (GVariant *variant,
       g_value_array_append (va, NULL);
       dbus_g_value_parse_variant_by_type (
           variant == NULL ? NULL : g_variant_get_child_value (variant, i),
-          inner_type, va->values + i);
-      types[i] = G_VALUE_TYPE (va->values + i);
+          inner_type, &va->values[i]);
+      types[i] = G_VALUE_TYPE (&va->values[i]);
     }
 
   g_value_init (value, dbus_g_type_get_structv ("GValueArray", n, types));
