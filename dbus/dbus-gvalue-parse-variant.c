@@ -512,8 +512,8 @@ dbus_g_value_parse_variant_by_type (GVariant *variant,
  * Deserialize @variant and put an equivalent dbus-glib data structure in
  * @value.
  *
- * It is an error if @variant contains any GDBus extensions not supported by
- * dbus-glib, including handles (file descriptor passing) and 'maybe' types.
+ * It is an error if @variant contains any #GVariant extensions not supported
+ * by dbus-glib, including handles (file descriptor passing) and 'maybe' types.
  */
 void
 dbus_g_value_parse_g_variant (GVariant *variant,
