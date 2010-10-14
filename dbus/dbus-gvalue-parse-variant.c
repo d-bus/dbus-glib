@@ -498,8 +498,9 @@ dbus_g_value_parse_variant_by_type (GVariant *variant,
 
       case G_VARIANT_CLASS_HANDLE:
       case G_VARIANT_CLASS_MAYBE:
-        g_critical ("unhandled GVariantClass %d",
-            g_variant_classify (variant));
+        g_critical ("unhandled GVariantClass '%c' (%d)",
+            CLAMP (type_char, ' ', '~'),
+            type_char);
         break;
     }
 }
