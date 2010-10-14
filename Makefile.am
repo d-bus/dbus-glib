@@ -40,43 +40,4 @@ $(srcdir)/ChangeLog: FORCE
 
 all-local: Doxyfile
 
-if DBUS_GCOV_ENABLED
-clean-gcov:
-	find -name "*.da" -o -name "*.gcov" | xargs rm || true
-
-clean-bbg:
-	find -name "*.bbg" -o -name "*.bb" | xargs rm || true
-
-GCOV_DIRS=$(GLIB_SUBDIR)
-
-coverage-report.txt: FORCE
-	BBG_FILES=`find $(GCOV_DIRS) -name "*.bbg" -o -name "*.gcno"` ;			\
-	C_FILES= ;									\
-	for F in $$BBG_FILES ; do							\
-		F_nolibs=`echo $$F | sed -e 's/.libs\///g'` ;				\
-		C=`echo $$F_nolibs | sed -e 's/.bbg/.c/g' | sed -e 's/.gcno/.c/g'`  ;	\
-		B=`basename $$F .bbg` ;							\
-		D=`dirname $$F` ;							\
-		DA=`echo $$F | sed -e 's/.bbg/.da/g'` ;					\
-		DA_libs=`echo $$D/.libs/$$B/.da` ;					\
-		if test -e $$DA || test -e $$DA_libs; then				\
-			C_FILES="$$C_FILES $$C" ;					\
-		fi ;									\
-	done ;										\
-	echo $$C_FILES ;								\
-	$(top_builddir)/test/decode-gcov --report $$C_FILES > coverage-report.txt
-
-check-coverage: clean-gcov all check coverage-report.txt
-	cat coverage-report.txt
-
-else
-coverage-report.txt:
-	echo "Need to reconfigure with --enable-gcov"
-
-check-coverage:
-	echo "Need to reconfigure with --enable-gcov"
-
-endif
-
-FORCE:
-
+include tools/lcov.am

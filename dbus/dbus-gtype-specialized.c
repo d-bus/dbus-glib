@@ -866,8 +866,8 @@ dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext
 /**
  * dbus_g_type_specialized_map_append:
  * @ctx: a context created by #dbus_g_type_specialized_init_append
- * @key: a GValue containing a key
- * @val: a GValue containing a value 
+ * @key: a GValue containing a key, whose contents will be stolen by @ctx
+ * @val: a GValue containing a value, whose contents will be stolen by @ctx
  * @deprecated: maybe i'll deprecate this as its a bit wank.
  *
  * Inserts the given key/value pair into the map instance.
@@ -1117,6 +1117,87 @@ _map_iterator (const GValue *kvalue,
         dbus_g_value_build_g_variant (vvalue)));
 }
 
+static GVariantType *
+dbus_g_value_type_build_g_variant_type (GType type)
+{
+  if (dbus_g_type_is_collection (type))
+    {
+      GType element_type = dbus_g_type_get_collection_specialization (type);
+      GVariantType *element_sig = dbus_g_value_type_build_g_variant_type (
+          element_type);
+      GVariantType *ret = g_variant_type_new_array (element_sig);
+
+      g_variant_type_free (element_sig);
+      return ret;
+    }
+  else if (dbus_g_type_is_map (type))
+    {
+      GType key_type = dbus_g_type_get_map_key_specialization (type);
+      GType value_type = dbus_g_type_get_map_value_specialization (type);
+      GVariantType *key_sig = dbus_g_value_type_build_g_variant_type (
+          key_type);
+      GVariantType *value_sig = dbus_g_value_type_build_g_variant_type (
+          value_type);
+      GVariantType *entry_sig = g_variant_type_new_dict_entry (key_sig,
+          value_sig);
+      GVariantType *ret = g_variant_type_new_array (entry_sig);
+
+      g_variant_type_free (key_sig);
+      g_variant_type_free (value_sig);
+      g_variant_type_free (entry_sig);
+      return ret;
+    }
+  else if (dbus_g_type_is_struct (type))
+    {
+      guint size = dbus_g_type_get_struct_size (type);
+      guint i;
+      GVariantType **sigs = g_new0 (GVariantType *, size);
+      GVariantType *ret;
+
+      for (i = 0; i < size; i++)
+        {
+          GType t = dbus_g_type_get_struct_member_type (type, i);
+
+          sigs[i] = dbus_g_value_type_build_g_variant_type (t);
+        }
+
+      ret = g_variant_type_new_tuple ((const GVariantType * const *) sigs,
+          size);
+
+      for (i = 0; i < size; i++)
+        g_variant_type_free (sigs[i]);
+
+      g_free (sigs);
+      return ret;
+    }
+  else if (type == G_TYPE_BOOLEAN)
+    return g_variant_type_copy (G_VARIANT_TYPE_BOOLEAN);
+  else if (type == G_TYPE_UCHAR)
+    return g_variant_type_copy (G_VARIANT_TYPE_BYTE);
+  else if (type == G_TYPE_INT)
+    return g_variant_type_copy (G_VARIANT_TYPE_INT32);
+  else if (type == G_TYPE_UINT)
+    return g_variant_type_copy (G_VARIANT_TYPE_UINT32);
+  else if (type == G_TYPE_INT64)
+    return g_variant_type_copy (G_VARIANT_TYPE_INT64);
+  else if (type == G_TYPE_UINT64)
+    return g_variant_type_copy (G_VARIANT_TYPE_UINT64);
+  else if (type == G_TYPE_DOUBLE)
+    return g_variant_type_copy (G_VARIANT_TYPE_DOUBLE);
+  else if (type == G_TYPE_STRING)
+    return g_variant_type_copy (G_VARIANT_TYPE_STRING);
+  else if (type == G_TYPE_STRV)
+    return g_variant_type_copy (G_VARIANT_TYPE_STRING_ARRAY);
+  else if (type == DBUS_TYPE_G_OBJECT_PATH)
+    return g_variant_type_copy (G_VARIANT_TYPE_OBJECT_PATH);
+  else if (type == DBUS_TYPE_G_SIGNATURE)
+    return g_variant_type_copy (G_VARIANT_TYPE_SIGNATURE);
+  else if (type == G_TYPE_VALUE)
+    return g_variant_type_copy (G_VARIANT_TYPE_VARIANT);
+  else
+    g_error ("%s: Unknown type: %s", G_STRFUNC, g_type_name (type));
+}
+
 /**
  * dbus_g_value_build_g_variant:
  * @value: a simple or specialized #GValue to convert to a #GVariant
@@ -1144,14 +1225,25 @@ dbus_g_value_build_g_variant (const GValue *value)
     {
       GVariant *variant;
       GPtrArray *children;
+      GVariantType *signature = NULL;
 
       children = g_ptr_array_new ();
       dbus_g_type_collection_value_iterate (value, _collection_iterator,
           children);
 
-      variant = g_variant_new_array (NULL, (GVariant **) children->pdata,
+      if (children->len == 0)
+        {
+          /* we can't cheat by saying "the type of the children? that!" */
+          GType element_type = dbus_g_type_get_collection_specialization (
+              type);
+
+          signature = dbus_g_value_type_build_g_variant_type (element_type);
+        }
+
+      variant = g_variant_new_array (signature, (GVariant **) children->pdata,
           children->len);
       g_ptr_array_free (children, TRUE);
+      g_variant_type_free (signature);
 
       return variant;
     }
@@ -1159,13 +1251,31 @@ dbus_g_value_build_g_variant (const GValue *value)
     {
       GVariant *variant;
       GPtrArray *children;
+      GVariantType *signature = NULL;
 
       children = g_ptr_array_new ();
       dbus_g_type_map_value_iterate (value, _map_iterator, children);
 
-      variant = g_variant_new_array (NULL, (GVariant **) children->pdata,
+      if (children->len == 0)
+        {
+          /* we can't cheat by saying "the type of the children? that!" */
+          GType key_type = dbus_g_type_get_map_key_specialization (
+              type);
+          GType value_type = dbus_g_type_get_map_value_specialization (
+              type);
+          GVariantType *k = dbus_g_value_type_build_g_variant_type (key_type);
+          GVariantType *v = dbus_g_value_type_build_g_variant_type (
+              value_type);
+
+          signature = g_variant_type_new_dict_entry (k, v);
+          g_variant_type_free (k);
+          g_variant_type_free (v);
+        }
+
+      variant = g_variant_new_array (signature, (GVariant **) children->pdata,
           children->len);
       g_ptr_array_free (children, TRUE);
+      g_variant_type_free (signature);
 
       return variant;
     }
