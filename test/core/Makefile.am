@@ -54,6 +54,7 @@ noinst_PROGRAMS = \
 	peer-client \
 	test-types \
 	test-5688 \
+	test-30574 \
 	test-unregister \
 	test-variant-recursion \
 	test-gvariant
@@ -65,6 +66,9 @@ test_5688_SOURCES = \
 	my-object-subclass.h \
 	my-object-marshal.c \
 	5688.c
+
+test_30574_SOURCES = \
+	30574.c
 
 test_unregister_SOURCES = \
 	my-object.c \

@@ -94,6 +94,7 @@ test/Makefile.in
 test/core/Makefile
 test/core/Makefile.in
 /test/core/test-5688
+/test/core/test-30574
 test/core/my-object-marshal.c
 test/core/my-object-marshal.h
 test/core/run-with-tmp-session-bus.conf

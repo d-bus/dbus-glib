@@ -238,6 +238,9 @@ io_handler_dispatch (GIOChannel   *source,
   return TRUE;
 }
 
+/* Attach the connection setup to the given watch, removing any
+ * previously-attached connection setup.
+ */
 static void
 connection_setup_add_watch (ConnectionSetup *cs,
                             DBusWatch       *watch)
@@ -249,8 +252,6 @@ connection_setup_add_watch (ConnectionSetup *cs,
   
   if (!dbus_watch_get_enabled (watch))
     return;
-  
-  g_assert (dbus_watch_get_data (watch) == NULL);
   
   flags = dbus_watch_get_flags (watch);
 
@@ -285,7 +286,7 @@ connection_setup_remove_watch (ConnectionSetup *cs,
 
   handler = dbus_watch_get_data (watch);
 
-  if (handler == NULL)
+  if (handler == NULL || handler->cs != cs)
     return;
   
   io_handler_destroy_source (handler);
