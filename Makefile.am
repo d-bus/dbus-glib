@@ -24,7 +24,7 @@ DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-checks --enable-tests
 EXTRA_DIST += ChangeLog
 
 ChangeLog:
-$(srcdir)/ChangeLog: FORCE
+$(srcdir)/ChangeLog:
 	@if test -d "$(srcdir)/.git"; then \
 	  (cd "$(srcdir)" && \
 	  ./missing --run git log --stat) | fmt --split-only > $@.tmp \
