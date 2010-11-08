@@ -1,4 +1,4 @@
-SUBDIRS = core interfaces
+SUBDIRS = . core interfaces
 DIST_SUBDIRS = core interfaces
 
 INCLUDES = \
