@@ -50,8 +50,6 @@ system.  The current number in configure.ac should be odd.
 
 To make a release (please replace use of 0.76 with the new version)
 
-* Review git log, update NEWS file (this step may go away once someone writes a tool)
-* git commit NEWS
 * make
 * make distcheck
 * edit configure.ac, change version to even (e.g. 0.75 -> 0.76)
@@ -60,8 +58,10 @@ To make a release (please replace use of 0.76 with the new version)
 * make distcheck
 * git commit -m "Release"
 * git tag -a dbus-glib_0.76
-* scp resulting tarball to ssh://gabe.freedesktop.org/srv/dbus.freedesktop.org/releases/dbus-glib
+* scp resulting tarball to ssh://gabe.freedesktop.org/srv/dbus.freedesktop.org/www/releases/dbus-glib/
 * edit configure.ac, change version to odd (e.g. 0.76 -> 0.77)
 * git commit -m "Bump version for development"
 * Update the wiki: http://www.freedesktop.org/wiki/Software/DBusBindings
-* Announce the release on the mailing list
+* Announce the release on the mailing list, summarizing notable changes.
+
+NEWS is unmaintained.
