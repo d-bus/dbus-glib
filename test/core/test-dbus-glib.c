@@ -753,6 +753,9 @@ main (int argc, char **argv)
 				  increment_received_cb, g_strdup ("moo"), g_free,
 				  G_TYPE_UINT, 42,
 				  G_TYPE_INVALID);
+  if (call == NULL)
+    lose ("Failed to begin Increment call");
+
   dbus_g_connection_flush (connection);
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
