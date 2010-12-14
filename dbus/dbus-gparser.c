@@ -92,9 +92,6 @@ locate_attributes (const char  *element_name,
 
   va_end (args);
 
-  if (!retval)
-    return retval;
-
   i = 0;
   while (attribute_names[i])
     {
