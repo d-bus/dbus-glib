@@ -37,6 +37,9 @@
     <method name="ThrowErrorMultiWord">
     </method>
 
+    <method name="ThrowErrorUnderScore">
+    </method>
+
     <method name="ThrowUnregisteredError">
     </method>
 

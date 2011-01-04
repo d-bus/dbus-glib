@@ -35,7 +35,8 @@ typedef enum
 {
   MY_OBJECT_ERROR_FOO,
   MY_OBJECT_ERROR_BAR,
-  MY_OBJECT_ERROR_MULTI_WORD
+  MY_OBJECT_ERROR_MULTI_WORD,
+  MY_OBJECT_ERROR_UNDER_SCORE
 } MyObjectError;
 
 #define MY_OBJECT_ERROR (my_object_error_quark ())
