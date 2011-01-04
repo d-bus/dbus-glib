@@ -1520,6 +1520,11 @@ generate_client_glue_list (GSList *list, DBusBindingToolCData *data, GError **er
 static gboolean
 generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
 {
+  char *iface_prefix;
+  char *method_c_name;
+  iface_prefix = NULL;
+  method_c_name = NULL;
+
   if (base_info_get_type (base) == INFO_TYPE_NODE)
     {
       if (!generate_client_glue_list (node_info_get_nodes ((NodeInfo *) base),
@@ -1535,7 +1540,6 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
       InterfaceInfo *interface;
       GSList *methods;
       GSList *tmp;
-      char *iface_prefix;
       const char *interface_c_name;
 
       channel = data->channel;
@@ -1555,15 +1559,11 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
 				      "#define DBUS_GLIB_CLIENT_WRAPPERS_%s\n\n",
 				      channel, error,
 				      iface_prefix, iface_prefix))
-	{
-	  g_free (iface_prefix);
-	  goto io_lose;
-	}
+        goto io_lose;
 
       for (tmp = methods; tmp != NULL; tmp = g_slist_next (tmp))
         {
 	  MethodInfo *method;
-	  char *method_c_name;
 	  gboolean is_noreply;
 
           method = (MethodInfo *) tmp->data;
@@ -1580,6 +1580,8 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
 	      g_warning ("Ignoring unsupported signature in method \"%s\" of interface \"%s\"\n",
 			 method_info_get_name (method),
 			 interface_info_get_name (interface));
+        g_free (method_c_name);
+        method_c_name = NULL;
 	      continue;
 	    }
 
@@ -1587,11 +1589,9 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
 	  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\ngboolean\n");
 	  if (!write_printf_to_iochannel ("%s (DBusGProxy *proxy", channel, error,
 					  method_c_name))
-            {
-	      g_free (method_c_name);
-              goto io_lose;
-            }
+      goto io_lose;
 	  g_free (method_c_name);
+    method_c_name = NULL;
 
 	  if (!write_formal_parameters (interface, method, channel, error))
 	    goto io_lose;
@@ -1638,15 +1638,14 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
 	}
 
       if (!write_printf_to_iochannel ("#endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_%s */\n\n", channel, error, iface_prefix))
-	{
-	  g_free (iface_prefix);
-	  goto io_lose;
-	}
+        goto io_lose;
 
       g_free (iface_prefix);
     }
   return TRUE;
  io_lose:
+  g_free (method_c_name);
+  g_free (iface_prefix);
   return FALSE;
 }
 
