@@ -697,7 +697,6 @@ parse_annotation (Parser      *parser,
   
   if (!(parser->method || parser->interface || parser->arg) || 
       parser->node_stack == NULL ||
-      parser->signal ||
       parser->property ||
       parser->in_annotation)
     {
