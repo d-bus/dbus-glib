@@ -18,7 +18,7 @@ export DBUS_TOP_SRCDIR
 if test -z "$DBUS_TEST_GLIB_IN_RUN_TEST"; then
   DBUS_TEST_GLIB_IN_RUN_TEST=1
   export DBUS_TEST_GLIB_IN_RUN_TEST
-  exec ${SHELL} $DBUS_TOP_SRCDIR/tools/run-with-tmp-session-bus.sh $SCRIPTNAME $MODE
+  exec $DBUS_TOP_SRCDIR/tools/run-with-tmp-session-bus.sh $SCRIPTNAME $MODE
 fi  
 
 if test x$MODE = xprofile ; then
