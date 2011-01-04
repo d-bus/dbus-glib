@@ -1528,11 +1528,11 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
   if (base_info_get_type (base) == INFO_TYPE_NODE)
     {
       if (!generate_client_glue_list (node_info_get_nodes ((NodeInfo *) base),
-				      data, error))
-	return FALSE;
+              data, error))
+        return FALSE;
       if (!generate_client_glue_list (node_info_get_interfaces ((NodeInfo *) base),
-				      data, error))
-	return FALSE;
+              data, error))
+        return FALSE;
     }
   else
     {
@@ -1556,86 +1556,86 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
       }
 
       if (!write_printf_to_iochannel ("#ifndef DBUS_GLIB_CLIENT_WRAPPERS_%s\n"
-				      "#define DBUS_GLIB_CLIENT_WRAPPERS_%s\n\n",
-				      channel, error,
-				      iface_prefix, iface_prefix))
+              "#define DBUS_GLIB_CLIENT_WRAPPERS_%s\n\n",
+              channel, error,
+              iface_prefix, iface_prefix))
         goto io_lose;
 
       for (tmp = methods; tmp != NULL; tmp = g_slist_next (tmp))
         {
-	  MethodInfo *method;
-	  gboolean is_noreply;
+          MethodInfo *method;
+          gboolean is_noreply;
 
           method = (MethodInfo *) tmp->data;
-	  method_c_name = g_strdup (method_info_get_annotation (method, DBUS_GLIB_ANNOTATION_CLIENT_C_SYMBOL));
+          method_c_name = g_strdup (method_info_get_annotation (method, DBUS_GLIB_ANNOTATION_CLIENT_C_SYMBOL));
           if (method_c_name == NULL)
-	    {
+            {
               method_c_name = compute_client_method_name (interface_c_name, method);
             }
 
-	  is_noreply = method_info_get_annotation (method, DBUS_GLIB_ANNOTATION_NOREPLY) != NULL;
+          is_noreply = method_info_get_annotation (method, DBUS_GLIB_ANNOTATION_NOREPLY) != NULL;
 
-	  if (data->ignore_unsupported && !check_supported_parameters (method))
-	    {
-	      g_warning ("Ignoring unsupported signature in method \"%s\" of interface \"%s\"\n",
-			 method_info_get_name (method),
-			 interface_info_get_name (interface));
-        g_free (method_c_name);
-        method_c_name = NULL;
-	      continue;
-	    }
+          if (data->ignore_unsupported && !check_supported_parameters (method))
+            {
+              g_warning ("Ignoring unsupported signature in method \"%s\" of interface \"%s\"\n",
+              method_info_get_name (method),
+              interface_info_get_name (interface));
+              g_free (method_c_name);
+              method_c_name = NULL;
+              continue;
+            }
 
 
-	  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\ngboolean\n");
-	  if (!write_printf_to_iochannel ("%s (DBusGProxy *proxy", channel, error,
-					  method_c_name))
-      goto io_lose;
-	  g_free (method_c_name);
-    method_c_name = NULL;
+          WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\ngboolean\n");
+          if (!write_printf_to_iochannel ("%s (DBusGProxy *proxy", channel, error,
+                  method_c_name))
+            goto io_lose;
+          g_free (method_c_name);
+          method_c_name = NULL;
 
-	  if (!write_formal_parameters (interface, method, channel, error))
-	    goto io_lose;
+          if (!write_formal_parameters (interface, method, channel, error))
+            goto io_lose;
 
-	  WRITE_OR_LOSE (", GError **error)\n\n");
-	  
-	  WRITE_OR_LOSE ("{\n");
+          WRITE_OR_LOSE (", GError **error)\n\n");
 
-	  if (is_noreply) {
-	    if (!write_printf_to_iochannel ("  dbus_g_proxy_call_no_reply (proxy, \"%s\", ", channel, error,
-					    method_info_get_name (method)))
-	      goto io_lose;
-	    
-	    if (!write_args_for_direction (interface, method, channel, ARG_IN, error))
-	      goto io_lose;
-	    
-	    WRITE_OR_LOSE ("G_TYPE_INVALID, ");
-	    
-	    if (!write_args_for_direction (interface, method, channel, ARG_OUT, error))
-	      goto io_lose;
-	    
-	    WRITE_OR_LOSE ("G_TYPE_INVALID);\n");
-	    
-	    WRITE_OR_LOSE ("  return TRUE;\n}\n\n");
-	  } else {
-	    if (!write_printf_to_iochannel ("  return dbus_g_proxy_call (proxy, \"%s\", ", channel, error,
-					    method_info_get_name (method)))
-	      goto io_lose;
-	    
-	    WRITE_OR_LOSE ("error, ");
-	    
-	    if (!write_args_for_direction (interface, method, channel, ARG_IN, error))
-	      goto io_lose;
-	    
-	    WRITE_OR_LOSE ("G_TYPE_INVALID, ");
-	    
-	    if (!write_args_for_direction (interface, method, channel, ARG_OUT, error))
-	      goto io_lose;
-	    
-	    WRITE_OR_LOSE ("G_TYPE_INVALID);\n}\n\n");
-	  }
+          WRITE_OR_LOSE ("{\n");
 
-	  write_async_method_client (channel, interface, method, error);
-	}
+          if (is_noreply) {
+            if (!write_printf_to_iochannel ("  dbus_g_proxy_call_no_reply (proxy, \"%s\", ", channel, error,
+                    method_info_get_name (method)))
+              goto io_lose;
+
+            if (!write_args_for_direction (interface, method, channel, ARG_IN, error))
+              goto io_lose;
+
+            WRITE_OR_LOSE ("G_TYPE_INVALID, ");
+
+            if (!write_args_for_direction (interface, method, channel, ARG_OUT, error))
+              goto io_lose;
+
+            WRITE_OR_LOSE ("G_TYPE_INVALID);\n");
+
+            WRITE_OR_LOSE ("  return TRUE;\n}\n\n");
+          } else {
+            if (!write_printf_to_iochannel ("  return dbus_g_proxy_call (proxy, \"%s\", ", channel, error,
+                    method_info_get_name (method)))
+              goto io_lose;
+
+            WRITE_OR_LOSE ("error, ");
+
+            if (!write_args_for_direction (interface, method, channel, ARG_IN, error))
+              goto io_lose;
+
+            WRITE_OR_LOSE ("G_TYPE_INVALID, ");
+
+            if (!write_args_for_direction (interface, method, channel, ARG_OUT, error))
+              goto io_lose;
+
+            WRITE_OR_LOSE ("G_TYPE_INVALID);\n}\n\n");
+          }
+
+          write_async_method_client (channel, interface, method, error);
+        }
 
       if (!write_printf_to_iochannel ("#endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_%s */\n\n", channel, error, iface_prefix))
         goto io_lose;
