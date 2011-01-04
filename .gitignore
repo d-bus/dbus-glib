@@ -217,7 +217,9 @@ tools/dbus-bus-introspect.xml
 tools/dbus-glib-bindings.h
 /test/interfaces/run-with-tmp-session-bus.conf
 /test/interfaces/*-bindings.h
+/test/interfaces/*-bindings.h.tmp
 /test/interfaces/*-glue.h
+/test/interfaces/*-glue.h.tmp
 /test/interfaces/test-server
 /test/interfaces/test-service
 /test/interfaces/test-client
