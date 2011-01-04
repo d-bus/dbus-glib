@@ -57,6 +57,8 @@ doc/reference/dbus-glib-decl-list.txt
 doc/reference/dbus-glib-decl-list.txt.bak
 doc/reference/dbus-glib-decl.txt
 doc/reference/dbus-glib-decl.txt.bak
+/doc/reference/dbus-glib-undeclared.txt
+/doc/reference/dbus-glib-undocumented.txt
 doc/reference/dbus-glib-unused.txt
 doc/reference/dbus-glib.args
 doc/reference/dbus-glib.hierarchy
