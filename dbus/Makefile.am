@@ -107,7 +107,7 @@ CLEANFILES += dbus-bash-completion.sh
 
 dbus_bash_completion_helper_SOURCES =                 	\
 	dbus-bash-completion-helper.c
-dbus_bash_completion_helper_LDADD=$(DBUS_LIBS) $(DBUS_GLIB_LIBS) $(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la
+dbus_bash_completion_helper_LDADD=$(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
 
 
 EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh make-dbus-glib-error-enum.sh dbus-bash-completion.sh.in
