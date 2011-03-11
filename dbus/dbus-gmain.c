@@ -500,31 +500,25 @@ static ConnectionSetup*
 connection_setup_new_from_old (GMainContext    *context,
                                ConnectionSetup *old)
 {
-  GSList *tmp;
   ConnectionSetup *cs;
 
   g_assert (old->context != context);
   
   cs = connection_setup_new (context, old->connection);
   
-  tmp = old->ios;
-  while (tmp != NULL)
+  while (old->ios != NULL)
     {
-      IOHandler *handler = tmp->data;
+      IOHandler *handler = old->ios->data;
 
       connection_setup_add_watch (cs, handler->watch);
-      
-      tmp = tmp->next;
+      /* The old handler will be removed from old->ios as a side-effect */
     }
 
-  tmp = old->timeouts;
-  while (tmp != NULL)
+  while (old->timeouts != NULL)
     {
-      TimeoutHandler *handler = tmp->data;
+      TimeoutHandler *handler = old->timeouts->data;
 
       connection_setup_add_timeout (cs, handler->timeout);
-      
-      tmp = tmp->next;
     }
 
   return cs;
