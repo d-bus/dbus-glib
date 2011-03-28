@@ -1554,12 +1554,15 @@ marshal_proxy (DBusMessageIter         *iter,
   g_assert (G_VALUE_TYPE (value) == dbus_g_proxy_get_type ());
 
   proxy = g_value_get_object (value);
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
   path = dbus_g_proxy_get_path (proxy);
-  
+  g_return_val_if_fail (g_variant_is_object_path (path), FALSE);
+
   if (!dbus_message_iter_append_basic (iter,
 				       DBUS_TYPE_OBJECT_PATH,
 				       &path))
-    return FALSE;
+    oom ();
+
   return TRUE;
 }
 
