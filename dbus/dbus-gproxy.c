@@ -2512,6 +2512,7 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
+  g_return_val_if_fail (timeout >= 0 || timeout == -1, NULL);
 
   va_start (args, first_arg_type);
 
@@ -2659,6 +2660,7 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), FALSE);
+  g_return_val_if_fail (timeout >= 0 || timeout == -1, FALSE);
 
   va_start (args, first_arg_type);
 
@@ -3003,6 +3005,7 @@ dbus_g_proxy_set_default_timeout (DBusGProxy        *proxy,
 
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
+  g_return_if_fail (timeout >= 0 || timeout == -1);
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   priv->default_timeout = timeout;
