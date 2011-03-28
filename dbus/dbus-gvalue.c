@@ -1974,7 +1974,14 @@ marshal_collection_array (DBusMessageIter   *iter,
 					     subsignature_str[0],
 					     &(array->data),
 					     array->len))
-    goto oom;
+    {
+      g_critical ("Unable to serialize %u GArray members as signature %s "
+          "(OOM or invalid boolean value?)", array->len, subsignature_str);
+
+      g_free (subsignature_str);
+      dbus_message_iter_abandon_container (iter, &subiter);
+      return FALSE;
+    }
 
   if (!dbus_message_iter_close_container (iter, &subiter))
     goto oom;
