@@ -29,11 +29,6 @@
 #include "dbus-gobject.h"
 #include <string.h>
 
-#include <libintl.h>
-#define _(x) dgettext (GETTEXT_PACKAGE, x)
-#define N_(x) x
-
-
 /**
  * SECTION:dbus-gconnection
  * @short_description: DBus Connection

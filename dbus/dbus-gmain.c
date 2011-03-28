@@ -33,10 +33,6 @@
 #include "dbus-gsignature.h"
 #include <string.h>
 
-#include <libintl.h>
-#define _(x) dgettext (GETTEXT_PACKAGE, x)
-#define N_(x) x
-
 /**
  * @defgroup DBusGLibInternals GLib bindings implementation details
  * @ingroup  DBusInternals
