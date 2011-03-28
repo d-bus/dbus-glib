@@ -1925,13 +1925,13 @@ marshal_collection_ptrarray (DBusMessageIter         *iter,
 					collection_marshal_iterator,
 					&data);
 
-  if (!dbus_message_iter_close_container (iter, &subiter))
-    goto oom;
-  
-  return !data.err;
- oom:
-  g_error ("out of memory");
-  return FALSE;
+  if (data.err)
+    {
+      dbus_message_iter_abandon_container (iter, &subiter);
+      return FALSE;
+    }
+
+  return dbus_message_iter_close_container (iter, &subiter);
 }
 
 
