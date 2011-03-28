@@ -1723,8 +1723,15 @@ marshal_map (DBusMessageIter   *iter,
 				 marshal_map_entry,
 				 &hashdata);
 
-  if (!dbus_message_iter_close_container (iter, &arr_iter))
-    goto lose;
+  if (hashdata.err)
+    {
+      dbus_message_iter_abandon_container (iter, &arr_iter);
+      goto lose;
+    }
+  else if (!dbus_message_iter_close_container (iter, &arr_iter))
+    {
+      goto lose;
+    }
 
  out:
   g_free (entry_sig);
