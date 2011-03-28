@@ -1444,15 +1444,25 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
       }
       return TRUE;
     case G_TYPE_STRING:
-      /* FIXME, the GValue string may not be valid UTF-8 */
       {
         const char *v = g_value_get_string (value);
 	if (!v)
 	  v = "";
+
+        /* FIXME: fd.o #16320: consider using g_return_if_fail to check UTF-8
+         * validity */
+
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_STRING,
                                              &v))
-          goto nomem;
+          {
+            gchar *s = g_strdup_value_contents (value);
+
+            g_critical ("Unable to marshal string (not UTF-8 or OOM?): %s",
+                s);
+            g_free (s);
+            return FALSE;
+          }
       }
       return TRUE;
       
@@ -1462,10 +1472,6 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
 	return FALSE;
       }
     }
-
- nomem:
-  g_error ("no memory");
-  return FALSE;
 }
 
 static gboolean
