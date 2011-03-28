@@ -28,8 +28,6 @@ dbus/Makefile.in
 /dbus/dbus-bash-completion-helper
 /dbus/dbus-bash-completion.sh
 dbus/dbus-binding-tool
-dbus/dbus-glib-error-enum.h
-dbus/dbus-glib-error-switch.h
 dbus/dbus-glib-test
 dbus/examples/Makefile
 dbus/examples/Makefile.in
@@ -138,8 +136,6 @@ dbus-glib-1.pc
 dbus/Makefile
 dbus/Makefile.in
 dbus/dbus-binding-tool
-dbus/dbus-glib-error-enum.h
-dbus/dbus-glib-error-switch.h
 dbus/dbus-glib-test
 dbus/examples/Makefile
 dbus/examples/Makefile.in

@@ -11,16 +11,6 @@ INCLUDES = \
 
 lib_LTLIBRARIES=libdbus-glib-1.la
 
-dbus-glib-error-enum.h: make-dbus-glib-error-enum.sh
-	$(srcdir)/make-dbus-glib-error-enum.sh $(DBUS_INCLUDEDIR)/dbus-1.0/dbus/dbus-protocol.h $@
-
-dbus-glib-error-switch.h: make-dbus-glib-error-switch.sh
-	$(LIBTOOL) --mode=execute $(srcdir)/make-dbus-glib-error-switch.sh $(DBUS_INCLUDEDIR)/dbus-1.0/dbus/dbus-protocol.h $@
-
-BUILT_SOURCES = \
-	dbus-glib-error-switch.h		\
-	dbus-glib-error-enum.h
-
 CLEANFILES = $(BUILT_SOURCES)
 
 DBUS_GLIB_INTERNALS = \
@@ -35,7 +25,6 @@ DBUS_GLIB_INTERNALS = \
 	dbus-gvalue-utils.h
 
 libdbus_glib_1_la_SOURCES = 			\
-	dbus-glib-error-switch.h		\
 	dbus-glib.c				\
 	dbus-gmain.c				\
 	dbus-gmarshal.c				\
@@ -55,8 +44,7 @@ libdbus_glib_HEADERS =                  \
 	dbus-gtype-specialized.h	\
         dbus-gvalue-parse-variant.h	\
 	dbus-glib.h			\
-        dbus-glib-lowlevel.h		\
-        dbus-glib-error-enum.h
+        dbus-glib-lowlevel.h
 
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 
@@ -111,7 +99,7 @@ dbus_bash_completion_helper_SOURCES =                 	\
 dbus_bash_completion_helper_LDADD=$(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
 
 
-EXTRA_DIST=dbus-gmarshal.list make-dbus-glib-error-switch.sh make-dbus-glib-error-enum.sh dbus-bash-completion.sh.in
+EXTRA_DIST=dbus-gmarshal.list dbus-bash-completion.sh.in
 
 if DBUS_BUILD_TESTS
 

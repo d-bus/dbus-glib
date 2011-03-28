@@ -335,8 +335,6 @@ PKG_CHECK_MODULES([DBUS], [dbus-1 >= 1.2.16])
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
 
-DBUS_INCLUDEDIR=`pkg-config dbus-1 --variable=includedir`
-AC_SUBST(DBUS_INCLUDEDIR)
 DBUS_DAEMONDIR=`pkg-config dbus-1 --variable=daemondir`
 if test x"$DBUS_DAEMONDIR" != "x"; then
     # Add slash, so that if the D-Bus pkgconfig file does not
