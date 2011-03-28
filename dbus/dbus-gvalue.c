@@ -1983,13 +1983,8 @@ marshal_collection_array (DBusMessageIter   *iter,
       return FALSE;
     }
 
-  if (!dbus_message_iter_close_container (iter, &subiter))
-    goto oom;
   g_free (subsignature_str);
-  return TRUE;
- oom:
-  g_error ("out of memory");
-  return FALSE;
+  return dbus_message_iter_close_container (iter, &subiter);
 }
 
 gboolean
