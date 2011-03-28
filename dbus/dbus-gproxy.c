@@ -38,6 +38,12 @@
 #define DBUS_G_PROXY_GET_PRIVATE(o)  \
        (G_TYPE_INSTANCE_GET_PRIVATE ((o), DBUS_TYPE_G_PROXY, DBusGProxyPrivate))
 
+static void oom (void) G_GNUC_NORETURN;
+static void
+oom (void)
+{
+  g_error ("no memory");
+}
 
 /**
  * @addtogroup DBusGLibInternals
@@ -2218,7 +2224,8 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
                                         message,
                                         &pending,
                                         timeout))
-    goto oom;
+    oom ();
+
   dbus_message_unref (message);
   
   /* If we got a NULL pending, that means the connection was disconnected,
@@ -2246,9 +2253,6 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
   g_hash_table_insert (priv->pending_calls, GUINT_TO_POINTER (call_id), pending);
 
   return call_id;
- oom:
-  g_error ("Out of memory");
-  return 0;
 }
 
 static gboolean
@@ -2717,12 +2721,9 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
   if (!dbus_connection_send (priv->manager->connection,
                              message,
                              NULL))
-    goto oom;
+    oom ();
+
   dbus_message_unref (message);
-  return;
-  
- oom:
-  g_error ("Out of memory");
 }
 
 /**
