@@ -1944,7 +1944,7 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
 {
   g_return_val_if_fail (connection != NULL, NULL);
   g_return_val_if_fail (name != NULL, NULL);
-  g_return_val_if_fail (path_name != NULL, NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
   g_return_val_if_fail (interface_name != NULL, NULL);
 
   return dbus_g_proxy_new (connection, name,
@@ -1988,7 +1988,7 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
 
   g_return_val_if_fail (connection != NULL, NULL);
   g_return_val_if_fail (name != NULL, NULL);
-  g_return_val_if_fail (path_name != NULL, NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
   g_return_val_if_fail (interface_name != NULL, NULL);
 
   if (!(unique_name = get_name_owner (DBUS_CONNECTION_FROM_G_CONNECTION (connection), name, error)))
@@ -2054,7 +2054,7 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
   DBusGProxy *proxy;
   
   g_return_val_if_fail (connection != NULL, NULL);
-  g_return_val_if_fail (path_name != NULL, NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
   g_return_val_if_fail (interface_name != NULL, NULL);
 
   proxy = dbus_g_proxy_new (connection, NULL,

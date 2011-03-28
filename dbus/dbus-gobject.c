@@ -2547,7 +2547,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
   gboolean is_first_registration;
 
   g_return_if_fail (connection != NULL);
-  g_return_if_fail (at_path != NULL);
+  g_return_if_fail (g_variant_is_object_path (at_path));
   g_return_if_fail (G_IS_OBJECT (object));
 
   /* This is a GSList of ObjectRegistration*  */
