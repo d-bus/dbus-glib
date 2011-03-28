@@ -2480,7 +2480,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  * @notify: callback to be invoked when method returns
  * @user_data: user data passed to callback
  * @destroy: function called to destroy user_data
- * @timeout: specify the timeout in milliseconds
+ * @timeout: the timeout in milliseconds, or -1 to use a default
  * @first_arg_type: type of the first argument
  *
  * Asynchronously invokes a method on a remote interface. The method
@@ -2632,7 +2632,7 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
  * dbus_g_proxy_call_with_timeout:
  * @proxy: a proxy for a remote interface
  * @method: method to invoke
- * @timeout: specify the timeout in milliseconds
+ * @timeout: the timeout in milliseconds, or -1 to use a default
  * @error: return location for an error
  * @first_arg_type: type of first "in" argument
  *
@@ -2983,10 +2983,12 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
 /**
  * dbus_g_proxy_set_default_timeout:
  * @proxy: a proxy for a remote interface
- * @timeout: specify the timeout in milliseconds
+ * @timeout: the timeout in milliseconds, or -1 to reset to the libdbus default
  *
  * Sets the default timeout to use for a proxy. This timeout will be
- * used in calls where the timeout is not specified.
+ * used in calls where the timeout is not specified, or is specified to be -1.
+ * If this timeout is also set to -1, libdbus will use a reasonable default
+ * value.
  *
  * This is useful for long-running operations that takes longer than
  * the default timeout (which is a on the order of magnitude of tens
