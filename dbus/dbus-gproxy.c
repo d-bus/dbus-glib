@@ -2166,7 +2166,7 @@ dbus_g_proxy_marshal_args_to_message (DBusGProxy  *proxy,
                                           priv->interface,
                                           method);
   if (message == NULL)
-    goto oom;
+    return NULL;
 
   dbus_message_iter_init_append (message, &msgiter);
   for (i = 0; i < args->n_values; i++)
@@ -2176,11 +2176,19 @@ dbus_g_proxy_marshal_args_to_message (DBusGProxy  *proxy,
       gvalue = g_value_array_get_nth (args, i);
 
       if (!_dbus_gvalue_marshal (&msgiter, gvalue))
-	g_assert_not_reached ();
+        {
+          /* This is a programming error by the caller, most likely */
+          gchar *contents = g_strdup_value_contents (gvalue);
+
+          g_critical ("Could not marshal argument %u for %s: type %s, value %s",
+              i, method, G_VALUE_TYPE_NAME (gvalue), contents);
+          g_free (contents);
+          dbus_message_unref (message);
+          return NULL;
+        }
     }
+
   return message;
- oom:
-  return NULL;
 }
 
 static guint
