@@ -1614,8 +1614,11 @@ marshal_signature (DBusMessageIter         *iter,
 
   g_assert (G_VALUE_TYPE (value) == DBUS_TYPE_G_SIGNATURE);
 
-  sig = (const char*) g_value_get_boxed (value);
+  sig = g_value_get_boxed (value);
+  g_return_val_if_fail (g_variant_is_signature (sig), FALSE);
 
+  /* failure here isn't strictly *guaranteed* to be OOM, since GDBus might
+   * understand more type-codes than our libdbus */
   if (!dbus_message_iter_append_basic (iter,
 				       DBUS_TYPE_SIGNATURE,
 				       &sig))
