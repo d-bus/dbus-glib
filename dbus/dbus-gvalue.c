@@ -1541,13 +1541,7 @@ marshal_valuearray (DBusMessageIter   *iter,
         }
     }
 
-  if (!dbus_message_iter_close_container (iter, &subiter))
-    goto oom;
-
-  return TRUE;
- oom:
-  g_error ("out of memory");
-  return FALSE;
+  return dbus_message_iter_close_container (iter, &subiter);
 }
 
 static gboolean
