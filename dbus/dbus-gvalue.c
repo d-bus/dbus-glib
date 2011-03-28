@@ -1360,10 +1360,13 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
     case G_TYPE_BOOLEAN:
       {
         dbus_bool_t b = g_value_get_boolean (value);
+
+        g_return_val_if_fail (b == TRUE || b == FALSE, FALSE);
+
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_BOOLEAN,
                                              &b))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_INT:
