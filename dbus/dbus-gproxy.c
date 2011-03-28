@@ -2708,8 +2708,9 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
   g_value_array_free (in_args);
   va_end (args);
 
+  /* can only happen on a programming error or OOM; we already critical'd */
   if (!message)
-    goto oom;
+    return;
 
   dbus_message_set_no_reply (message, TRUE);
 
