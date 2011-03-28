@@ -1593,16 +1593,16 @@ marshal_object (DBusMessageIter         *iter,
   GObject *obj;
 
   obj = g_value_get_object (value);
-  path = _dbus_gobject_get_path (obj);
+  g_return_val_if_fail (G_IS_OBJECT (obj), FALSE);
 
-  if (path == NULL)
-    /* FIXME should throw error */
-    return FALSE;
-  
+  path = _dbus_gobject_get_path (obj);
+  g_return_val_if_fail (g_variant_is_object_path (path), FALSE);
+
   if (!dbus_message_iter_append_basic (iter,
 				       DBUS_TYPE_OBJECT_PATH,
 				       &path))
-    return FALSE;
+    oom ();
+
   return TRUE;
 }
 
