@@ -1956,6 +1956,7 @@ marshal_collection_array (DBusMessageIter   *iter,
       g_warning ("Cannot marshal type \"%s\" in collection\n", g_type_name (elt_gtype));
       return FALSE;
     }
+  g_assert (g_variant_is_signature (subsignature_str));
   
   elt_size = _dbus_g_type_fixed_get_size (elt_gtype);
 
@@ -1963,7 +1964,7 @@ marshal_collection_array (DBusMessageIter   *iter,
 					 DBUS_TYPE_ARRAY,
 					 subsignature_str,
 					 &subiter))
-    goto oom;
+    oom ();
 
   /* TODO - This assumes that basic values are the same size
    * is this always true?  If it is we can probably avoid
