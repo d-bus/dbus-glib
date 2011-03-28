@@ -1812,7 +1812,10 @@ marshal_variant (DBusMessageIter          *iter,
     goto out;
 
   if (!_dbus_gvalue_marshal (&subiter, real_value))
-    goto out;
+    {
+      dbus_message_iter_abandon_container (iter, &subiter);
+      goto out;
+    }
 
   if (!dbus_message_iter_close_container (iter, &subiter))
     goto out;
