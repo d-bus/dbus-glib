@@ -1534,7 +1534,10 @@ marshal_valuearray (DBusMessageIter   *iter,
       for (i = 0; i < array->n_values; i++)
         {
           if (!_dbus_gvalue_marshal (&subiter, g_value_array_get_nth (array, i)))
-            return FALSE;
+            {
+              dbus_message_iter_abandon_container (iter, &subiter);
+              return FALSE;
+            }
         }
     }
 
