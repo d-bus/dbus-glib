@@ -1323,6 +1323,13 @@ _dbus_gvalue_demarshal_message  (DBusGValueMarshalCtx    *context,
   return NULL;
 }
 
+static void oom (void) G_GNUC_NORETURN;
+static void
+oom (void)
+{
+  g_error ("no memory");
+}
+
 static gboolean
 marshal_basic (DBusMessageIter *iter, const GValue *value)
 {
@@ -1338,7 +1345,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_BYTE,
                                              &b))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_UCHAR:
@@ -1347,7 +1354,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_BYTE,
                                              &b))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_BOOLEAN:
@@ -1365,7 +1372,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_INT32,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_UINT:
@@ -1374,7 +1381,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_UINT32,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_LONG:
@@ -1383,7 +1390,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_INT32,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_ULONG:
@@ -1392,7 +1399,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_UINT32,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_INT64:
@@ -1401,7 +1408,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_INT64,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_UINT64:
@@ -1410,7 +1417,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_UINT64,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_FLOAT:
@@ -1420,7 +1427,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_DOUBLE,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_DOUBLE:
@@ -1430,7 +1437,7 @@ marshal_basic (DBusMessageIter *iter, const GValue *value)
         if (!dbus_message_iter_append_basic (iter,
                                              DBUS_TYPE_DOUBLE,
                                              &v))
-          goto nomem;
+          oom ();
       }
       return TRUE;
     case G_TYPE_STRING:
@@ -1511,7 +1518,7 @@ marshal_valuearray (DBusMessageIter   *iter,
 					 DBUS_TYPE_STRUCT,
 					 NULL,
 					 &subiter))
-    goto oom;
+    oom ();
 
   if (array)
     {
@@ -1734,7 +1741,7 @@ marshal_struct (DBusMessageIter   *iter,
                                          DBUS_TYPE_STRUCT,
                                          NULL,
                                          &subiter))
-    goto oom;
+    oom ();
 
   for (i = 0; i < size; i++)
     {
