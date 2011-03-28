@@ -2209,8 +2209,10 @@ dbus_g_proxy_begin_call_internal (DBusGProxy          *proxy,
   pending = NULL;
 
   message = dbus_g_proxy_marshal_args_to_message (proxy, method, args);
+
+  /* can only happen on a programming error or OOM; we already critical'd */
   if (!message)
-    goto oom;
+    return 0;
 
   if (!dbus_connection_send_with_reply (priv->manager->connection,
                                         message,
