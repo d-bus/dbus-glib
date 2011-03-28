@@ -1908,12 +1908,14 @@ marshal_collection_ptrarray (DBusMessageIter         *iter,
       g_warning ("Cannot marshal type \"%s\" in collection\n", g_type_name (elt_gtype));
       return FALSE;
     }
+  g_assert (g_variant_is_signature (elt_sig));
 
   if (!dbus_message_iter_open_container (iter,
 					 DBUS_TYPE_ARRAY,
 					 elt_sig,
 					 &subiter))
-    goto oom;
+    oom ();
+
   g_free (elt_sig);
 
   data.iter = &subiter;
