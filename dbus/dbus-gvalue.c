@@ -1768,19 +1768,20 @@ marshal_struct (DBusMessageIter   *iter,
     {
       g_value_init (&val, dbus_g_type_get_struct_member_type
           (G_VALUE_TYPE(value), i));
+
       if (!dbus_g_type_struct_get_member (value, i, &val))
-        return FALSE;
+        goto abandon;
+
       if (!_dbus_gvalue_marshal (&subiter, &val))
-        return FALSE;
+        goto abandon;
+
       g_value_unset(&val);
     }
 
-  if (!dbus_message_iter_close_container (iter, &subiter))
-    goto oom;
+  return dbus_message_iter_close_container (iter, &subiter);
 
-  return TRUE;
- oom:
-  g_error ("out of memory");
+abandon:
+  dbus_message_iter_abandon_container (iter, &subiter);
   return FALSE;
 }
 
