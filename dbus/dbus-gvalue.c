@@ -1945,6 +1945,9 @@ marshal_collection_array (DBusMessageIter   *iter,
   guint elt_size;
   char *subsignature_str;
 
+  array = g_value_get_boxed (value);
+  g_return_val_if_fail (array != NULL, FALSE);
+
   elt_gtype = dbus_g_type_get_collection_specialization (G_VALUE_TYPE (value));
   g_assert (_dbus_g_type_is_fixed (elt_gtype));
   subsignature_str = _dbus_gtype_to_signature (elt_gtype);
@@ -1956,8 +1959,6 @@ marshal_collection_array (DBusMessageIter   *iter,
   
   elt_size = _dbus_g_type_fixed_get_size (elt_gtype);
 
-  array = g_value_get_boxed (value);
-
   if (!dbus_message_iter_open_container (iter,
 					 DBUS_TYPE_ARRAY,
 					 subsignature_str,
@@ -1968,7 +1969,7 @@ marshal_collection_array (DBusMessageIter   *iter,
    * is this always true?  If it is we can probably avoid
    * a lot of the overhead in _marshal_basic_instance...
    */
-  if (!array || !dbus_message_iter_append_fixed_array (&subiter,
+  if (!dbus_message_iter_append_fixed_array (&subiter,
 					     subsignature_str[0],
 					     &(array->data),
 					     array->len))
