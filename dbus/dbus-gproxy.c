@@ -2634,6 +2634,8 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
   gboolean ret;
   va_list args;
 
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
+
   va_start (args, first_arg_type);
 
   ret = dbus_g_proxy_end_call_internal (proxy, GPOINTER_TO_UINT (call), error, first_arg_type, args);
