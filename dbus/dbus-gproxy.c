@@ -32,6 +32,7 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <gobject/gvaluecollector.h>
+#include <gio/gio.h>
 
 #define DBUS_G_PROXY_CALL_TO_ID(x) (GPOINTER_TO_UINT(x))
 #define DBUS_G_PROXY_ID_TO_CALL(x) (GUINT_TO_POINTER(x))
@@ -2004,9 +2005,9 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
                            const char      *interface_name)
 {
   g_return_val_if_fail (connection != NULL, NULL);
-  g_return_val_if_fail (name != NULL, NULL);
+  g_return_val_if_fail (g_dbus_is_name (name), NULL);
   g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (interface_name != NULL, NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
 
   return dbus_g_proxy_new (connection, name,
 			   path_name, interface_name);
@@ -2048,9 +2049,9 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
   char *unique_name;
 
   g_return_val_if_fail (connection != NULL, NULL);
-  g_return_val_if_fail (name != NULL, NULL);
+  g_return_val_if_fail (g_dbus_is_name (name), NULL);
   g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (interface_name != NULL, NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
 
   if (!(unique_name = get_name_owner (DBUS_CONNECTION_FROM_G_CONNECTION (connection), name, error)))
     return NULL;
@@ -2080,6 +2081,9 @@ dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
   DBusGProxyPrivate *priv;
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
+  g_return_val_if_fail (path == NULL || g_variant_is_object_path (path), NULL);
+  g_return_val_if_fail (interface == NULL ||
+      g_dbus_is_interface_name (interface), NULL);
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   
@@ -2116,7 +2120,7 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
   
   g_return_val_if_fail (connection != NULL, NULL);
   g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (interface_name != NULL, NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
 
   proxy = dbus_g_proxy_new (connection, NULL,
                             path_name, interface_name);
@@ -2192,8 +2196,11 @@ dbus_g_proxy_set_interface (DBusGProxy        *proxy,
 			    const char        *interface_name)
 {
   DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
+
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
+  g_return_if_fail (g_dbus_is_interface_name (interface_name));
+
   /* FIXME - need to unregister when we switch interface for now
    * later should support idea of unset interface
    */
@@ -2531,6 +2538,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
   
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
+  g_return_val_if_fail (g_dbus_is_member_name (method), NULL);
 
   va_start (args, first_arg_type);
 
@@ -2587,6 +2595,7 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), NULL);
+  g_return_val_if_fail (g_dbus_is_member_name (method), NULL);
   g_return_val_if_fail (timeout >= 0 || timeout == -1, NULL);
 
   va_start (args, first_arg_type);
@@ -2743,6 +2752,7 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), FALSE);
   g_return_val_if_fail (!DBUS_G_PROXY_DESTROYED (proxy), FALSE);
+  g_return_val_if_fail (g_dbus_is_member_name (method), FALSE);
   g_return_val_if_fail (timeout >= 0 || timeout == -1, FALSE);
 
   va_start (args, first_arg_type);
@@ -2788,6 +2798,7 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
   DBusGProxyPrivate *priv;
   
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
+  g_return_if_fail (g_dbus_is_member_name (method));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
@@ -2938,8 +2949,8 @@ dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
 
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
-  g_return_if_fail (signal_name != NULL);
-  
+  g_return_if_fail (g_dbus_is_member_name (signal_name));
+
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
 
   name = create_signal_name (priv->interface, signal_name);
@@ -3001,7 +3012,7 @@ dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
 
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
-  g_return_if_fail (signal_name != NULL);
+  g_return_if_fail (g_dbus_is_member_name (signal_name));
   g_return_if_fail (handler != NULL);
   
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
@@ -3053,7 +3064,7 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
   
   g_return_if_fail (DBUS_IS_G_PROXY (proxy));
   g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
-  g_return_if_fail (signal_name != NULL);
+  g_return_if_fail (g_dbus_is_member_name (signal_name));
   g_return_if_fail (handler != NULL);
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
