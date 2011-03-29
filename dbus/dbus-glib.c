@@ -39,6 +39,13 @@
  */
 
 /**
+ * DBusGConnection:
+ *
+ * A #DBusGConnection is a boxed type abstracting a DBusConnection from
+ * libdbus.
+ */
+
+/**
  * dbus_g_connection_flush:
  * @connection: the #DBusGConnection to flush
  *
@@ -52,35 +59,35 @@ dbus_g_connection_flush (DBusGConnection *connection)
 
 /**
  * dbus_g_connection_ref:
- * @gconnection the #DBusGConnection to ref
+ * @connection: the #DBusGConnection to ref
  *
  * Increment refcount on a #DBusGConnection
  * 
  * Returns: the connection that was ref'd
  */
 DBusGConnection*
-dbus_g_connection_ref (DBusGConnection *gconnection)
+dbus_g_connection_ref (DBusGConnection *connection)
 {
   DBusConnection *c;
 
-  c = DBUS_CONNECTION_FROM_G_CONNECTION (gconnection);
+  c = DBUS_CONNECTION_FROM_G_CONNECTION (connection);
   dbus_connection_ref (c);
-  return gconnection;
+  return connection;
 }
 
 
 /**
  * dbus_g_connection_unref:
- * @gconnection: the connection to unref
+ * @connection: the connection to unref
  * 
  * Decrement refcount on a #DBusGConnection
  */
 void
-dbus_g_connection_unref (DBusGConnection *gconnection)
+dbus_g_connection_unref (DBusGConnection *connection)
 {
   DBusConnection *c;
 
-  c = DBUS_CONNECTION_FROM_G_CONNECTION (gconnection);
+  c = DBUS_CONNECTION_FROM_G_CONNECTION (connection);
   dbus_connection_unref (c);
 }
 
@@ -243,8 +250,9 @@ dbus_message_get_g_type (void)
 }
 
 /**
- * dbus_g_connection_get_g_type:
- * Get the GLib type ID for a DBusGConnection boxed type.
+ * DBUS_TYPE_G_CONNECTION:
+ *
+ * Expands to a function call returning the boxed #GType of a #DBusGConnection.
  *
  * Returns: the GLib type
  */
