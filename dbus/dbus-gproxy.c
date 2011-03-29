@@ -2135,6 +2135,9 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
  * unique connection name will be returned. If you created it
  * with dbus_g_proxy_new_for_peer() then #NULL will be returned.
  *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
+ *
  * Returns: the bus name the proxy sends messages to
  */
 const char*
@@ -2155,6 +2158,9 @@ dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
  * @proxy: the proxy
  *
  * Gets the object interface proxy is bound to (may be #NULL in some cases).
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  *
  * Returns: an object interface 
  */
@@ -2196,6 +2202,9 @@ dbus_g_proxy_set_interface (DBusGProxy        *proxy,
  * dbus_g_proxy_get_path:
  * Gets the path this proxy is bound to
  * @proxy: the proxy
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  *
  * Returns: an object path
  */
@@ -2493,6 +2502,9 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
  * will be invoked; you can then collect the results of the call
  * (which may be an error, or a reply), use dbus_g_proxy_end_call().
  *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
+ *
  * TODO this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
  * 
@@ -2545,6 +2557,9 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  * a reply is received.  When the call returns, the callback specified
  * will be invoked; you can then collect the results of the call
  * (which may be an error, or a reply), use dbus_g_proxy_end_call().
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  *
  * TODO this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
@@ -2637,6 +2652,9 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
  * output values, followed by a second G_TYPE_INVALID.  Note that  
  * this means you must always specify G_TYPE_INVALID twice.
  *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
+ *
  * Returns: #FALSE if an error is set, #TRUE otherwise.
  */
 gboolean
@@ -2698,6 +2716,9 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
  * output values, followed by a second G_TYPE_INVALID.  Note that
  * this means you must always specify G_TYPE_INVALID twice.
  *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
+ *
  * Returns: #FALSE if an error is set, #TRUE otherwise.
  */
 gboolean
@@ -2741,6 +2762,9 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
  *
  * Sends a method call message as with dbus_g_proxy_begin_call(), but
  * does not ask for a reply or allow you to receive one.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  *
  * TODO: this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
@@ -2792,6 +2816,9 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
  * initiated with dbus_g_proxy_begin_call().  This function
  * may not be used on pending calls that have already been
  * ended with dbus_g_proxy_end_call.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
@@ -2834,6 +2861,9 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
  *
  * This function adds a reference to the message, so the caller
  * still owns its original reference.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_send (DBusGProxy          *proxy,
@@ -2882,6 +2912,9 @@ array_free_all (gpointer array)
  * Specifies the argument signature of a D-Bus signal. When the signal is
  * emitted by the remote object, if the GTypes corresponding to its arguments'
  * types do not match the types given here, the signal will be ignored.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
@@ -2943,6 +2976,9 @@ dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
  * Connect a signal handler to a proxy for a remote interface.  When
  * the remote interface emits the specified signal, the proxy will
  * emit a corresponding GLib signal.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
@@ -2994,6 +3030,9 @@ dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
  *
  * Disconnect all signal handlers from a proxy that match the given
  * criteria.
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
@@ -3051,6 +3090,9 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
  * the method returns once the operation is underway
  * (e.g. immediately) and emits a signal when the operation terminates
  * (though beware of leaking information with/in the signal return value).
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  *
  * Since: 0.75
  */
