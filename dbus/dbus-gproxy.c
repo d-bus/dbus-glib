@@ -2183,12 +2183,17 @@ dbus_g_proxy_get_interface (DBusGProxy        *proxy)
  * @interface_name: an object interface 
  *
  * Sets the object interface proxy is bound to
+ *
+ * It is an error to call this method on a proxy that has emitted
+ * the #DBusGProxy::destroy signal.
  */
 void
 dbus_g_proxy_set_interface (DBusGProxy        *proxy,
 			    const char        *interface_name)
 {
   DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
+  g_return_if_fail (DBUS_IS_G_PROXY (proxy));
+  g_return_if_fail (!DBUS_G_PROXY_DESTROYED (proxy));
   /* FIXME - need to unregister when we switch interface for now
    * later should support idea of unset interface
    */
