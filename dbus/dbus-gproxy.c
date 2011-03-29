@@ -2079,7 +2079,7 @@ dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
 {
   DBusGProxyPrivate *priv;
 
-  g_return_val_if_fail (proxy != NULL, NULL);
+  g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   
