@@ -192,6 +192,3 @@ DBUS_TYPE_G_OBJECT_PATH
 <SUBSECTION Private>
 dbus_g_signature_get_g_type
 </SECTION>
-
-<SUBSECTION Private>
-</SUBSECTION>
