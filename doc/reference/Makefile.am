@@ -48,20 +48,23 @@ CFILE_GLOB=$(top_srcdir)/dbus/*.c
 # Header files to ignore when scanning.
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h
 IGNORE_HFILES= \
+	dbus-binding-tool-glib.h		\
 	dbus-gidl.h 				\
+	dbus-glib-tool.h			\
 	dbus-gparser.h				\
 	dbus-gutils.h				\
 	dbus-gsignature.h			\
+	dbus-gtest.h				\
 	dbus-gvalue.h				\
 	dbus-gvalue-utils.h			\
 	dbus-gmarshal.h				\
-	examples/example-service-glue.h		\
-	examples/example-signal-emitter-glue.h	\
-	examples/statemachine/sm-marshal.h	\
-	examples/statemachine/statemachine-glue.h\
-	examples/statemachine/statemachine.h	\
-	examples/statemachine/statemachine-server-glue.h \
-	examples/statemachine/statemachine-server.h
+	example-service-glue.h			\
+	example-signal-emitter-glue.h		\
+	sm-marshal.h				\
+	statemachine-glue.h			\
+	statemachine.h				\
+	statemachine-server-glue.h		\
+	statemachine-server.h
 
 # Images to copy into HTML directory.
 # e.g. HTML_IMAGES=$(top_srcdir)/gtk/stock-icons/stock_about_24.png
