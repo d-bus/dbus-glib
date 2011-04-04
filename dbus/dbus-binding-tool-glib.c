@@ -566,6 +566,7 @@ generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
           gboolean async = FALSE;
 	  GSList *args;
 	  gboolean found_retval = FALSE;
+          guint found_out_args = 0;
 
           method = (MethodInfo *) tmp->data;
 	  method_c_name = g_strdup (method_info_get_annotation (method, DBUS_GLIB_ANNOTATION_C_SYMBOL));
@@ -633,6 +634,7 @@ generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
 		  break;
 		case ARG_OUT:
 		  direction = 'O';
+                  found_out_args++;
 		  break;
 		case ARG_INVALID:
                 default:
@@ -692,6 +694,19 @@ generate_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error)
 				   interface_info_get_name (interface));
 		      return FALSE;
 		    }
+
+                  if (found_out_args != 1)
+                    {
+                      g_set_error (error,
+                          DBUS_BINDING_TOOL_ERROR,
+                          DBUS_BINDING_TOOL_ERROR_INVALID_ANNOTATION,
+                          "An output <arg> after the first cannot have the ReturnVal annotation, in argument \"%s\" of method \"%s\" of interface \"%s\"\n",
+                          arg_info_get_name (arg),
+                          method_info_get_name (method),
+                          interface_info_get_name (interface));
+                      return FALSE;
+                    }
+
 		  if (!strcmp ("", returnval_annotation))
 		    g_string_append_c (object_introspection_data_blob, 'R');
 		  else if (!strcmp ("error", returnval_annotation))
