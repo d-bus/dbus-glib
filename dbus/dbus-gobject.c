@@ -1892,7 +1892,9 @@ invoke_object_method (GObject         *object,
 
   if (reply)
     {
-      dbus_connection_send (connection, reply, NULL);
+      if (!dbus_connection_send (connection, reply, NULL))
+        g_error ("dbus_connection_send failed: out of memory?");
+
       dbus_message_unref (reply);
     }
 
@@ -3091,7 +3093,10 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
     goto out;
 
   reply = gerror_to_dbus_error_message (context->object, dbus_g_message_get_message (context->message), error);
-  dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
+  if (!dbus_connection_send (
+        dbus_g_connection_get_connection (context->connection), reply, NULL))
+    g_error ("dbus_connection_send failed: out of memory?");
+
   dbus_message_unref (reply);
 
 out:
