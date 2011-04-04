@@ -177,6 +177,46 @@ typedef enum
   RETVAL_ERROR
 } RetvalType;
 
+/*
+ * arg_iterate:
+ * @data: a pointer to the beginning of an argument entry in a string table
+ * @name: (out) (allow-none): used to return the name of the next argument
+ * @in: (out) (allow-none): used to return %TRUE for an "in" argument or
+ *    %FALSE for an "out" argument
+ * @constval: (out) (allow-none): used to return %TRUE if the argument is
+ *    an "out" argument and has the "C" (const) flag indicating that it
+ *    should not be freed after it is returned; normally, "out" arguments
+ *    are freed
+ * @retval: (out) (allow-none): used to return %RETVAL_NONE if this
+ *    D-Bus argument is not an "out" argument or is obtained like a C "out"
+ *    parameter, %RETVAL_ERROR if this argument is obtained from the C
+ *    return value and is also used to signal errors, or %RETVAL_NOERROR
+ *    if this argument is obtained from the C return value and the method
+ *    can never raise an error
+ * @type: (out) (allow-none): used to return the D-Bus signature of this
+ *    argument
+ *
+ * The data format is:
+ *
+ * argument name
+ * \0
+ * direction: I or O
+ * \0
+ * if direction == "O":
+ *     freeable? F or C
+ *     \0
+ *     retval? N, E or R
+ *     \0
+ * signature
+ * \0
+ *
+ * If none of the arguments has @retval != %RETVAL_NONE, the method is
+ * assumed to return a gboolean, which behaves like %RETVAL_ERROR but is
+ * not sent over D-Bus at all.
+ *
+ * Returns: the value of @data to use for the next call, or a pointer to '\0'
+ *    if this function must not be called again
+ */
 static const char *
 arg_iterate (const char    *data,
 	     const char   **name,
