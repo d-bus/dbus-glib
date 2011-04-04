@@ -1793,9 +1793,9 @@ invoke_object_method (GObject         *object,
 		      NULL, method->function);
   if (is_async)
     {
-      result = DBUS_HANDLER_RESULT_HANDLED;
       goto done;
     }
+
   if (retval_signals_error)
     had_error = _dbus_gvalue_signals_error (&return_value);
   else
@@ -1824,9 +1824,22 @@ invoke_object_method (GObject         *object,
 
       /* First, append the return value, unless it's synthetic */
       if (have_retval && !retval_is_synthetic)
-	{ 
-	  if (send_reply && !_dbus_gvalue_marshal (&iter, &return_value))
-	    goto nomem;
+	{
+          if (reply != NULL && !_dbus_gvalue_marshal (&iter, &return_value))
+            {
+              gchar *desc = g_strdup_value_contents (&return_value);
+
+              g_critical ("unable to append retval of type %s for %s: %s",
+                  G_VALUE_TYPE_NAME (&return_value),
+                  method_name_from_object_info (object_info, method),
+                  desc);
+              g_free (desc);
+              /* the reply is now unusable but we still need to free
+               * everything */
+              dbus_message_unref (reply);
+              reply = NULL;
+            }
+
 	  if (!retval_is_constant)
 	    g_value_unset (&return_value);
 	}
@@ -1876,9 +1889,22 @@ invoke_object_method (GObject         *object,
 	      g_value_set_static_boxed (&gvalue, out_param_gvalues->values + out_param_gvalue_pos);
 	      out_param_gvalue_pos++;
 	    }
-	      
-	  if (send_reply && !_dbus_gvalue_marshal (&iter, &gvalue))
-	    goto nomem;
+
+          if (reply && !_dbus_gvalue_marshal (&iter, &gvalue))
+            {
+              gchar *desc = g_strdup_value_contents (&gvalue);
+
+              g_critical ("unable to append OUT arg of type %s for %s: %s",
+                  G_VALUE_TYPE_NAME (&gvalue),
+                  method_name_from_object_info (object_info, method),
+                  desc);
+              g_free (desc);
+              /* the reply is now unusable but we still need to free
+               * everything */
+              dbus_message_unref (reply);
+              reply = NULL;
+            }
+
 	  /* Here we actually free the allocated value; we
 	   * took ownership of it with _dbus_gvalue_take, unless
 	   * an annotation has specified this value as constant.
@@ -1898,9 +1924,11 @@ invoke_object_method (GObject         *object,
       dbus_message_unref (reply);
     }
 
+done:
   result = DBUS_HANDLER_RESULT_HANDLED;
- done:
+
   g_free (in_signature);
+
   if (!is_async)
     {
       g_array_free (out_param_values, TRUE);
@@ -1912,9 +1940,6 @@ invoke_object_method (GObject         *object,
 
   g_value_array_free (value_array);
   return result;
- nomem:
-  result = DBUS_HANDLER_RESULT_NEED_MEMORY;
-  goto done;
 }
 
 static gboolean
