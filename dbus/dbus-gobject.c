@@ -1807,8 +1807,10 @@ invoke_object_method (GObject         *object,
       if (send_reply)
         {
           reply = dbus_message_new_method_return (message);
+          /* this can only fail through a programming error in dbus-glib
+           * itself (passing a bad message), or OOM */
           if (reply == NULL)
-            goto nomem;
+            g_error ("dbus_message_new_method_return failed: out of memory?");
 
           /* Append output arguments to reply */
           dbus_message_iter_init_append (reply, &iter);
