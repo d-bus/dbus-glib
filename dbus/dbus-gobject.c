@@ -1524,6 +1524,12 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
 	  g_free (error_name); 
 	}
     }
+
+  /* this can only fail through a programming error in dbus-glib
+   * (@message is bad), or OOM */
+  if (reply == NULL)
+    g_error ("dbus_message_new_error failed: out of memory?");
+
   return reply;
 }
 
