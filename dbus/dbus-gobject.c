@@ -1266,6 +1266,7 @@ get_all_object_properties (DBusConnection        *connection,
 
   dbus_message_iter_init_append (ret, &iter_ret);
 
+  /* the types are all hard-coded, so this can only fail via OOM */
   if (!dbus_message_iter_open_container (&iter_ret,
                                          DBUS_TYPE_ARRAY,
                                          DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
@@ -1322,14 +1323,24 @@ get_all_object_properties (DBusConnection        *connection,
           continue;
         }
 
+      /* a signature returned by _dbus_gvalue_to_signature had better be
+       * valid */
+      g_assert (g_variant_is_signature (variant_sig));
+
+      /* type is hard-coded, so this can't fail except by OOM */
       if (!dbus_message_iter_open_container (&iter_dict,
                                              DBUS_TYPE_DICT_ENTRY,
                                              NULL,
                                              &iter_dict_entry))
         goto oom;
+
+      /* prop_name is valid UTF-8, so this can't fail except by OOM; no point
+       * in abandoning @iter_dict_entry since we're about to crash out */
       if (!dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &prop_name))
         goto oom;
 
+      /* variant_sig has been asserted to be valid, so this can't fail
+       * except by OOM */
       if (!dbus_message_iter_open_container (&iter_dict_entry,
                                              DBUS_TYPE_VARIANT,
                                              variant_sig,
@@ -1339,6 +1350,7 @@ get_all_object_properties (DBusConnection        *connection,
       if (!_dbus_gvalue_marshal (&iter_dict_value, &value))
         goto oom;
 
+      /* these shouldn't fail except by OOM now that we were successful */
       if (!dbus_message_iter_close_container (&iter_dict_entry,
                                               &iter_dict_value))
         goto oom;
