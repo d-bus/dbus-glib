@@ -2123,8 +2123,9 @@ object_registration_message (DBusConnection  *connection,
 
   if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_STRING)
     {
-      g_warning ("Property get or set does not have an interface string as first arg\n");
-      return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+      ret = error_or_die (message, DBUS_ERROR_INVALID_ARGS,
+          "First argument to Get(), GetAll() or Set() must be an interface string");
+      goto out;
     }
 
   dbus_message_iter_get_basic (&iter, &wincaps_propiface);
@@ -2142,8 +2143,9 @@ object_registration_message (DBusConnection  *connection,
     {
       if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_STRING)
         {
-          g_warning ("Property get or set does not have a property name string as second arg\n");
-          return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+          ret = error_or_die (message, DBUS_ERROR_INVALID_ARGS,
+              "Second argument to Get() or Set() must be a property name string");
+          goto out;
         }
       dbus_message_iter_get_basic (&iter, &requested_propname);
       dbus_message_iter_next (&iter);
@@ -2167,8 +2169,9 @@ object_registration_message (DBusConnection  *connection,
             {
               if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_VARIANT)
                 {
-                  g_warning ("Property set does not have a variant value as third arg\n");
-                  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+                  ret = error_or_die (message, DBUS_ERROR_INVALID_ARGS,
+                      "Third argument to Set() must be a variant");
+                  goto out;
                 }
 
               ret = set_object_property (connection, message, &iter,
@@ -2196,9 +2199,14 @@ object_registration_message (DBusConnection  *connection,
 
   g_assert (ret != NULL);
 
+  /* FIXME: this should be returned as a D-Bus error, not spammed out
+   * as a warning. This is too late to do that, though - we've already
+   * had any side-effects we were going to have - and it would break
+   * anything that's relying on ability to give us too many arguments. */
   if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_INVALID)
     g_warning ("Property get, set or set all had too many arguments\n");
 
+out:
   dbus_connection_send (connection, ret, NULL);
   dbus_message_unref (ret);
   return DBUS_HANDLER_RESULT_HANDLED;
