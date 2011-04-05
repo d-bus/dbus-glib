@@ -1063,6 +1063,11 @@ set_object_property (DBusConnection  *connection,
   return ret;
 }
 
+/*
+ * @pspec: the paramspec for a D-Bus-exported property
+ *
+ * Returns: a reply for the Get() D-Bus method, either successful or error
+ */
 static DBusMessage*
 get_object_property (DBusConnection *connection,
                      DBusMessage    *message,
