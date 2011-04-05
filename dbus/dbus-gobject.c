@@ -2190,9 +2190,11 @@ object_registration_message (DBusConnection  *connection,
         }
       else
         {
-          ret = dbus_message_new_error_printf (message,
-                                               DBUS_ERROR_INVALID_ARGS,
-                                               "No such property %s", requested_propname);
+          gchar *error_message = g_strdup_printf ("No such property %s",
+              requested_propname);
+
+          ret = error_or_die (message, DBUS_ERROR_INVALID_ARGS, error_message);
+          g_free (error_message);
         }
     }
 
