@@ -1074,6 +1074,7 @@ get_object_property (DBusConnection *connection,
   gchar *variant_sig;
   DBusMessage *ret;
   DBusMessageIter iter, subiter;
+  gchar *error_message = NULL;
 
   ret = reply_or_die (message);
 
@@ -1084,9 +1085,10 @@ get_object_property (DBusConnection *connection,
   if (variant_sig == NULL)
     {
       value_gtype = G_VALUE_TYPE (&value);
-      g_warning ("Cannot marshal type \"%s\" in variant", g_type_name (value_gtype));
-      g_value_unset (&value);
-      return ret;
+      error_message = g_strdup_printf (
+          "Internal error: cannot marshal type \"%s\" in variant",
+          g_type_name (value_gtype));
+      goto out;
     }
 
   dbus_message_iter_init_append (ret, &iter);
@@ -1095,23 +1097,34 @@ get_object_property (DBusConnection *connection,
 					 variant_sig,
 					 &subiter))
     {
-      g_free (variant_sig);
-      g_value_unset (&value);
-      return ret;
+      error_message = g_strdup_printf (
+          "Internal error: cannot open variant container for signature %s",
+          variant_sig);
+      goto out;
     }
 
   if (!_dbus_gvalue_marshal (&subiter, &value))
     {
-      dbus_message_unref (ret);
-      ret = dbus_message_new_error (message,
-                                    DBUS_ERROR_UNKNOWN_METHOD,
-                                    "Can't convert GType of object property to a D-BUS type");
+      dbus_message_iter_abandon_container (&iter, &subiter);
+      error_message = g_strdup_printf (
+          "Internal error: could not marshal type \"%s\" in variant",
+          G_VALUE_TYPE_NAME (&value));
+      goto out;
     }
 
   dbus_message_iter_close_container (&iter, &subiter);
 
+out:
   g_value_unset (&value);
   g_free (variant_sig);
+
+  if (error_message != NULL)
+    {
+      dbus_message_unref (ret);
+      ret = error_or_die (message, DBUS_ERROR_FAILED, error_message);
+      g_critical ("%s", error_message);
+      g_free (error_message);
+    }
 
   return ret;
 }
