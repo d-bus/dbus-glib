@@ -1347,8 +1347,32 @@ get_all_object_properties (DBusConnection        *connection,
                                              &iter_dict_value))
         goto oom;
 
+      g_free (variant_sig);
+
+      /* this can fail via programming error: the GObject property was
+       * malformed (non-UTF8 string or something) */
       if (!_dbus_gvalue_marshal (&iter_dict_value, &value))
-        goto oom;
+        {
+          gchar *contents = g_strdup_value_contents (&value);
+          gchar *error_message = g_strdup_printf (
+              "cannot GetAll(%s): failed to serialize %s value of type %s: %s",
+              wincaps_propiface, prop_name, G_VALUE_TYPE_NAME (&value),
+              contents);
+
+          g_critical ("%s", error_message);
+
+          /* abandon ship! */
+          dbus_message_iter_abandon_container (&iter_dict_entry,
+              &iter_dict_value);
+          dbus_message_iter_abandon_container (&iter_dict, &iter_dict_entry);
+          dbus_message_unref (ret);
+          ret = error_or_die (message, DBUS_ERROR_FAILED, error_message);
+
+          g_free (contents);
+          g_free (error_message);
+          g_value_unset (&value);
+          return ret;
+        }
 
       /* these shouldn't fail except by OOM now that we were successful */
       if (!dbus_message_iter_close_container (&iter_dict_entry,
@@ -1358,7 +1382,6 @@ get_all_object_properties (DBusConnection        *connection,
         goto oom;
 
       g_value_unset (&value);
-      g_free (variant_sig);
   }
 
   if (!dbus_message_iter_close_container (&iter_ret, &iter_dict))
