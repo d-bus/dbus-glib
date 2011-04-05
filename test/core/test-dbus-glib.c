@@ -30,7 +30,8 @@ static gboolean proxy_destroy_and_nameowner_complete = FALSE;
 static DBusGProxy *test_terminate_proxy1 = NULL;
 static DBusGProxy *test_terminate_proxy2 = NULL;
 
-static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
+#define lose(...) g_error (__VA_ARGS__)
+
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 
 static void
@@ -467,28 +468,14 @@ test_subclass_get_all (DBusGConnection *connection,
 }
 
 static void
-lose (const char *str, ...)
-{
-  va_list args;
-
-  va_start (args, str);
-
-  vfprintf (stderr, str, args);
-  fputc ('\n', stderr);
-
-  va_end (args);
-
-  exit (1);
-}
-
-static void
 lose_gerror (const char *prefix, GError *error) 
 {
   if (error->domain == DBUS_GERROR && error->code == DBUS_GERROR_REMOTE_EXCEPTION)
     lose ("%s (%s): %s", prefix, dbus_g_error_get_name (error),
 	  error->message);
   else
-    lose ("%s: %s", prefix, error->message);
+    lose ("%s: %s#%d: %s", prefix, g_quark_to_string (error->domain),
+        error->code, error->message);
 }
 
 static void
