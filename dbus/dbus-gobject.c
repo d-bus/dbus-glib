@@ -35,6 +35,43 @@
 #include "dbus-gvalue-utils.h"
 #include <string.h>
 
+#include <gio/gio.h>
+
+static DBusMessage *
+reply_or_die (DBusMessage *in_reply_to)
+{
+  DBusMessage *reply;
+
+  g_return_val_if_fail (in_reply_to != NULL, NULL);
+
+  reply = dbus_message_new_method_return (in_reply_to);
+
+  if (reply == NULL)
+    g_error ("dbus_message_new_method_return failed: out of memory?");
+
+  return reply;
+}
+
+static DBusMessage *
+error_or_die (DBusMessage *in_reply_to,
+    const gchar *error_name,
+    const gchar *error_message)
+{
+  DBusMessage *reply;
+
+  g_return_val_if_fail (in_reply_to != NULL, NULL);
+  /* error names are syntactically the same as interface names */
+  g_return_val_if_fail (g_dbus_is_interface_name (error_name), NULL);
+  g_return_val_if_fail (g_utf8_validate (error_message, -1, NULL), NULL);
+
+  reply = dbus_message_new_error (in_reply_to, error_name, error_message);
+
+  if (reply == NULL)
+    g_error ("dbus_message_new_error failed: out of memory?");
+
+  return reply;
+}
+
 static char *lookup_property_name (GObject    *object,
                                    const char *wincaps_propiface,
                                    const char *requested_propname);
@@ -971,9 +1008,7 @@ handle_introspect (DBusConnection *connection,
   /* Close the XML, and send it to the requesting app */
   g_string_append (xml, "</node>\n");
 
-  ret = dbus_message_new_method_return (message);
-  if (ret == NULL)
-    g_error ("Out of memory");
+  ret = reply_or_die (message);
 
   dbus_message_append_args (ret,
                             DBUS_TYPE_STRING, &xml->str,
@@ -1016,17 +1051,13 @@ set_object_property (DBusConnection  *connection,
 
       g_value_unset (&value);
 
-      ret = dbus_message_new_method_return (message);
-      if (ret == NULL)
-        g_error ("out of memory");
+      ret = reply_or_die (message);
     }
   else
     {
-      ret = dbus_message_new_error (message,
-                                    DBUS_ERROR_INVALID_ARGS,
-                                    "Argument's D-BUS type can't be converted to a GType");
-      if (ret == NULL)
-        g_error ("out of memory");
+      ret = error_or_die (message,
+          DBUS_ERROR_INVALID_ARGS,
+          "Argument's D-BUS type can't be converted to a GType");
     }
 
   return ret;
@@ -1044,10 +1075,7 @@ get_object_property (DBusConnection *connection,
   DBusMessage *ret;
   DBusMessageIter iter, subiter;
 
-  ret = dbus_message_new_method_return (message);
-  if (ret == NULL)
-    g_error ("out of memory");
-
+  ret = reply_or_die (message);
 
   g_value_init (&value, pspec->value_type);
   g_object_get_property (object, pspec->name, &value);
@@ -1205,9 +1233,7 @@ get_all_object_properties (DBusConnection        *connection,
   const char *p;
   char *uscore_propname;
 
-  ret = dbus_message_new_method_return (message);
-  if (ret == NULL)
-    goto oom;
+  ret = reply_or_die (message);
 
   dbus_message_iter_init_append (ret, &iter_ret);
 
@@ -1442,7 +1468,7 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
       char *error_msg;
       
       error_msg = g_strdup_printf ("Method invoked for %s returned FALSE but did not set error", dbus_message_get_member (message));
-      reply = dbus_message_new_error (message, "org.freedesktop.DBus.GLib.ErrorError", error_msg);
+      reply = error_or_die (message, "org.freedesktop.DBus.GLib.ErrorError", error_msg);
       g_free (error_msg);
     }
   else
@@ -1512,7 +1538,7 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
               break;
             }
 
-          reply = dbus_message_new_error (message, name, error->message);
+          reply = error_or_die (message, name, error->message);
         }
       else
 	{
@@ -1520,15 +1546,10 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
 	  error_name = gerror_domaincode_to_dbus_error_name (object_info,
 							     dbus_message_get_interface (message),
 							     error->domain, error->code);
-	  reply = dbus_message_new_error (message, error_name, error->message);
-	  g_free (error_name); 
-	}
+          reply = error_or_die (message, error_name, error->message);
+          g_free (error_name);
+        }
     }
-
-  /* this can only fail through a programming error in dbus-glib
-   * (@message is bad), or OOM */
-  if (reply == NULL)
-    g_error ("dbus_message_new_error failed: out of memory?");
 
   return reply;
 }
@@ -1812,11 +1833,7 @@ invoke_object_method (GObject         *object,
        */
       if (send_reply)
         {
-          reply = dbus_message_new_method_return (message);
-          /* this can only fail through a programming error in dbus-glib
-           * itself (passing a bad message), or OOM */
-          if (reply == NULL)
-            g_error ("dbus_message_new_method_return failed: out of memory?");
+          reply = reply_or_die (message);
 
           /* Append output arguments to reply */
           dbus_message_iter_init_append (reply, &iter);
