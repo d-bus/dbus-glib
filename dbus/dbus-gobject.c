@@ -2139,14 +2139,17 @@ object_registration_message (DBusConnection  *connection,
       else
           return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
     }
-  else if (getter || setter)
+  else
     {
+      g_assert (getter || setter);
+
       if (dbus_message_iter_get_arg_type (&iter) != DBUS_TYPE_STRING)
         {
           ret = error_or_die (message, DBUS_ERROR_INVALID_ARGS,
               "Second argument to Get() or Set() must be a property name string");
           goto out;
         }
+
       dbus_message_iter_get_basic (&iter, &requested_propname);
       dbus_message_iter_next (&iter);
 
@@ -2178,15 +2181,11 @@ object_registration_message (DBusConnection  *connection,
                                          object, pspec);
               dbus_message_iter_next (&iter);
             }
-          else if (getter)
-            {
-              ret = get_object_property (connection, message,
-                                         object, pspec);
-            }
           else
             {
-              g_assert_not_reached ();
-              ret = NULL;
+              g_assert (getter);
+              ret = get_object_property (connection, message,
+                                         object, pspec);
             }
         }
       else
