@@ -2336,6 +2336,20 @@ export_signals (const GList *info_list, GObject *object)
 
           sigdata = signal_iterate (sigdata, &iface, &signame);
 
+          if (!g_dbus_is_interface_name (iface))
+            {
+              g_critical ("invalid interface name found in %s: %s",
+                  g_type_name (gtype), iface);
+              continue;
+            }
+
+          if (!g_dbus_is_member_name (signame))
+            {
+              g_critical ("invalid signal name found in %s: %s",
+                  g_type_name (gtype), signame);
+              continue;
+            }
+
           s = _dbus_gutils_wincaps_to_uscore (signame);
 
           id = g_signal_lookup (s, gtype);
