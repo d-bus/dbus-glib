@@ -2253,6 +2253,10 @@ emit_signal_for_registration (ObjectRegistration *o,
   DBusMessageIter iter;
   guint i;
 
+  g_assert (g_variant_is_object_path (o->object_path));
+  g_assert (g_dbus_is_interface_name (sigclosure->sigiface));
+  g_assert (g_dbus_is_member_name (sigclosure->signame));
+
   signal = dbus_message_new_signal (o->object_path,
                                     sigclosure->sigiface,
                                     sigclosure->signame);
