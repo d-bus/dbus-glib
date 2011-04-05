@@ -1289,6 +1289,15 @@ get_all_object_properties (DBusConnection        *connection,
 
       p = property_iterate (p, object_info->format_version, &prop_ifname, &prop_name, &prop_uscored, &access_flags);
 
+      /* Conventionally, property names are valid member names, but dbus-glib
+       * doesn't enforce this, and some dbus-glib services use GObject-style
+       * property names (e.g. "foo-bar"). */
+      if (!g_utf8_validate (prop_name, -1, NULL))
+        {
+          g_critical ("property name isn't UTF-8: %s", prop_name);
+          continue;
+        }
+
       uscore_propname = lookup_property_name (object, wincaps_propiface, prop_name);
 
       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), uscore_propname);
