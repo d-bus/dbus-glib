@@ -2824,9 +2824,9 @@ array_free_all (gpointer array)
  * @signal_name: the name of the signal
  * @first_type: the first argument type, or G_TYPE_INVALID if none
  *
- * Specifies the argument signature of a signal;.only necessary
- * if the remote object does not support introspection.  The arguments
- * specified are the GLib types expected.
+ * Specifies the argument signature of a D-Bus signal. When the signal is
+ * emitted by the remote object, if the GTypes corresponding to its arguments'
+ * types do not match the types given here, the signal will be ignored.
  */
 void
 dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
