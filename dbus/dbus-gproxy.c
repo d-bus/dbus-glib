@@ -2931,7 +2931,10 @@ array_free_all (gpointer array)
  * emitted by the remote object, if the GTypes corresponding to its arguments'
  * types do not match the types given here, the signal will be ignored.
  *
- * It is an error to call this method on a proxy that has emitted
+ * It is an error to add the same @signal_name to the same @proxy more than
+ * once, even if the argument types given are the same.
+ *
+ * It is also an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
  */
 void
