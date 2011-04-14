@@ -153,8 +153,14 @@ struct _DBusGProxyManager
 
   GHashTable *proxy_lists; /**< Hash used to route incoming signals
                             *   and iterate over proxies
+                            *   tristring -> DBusGProxyList
+                            */
+  GHashTable *owner_match_rules; /**< Hash to keep track of match rules of
+                                  * NameOwnerChanged.
+                                  * gchar *name -> guint *refcount
                             */
   GHashTable *owner_names; /**< Hash to keep track of mapping from
+                            *   char *    -> GSList of DBusGProxyNameOwnerInfo
 			    *   base name -> [name,name,...] for proxies which
 			    *   are for names.
 			    */
@@ -264,6 +270,16 @@ dbus_g_proxy_manager_unref (DBusGProxyManager *manager)
           g_hash_table_destroy (manager->proxy_lists);
           manager->proxy_lists = NULL;
 
+        }
+
+      if (manager->owner_match_rules)
+        {
+	  /* Since we destroyed all proxies, none can be tracking
+	   * name owners
+	   */
+          g_assert (g_hash_table_size (manager->owner_match_rules) == 0);
+          g_hash_table_destroy (manager->owner_match_rules);
+          manager->owner_match_rules = NULL;
         }
 
       if (manager->owner_names)
@@ -491,18 +507,13 @@ g_proxy_get_signal_match_rule (DBusGProxy *proxy)
 }
 
 static char *
-g_proxy_get_owner_match_rule (DBusGProxy *proxy)
+get_owner_match_rule (const gchar *name)
 {
-  DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
-  if (priv->name) 
-    {
       return g_strdup_printf ("type='signal',sender='" DBUS_SERVICE_DBUS
         "',path='" DBUS_PATH_DBUS
         "',interface='" DBUS_INTERFACE_DBUS
         "',member='NameOwnerChanged'"
-        ",arg0='%s'", priv->name);
-    }
-  return NULL;
+        ",arg0='%s'", name);
 }
 
 typedef struct
@@ -917,6 +928,13 @@ get_name_owner (DBusConnection     *connection,
 
 
 static void
+guint_slice_free (gpointer data)
+{
+  g_slice_free (guint, data);
+}
+
+
+static void
 dbus_g_proxy_manager_register (DBusGProxyManager *manager,
                                DBusGProxy        *proxy)
 {
@@ -928,6 +946,7 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
   if (manager->proxy_lists == NULL)
     {
       g_assert (manager->owner_names == NULL);
+      g_assert (manager->owner_match_rules == NULL);
 
       list = NULL;
       manager->proxy_lists = g_hash_table_new_full (tristring_hash,
@@ -938,6 +957,10 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
                                                     g_str_equal,
                                                     g_free,
                                                     NULL);
+      manager->owner_match_rules = g_hash_table_new_full (g_str_hash,
+                                                          g_str_equal,
+                                                          g_free,
+                                                          guint_slice_free);
     }
   else
     {
@@ -964,21 +987,37 @@ dbus_g_proxy_manager_register (DBusGProxyManager *manager,
        * but only if the server is a message bus,
        * not if it's a peer.
        */
-       char *rule;
+      char *rule;
+      guint *refcount;
+
+      rule = g_proxy_get_signal_match_rule (proxy);
+      /* We don't check for errors; it's not like anyone would handle them, and
+       * we don't want a round trip here.
+       */
+      dbus_bus_add_match (manager->connection, rule, NULL);
+      g_free (rule);
        
-       rule = g_proxy_get_signal_match_rule (proxy);
-       /* We don't check for errors; it's not like anyone would handle them, and
-        * we don't want a round trip here.
-        */
-       dbus_bus_add_match (manager->connection,
-			   rule, NULL);
-       g_free (rule);
-       
-       rule = g_proxy_get_owner_match_rule (proxy);
-       if (rule)
-         dbus_bus_add_match (manager->connection,
-                             rule, NULL);
-       g_free (rule);
+      refcount = g_hash_table_lookup (manager->owner_match_rules, priv->name);
+
+      if (refcount != NULL)
+        {
+          g_assert (*refcount != 0);
+          g_assert (*refcount < G_MAXUINT);
+          (*refcount)++;
+        }
+      else
+        {
+          char *rule;
+          rule = get_owner_match_rule (priv->name);
+          dbus_bus_add_match (manager->connection,
+                              rule, NULL);
+          g_free (rule);
+
+          refcount = g_slice_new (guint);
+          *refcount = 1;
+          g_hash_table_insert (manager->owner_match_rules,
+                               g_strdup (priv->name), refcount);
+        }
     }
 
   g_assert (g_slist_find (list->proxies, proxy) == NULL);
@@ -1079,23 +1118,39 @@ dbus_g_proxy_manager_unregister (DBusGProxyManager *manager,
       char *rule;
       g_hash_table_remove (manager->proxy_lists,
                            tri);
-      list = NULL;
 
       rule = g_proxy_get_signal_match_rule (proxy);
       dbus_bus_remove_match (manager->connection,
                              rule, NULL);
       g_free (rule);
-      rule = g_proxy_get_owner_match_rule (proxy);
-      if (rule)
-        dbus_bus_remove_match (manager->connection,
-                               rule, NULL);
-      g_free (rule);      
+
+      if (priv->name)
+        {
+          guint *refcount;
+          refcount = g_hash_table_lookup (manager->owner_match_rules, priv->name);
+          (*refcount)--;
+
+          if (*refcount == 0)
+            {
+              rule = get_owner_match_rule (priv->name);
+              dbus_bus_remove_match (manager->connection,
+                                     rule, NULL);
+              g_free (rule);
+              g_hash_table_remove (manager->owner_match_rules, priv->name);
+            }
+        }
     }
   
   if (g_hash_table_size (manager->proxy_lists) == 0)
     {
       g_hash_table_destroy (manager->proxy_lists);
       manager->proxy_lists = NULL;
+    }
+
+  if (g_hash_table_size (manager->owner_match_rules) == 0)
+    {
+      g_hash_table_destroy (manager->owner_match_rules);
+      manager->owner_match_rules = NULL;
     }
 
   g_free (tri);
