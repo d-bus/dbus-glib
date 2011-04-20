@@ -53,6 +53,7 @@ To make a release (please replace use of 0.76 with the new version)
 * make
 * make distcheck
 * edit configure.ac, change version to even (e.g. 0.75 -> 0.76)
+* also in configure.ac, update LT_CURRENT, LT_REVISION and LT_AGE
 * ./autogen.sh
 * make
 * make distcheck
