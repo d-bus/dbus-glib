@@ -6,6 +6,7 @@
 *.gcda
 *.libs
 *.lineno
+Android.mk
 dbus-glib-*.tar.gz
 Makefile
 Makefile.in
