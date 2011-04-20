@@ -40,4 +40,16 @@ $(srcdir)/ChangeLog:
 
 all-local: Doxyfile
 
+%.tar.gz.asc: %.tar.gz
+	$(AM_V_GEN)gpg --detach-sign --armor $@
+
+maintainer-upload-release:
+	test -f @PACKAGE@-@VERSION@.tar.gz
+	test -f @PACKAGE@-@VERSION@.tar.gz.asc
+	gpg --verify @PACKAGE@-@VERSION@.tar.gz.asc
+	rsync -vzP @PACKAGE@-@VERSION@.tar.gz dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/releases/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz
+	rsync -vzP @PACKAGE@-@VERSION@.tar.gz.asc dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/releases/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz.asc
+	rsync -rvzPp --chmod=Dg+s,ug+rwX,o=rX $(srcdir)/docs/reference/html/ \
+	dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/doc/@PACKAGE@/
+
 include tools/lcov.am

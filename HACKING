@@ -56,9 +56,10 @@ To make a release (please replace use of 0.76 with the new version)
 * ./autogen.sh
 * make
 * make distcheck
+* sign the tarball (or use: make dbus-glib-0.76.tar.gz.asc)
+* make maintainer-upload-release
 * git commit -m "Release"
 * git tag -a dbus-glib_0.76
-* scp resulting tarball to ssh://gabe.freedesktop.org/srv/dbus.freedesktop.org/www/releases/dbus-glib/
 * edit configure.ac, change version to odd (e.g. 0.76 -> 0.77)
 * git commit -m "Bump version for development"
 * Update the wiki: http://www.freedesktop.org/wiki/Software/DBusBindings
