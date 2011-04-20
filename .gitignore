@@ -101,6 +101,7 @@ test/core/my-object-marshal.h
 test/core/run-with-tmp-session-bus.conf
 test/core/test-dbus-glib
 /test/core/test-gvariant
+/test/core/test-private
 test/core/test-profile
 test/core/test-service-glib
 test/core/test-service-glib-bindings.h

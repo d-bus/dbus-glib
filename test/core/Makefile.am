@@ -57,6 +57,7 @@ noinst_PROGRAMS = \
 	peer-client \
 	test-types \
 	test-30574 \
+	test-private \
 	test-peer-on-bus \
 	test-proxy-peer \
 	test-registrations \
@@ -65,6 +66,12 @@ noinst_PROGRAMS = \
 
 test_30574_SOURCES = \
 	30574.c
+
+test_private_SOURCES = \
+	my-object.c \
+	my-object.h \
+	my-object-marshal.c \
+	private.c
 
 test_proxy_peer_SOURCES = \
 	my-object-marshal.c \
