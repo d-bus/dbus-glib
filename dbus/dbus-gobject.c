@@ -2550,7 +2550,9 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
   g_return_if_fail (g_variant_is_object_path (at_path));
   g_return_if_fail (G_IS_OBJECT (object));
 
-  /* This is a GSList of ObjectRegistration*  */
+  /* This is a GSList of ObjectRegistration*.
+   * After this point you must "goto put_back" to give this back to
+   * the object. */
   registrations = g_object_steal_data (object, "dbus_glib_object_registrations");
 
   for (iter = registrations; iter; iter = iter->next)
@@ -2559,7 +2561,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
 
       /* Silently ignore duplicate registrations */
       if (strcmp (o->object_path, at_path) == 0 && o->connection == connection)
-        return;
+        goto put_back;
     }
 
   is_first_registration = registrations == NULL;
@@ -2575,7 +2577,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
         {
           g_warning ("No introspection data registered for object class \"%s\"",
                      g_type_name (G_TYPE_FROM_INSTANCE (object)));
-          return;
+          goto put_back;
         }
     }
   else
@@ -2591,7 +2593,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       g_error ("Failed to register GObject with DBusConnection");
       object_registration_free (o);
       g_list_free (info_list);
-      return;
+      goto put_back;
     }
 
   if (is_first_registration)
@@ -2605,6 +2607,8 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
     }
 
   registrations = g_slist_append (registrations, o);
+
+put_back:
   g_object_set_data (object, "dbus_glib_object_registrations", registrations);
 }
 
