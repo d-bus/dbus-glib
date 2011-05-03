@@ -249,14 +249,15 @@ test_twice (Fixture *f,
   dbus_message_unref (f->frobnicate2_message);
   f->frobnicate2_message = NULL;
 
-  /* try again, to catch any extra emissions */
+  /* try again, to catch any extra emissions, but first unregister one of the
+   * object's locations */
+  dbus_g_connection_unregister_g_object (f->bus, f->object);
   my_object_emit_frobnicate ((MyObject *) f->object, NULL);
 
-  while (f->frobnicate1_message == NULL || f->frobnicate2_message == NULL)
+  while (f->frobnicate2_message == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  dbus_message_unref (f->frobnicate1_message);
-  f->frobnicate1_message = NULL;
+  g_assert (f->frobnicate1_message == NULL);
   dbus_message_unref (f->frobnicate2_message);
   f->frobnicate2_message = NULL;
 }
