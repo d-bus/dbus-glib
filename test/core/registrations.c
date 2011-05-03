@@ -1,4 +1,4 @@
-/* Feature test for freedesktop.org #21219 and similar.
+/* Regression test for object registration and unregistration
  *
  * Copyright © 2009 Collabora Ltd. <http://www.collabora.co.uk/>
  * Copyright © 2009-2011 Nokia Corporation
@@ -62,26 +62,81 @@ static void
 teardown (Fixture *f,
     gconstpointer test_data G_GNUC_UNUSED)
 {
-  if (f->object != NULL)
-    {
-      g_object_unref (f->object);
-    }
-
+  /* we close the connection before releasing the object, to test fd.o #5688
+   * in test_lookup() */
   if (f->bus != NULL)
     {
       dbus_connection_close (dbus_g_connection_get_connection (f->bus));
       dbus_g_connection_unref (f->bus);
     }
+
+  if (f->object != NULL)
+    {
+      g_object_unref (f->object);
+    }
+}
+
+static void
+test_lookup (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  /* teardown() closes the connection before f->object is destroyed, which
+   * used to be broken */
+  g_test_bug ("5688");
+
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+  /* this was briefly broken while fixing fd.o#5688 */
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/bar") == NULL);
 }
 
 static void
 test_unregister (Fixture *f,
     gconstpointer test_data G_GNUC_UNUSED)
 {
+  /* feature test: objects can be unregistered */
+  g_test_bug ("21219");
+
   dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
   g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
       f->object);
   dbus_g_connection_unregister_g_object (f->bus, f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
+}
+
+static void
+test_unregister_on_last_unref (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  gpointer weak_pointer;
+
+  weak_pointer = f->object;
+  g_object_add_weak_pointer (weak_pointer, &weak_pointer);
+
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+  /* implicit unregistration by the last-unref of the object */
+  g_object_unref (f->object);
+  f->object = NULL;
+
+  g_assert (weak_pointer == NULL);
+
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
+}
+
+static void
+test_unregister_on_forced_dispose (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+  /* implicit unregistration by dispose() of the object (don't try
+   * this at home) */
+  g_object_run_dispose (f->object);
+
   g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
 }
 
@@ -96,8 +151,14 @@ main (int argc, char **argv)
   g_test_bug_base ("https://bugs.freedesktop.org/show_bug.cgi?id=");
   g_test_init (&argc, &argv, NULL);
 
+  g_test_add ("/registrations/lookup", Fixture, NULL,
+      setup, test_lookup, teardown);
   g_test_add ("/registrations/unregister", Fixture, NULL,
       setup, test_unregister, teardown);
+  g_test_add ("/registrations/unregister-on-last-unref", Fixture, NULL,
+      setup, test_unregister_on_last_unref, teardown);
+  g_test_add ("/registrations/unregister-on-forced-dispose", Fixture, NULL,
+      setup, test_unregister_on_forced_dispose, teardown);
 
   return g_test_run ();
 }
