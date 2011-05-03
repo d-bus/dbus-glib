@@ -2498,12 +2498,12 @@ void
 dbus_g_connection_unregister_g_object (DBusGConnection *connection,
                                        GObject *object)
 {
-  GList *registrations, *iter;
+  GSList *registrations, *iter;
 
   /* Copy the list before iterating it: it will be modified in
    * object_registration_free() each time an object path is unregistered.
    */
-  registrations = g_list_copy (g_object_get_data (object, "dbus_glib_object_registrations"));
+  registrations = g_slist_copy (g_object_get_data (object, "dbus_glib_object_registrations"));
 
   g_return_if_fail (registrations != NULL);
 
@@ -2514,7 +2514,7 @@ dbus_g_connection_unregister_g_object (DBusGConnection *connection,
           o->object_path);
     }
 
-  g_list_free (registrations);
+  g_slist_free (registrations);
   g_assert (g_object_get_data (object, "dbus_glib_object_registrations") == NULL);
 }
 
