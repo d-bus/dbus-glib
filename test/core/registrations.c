@@ -35,6 +35,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <config.h>
+
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
@@ -44,7 +46,10 @@ GMainLoop *loop = NULL;
 
 typedef struct {
     DBusGConnection *bus;
+    DBusGConnection *bus2;
     GObject *object;
+    DBusMessage *frobnicate1_message;
+    DBusMessage *frobnicate2_message;
 } Fixture;
 
 static void
@@ -53,6 +58,9 @@ setup (Fixture *f,
 {
   f->bus = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, NULL);
   g_assert (f->bus != NULL);
+
+  f->bus2 = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, NULL);
+  g_assert (f->bus2 != NULL);
 
   f->object = g_object_new (MY_TYPE_OBJECT, NULL);
   g_assert (MY_IS_OBJECT (f->object));
@@ -68,6 +76,12 @@ teardown (Fixture *f,
     {
       dbus_connection_close (dbus_g_connection_get_connection (f->bus));
       dbus_g_connection_unref (f->bus);
+    }
+
+  if (f->bus2 != NULL)
+    {
+      dbus_connection_close (dbus_g_connection_get_connection (f->bus2));
+      dbus_g_connection_unref (f->bus2);
     }
 
   if (f->object != NULL)
@@ -162,6 +176,91 @@ test_reregister (Fixture *f,
   g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
 }
 
+static DBusHandlerResult
+frobnicate_cb (DBusConnection *conn,
+    DBusMessage *message,
+    void *user_data)
+{
+  Fixture *f = user_data;
+
+  if (dbus_message_is_signal (message,
+        "org.freedesktop.DBus.GLib.Tests.MyObject", "Frobnicate"))
+    {
+      const char *sender = dbus_message_get_sender (message);
+      const char *path = dbus_message_get_path (message);
+
+      g_assert (sender != NULL);
+      g_assert (path != NULL);
+
+      if (g_strcmp0 (path, "/foo") == 0)
+        {
+          g_assert_cmpstr (sender, ==, dbus_bus_get_unique_name (
+                dbus_g_connection_get_connection (f->bus)));
+
+          g_assert (f->frobnicate1_message == NULL);
+          f->frobnicate1_message = dbus_message_ref (message);
+        }
+      else
+        {
+          g_assert_cmpstr (path, ==, "/bar");
+          g_assert_cmpstr (sender, ==, dbus_bus_get_unique_name (
+                dbus_g_connection_get_connection (f->bus2)));
+
+          g_assert (f->frobnicate2_message == NULL);
+          f->frobnicate2_message = dbus_message_ref (message);
+        }
+    }
+
+  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static void
+test_twice (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_bool_t mem;
+
+  g_test_bug ("32087");
+
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+
+  dbus_g_connection_register_g_object (f->bus2, "/bar", f->object);
+
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus2, "/bar") ==
+      f->object);
+
+  dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
+      "", NULL);
+  mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
+      frobnicate_cb, f, NULL);
+  g_assert (mem);
+
+  my_object_emit_frobnicate ((MyObject *) f->object, NULL);
+
+  /* The object should emit the signal once onto each connection,
+   * from the appropriate location */
+  while (f->frobnicate1_message == NULL || f->frobnicate2_message == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  dbus_message_unref (f->frobnicate1_message);
+  f->frobnicate1_message = NULL;
+  dbus_message_unref (f->frobnicate2_message);
+  f->frobnicate2_message = NULL;
+
+  /* try again, to catch any extra emissions */
+  my_object_emit_frobnicate ((MyObject *) f->object, NULL);
+
+  while (f->frobnicate1_message == NULL || f->frobnicate2_message == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  dbus_message_unref (f->frobnicate1_message);
+  f->frobnicate1_message = NULL;
+  dbus_message_unref (f->frobnicate2_message);
+  f->frobnicate2_message = NULL;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -183,6 +282,8 @@ main (int argc, char **argv)
       setup, test_unregister_on_forced_dispose, teardown);
   g_test_add ("/registrations/reregister", Fixture, NULL,
       setup, test_reregister, teardown);
+  g_test_add ("/registrations/twice", Fixture, NULL,
+      setup, test_twice, teardown);
 
   return g_test_run ();
 }
