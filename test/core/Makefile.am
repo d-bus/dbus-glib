@@ -55,7 +55,7 @@ noinst_PROGRAMS = \
 	test-types \
 	test-5688 \
 	test-30574 \
-	test-unregister \
+	test-registrations \
 	test-variant-recursion \
 	test-gvariant
 
@@ -70,13 +70,13 @@ test_5688_SOURCES = \
 test_30574_SOURCES = \
 	30574.c
 
-test_unregister_SOURCES = \
+test_registrations_SOURCES = \
 	my-object.c \
 	my-object.h \
 	my-object-subclass.c \
 	my-object-subclass.h \
 	my-object-marshal.c \
-	unregister.c
+	registrations.c
 
 test_dbus_glib_SOURCES=				\
 	my-object-marshal.c                             \

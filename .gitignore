@@ -107,7 +107,7 @@ test/core/test-service-glib-glue.h
 /test/core/test-service-glib-subclass-glue.h
 test/core/test-thread-client
 test/core/test-thread-server
-/test/core/test-unregister
+/test/core/test-registrations
 /test/core/test-variant-recursion
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/debug-glib.service
