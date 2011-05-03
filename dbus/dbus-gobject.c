@@ -2065,8 +2065,7 @@ typedef struct {
 } DBusGSignalClosure;
 
 static GClosure *
-dbus_g_signal_closure_new (DBusGConnection *connection,
-			   GObject         *object,
+dbus_g_signal_closure_new (GObject         *object,
 			   const char      *signame,
 			   const char      *sigiface)
 {
@@ -2074,20 +2073,10 @@ dbus_g_signal_closure_new (DBusGConnection *connection,
   
   closure = (DBusGSignalClosure*) g_closure_new_simple (sizeof (DBusGSignalClosure), NULL);
 
-  closure->connection = dbus_g_connection_ref (connection);
   closure->object = object;
   closure->signame = signame;
   closure->sigiface = sigiface;
   return (GClosure*) closure;
-}
-
-static void
-dbus_g_signal_closure_finalize (gpointer data,
-				GClosure *closure)
-{
-  DBusGSignalClosure *sigclosure = (DBusGSignalClosure *) closure;
-
-  dbus_g_connection_unref (sigclosure->connection);
 }
 
 static void
@@ -2123,7 +2112,7 @@ emit_signal_for_registration (ObjectRegistration *o,
           goto out;
         }
     }
-  dbus_connection_send (DBUS_CONNECTION_FROM_G_CONNECTION (sigclosure->connection),
+  dbus_connection_send (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
                         signal, NULL);
 out:
   dbus_message_unref (signal);
@@ -2155,7 +2144,7 @@ signal_emitter_marshaller (GClosure        *closure,
 }
 
 static void
-export_signals (DBusGConnection *connection, const GList *info_list, GObject *object)
+export_signals (const GList *info_list, GObject *object)
 {
   GType gtype;
   const char *sigdata;
@@ -2201,7 +2190,7 @@ export_signals (DBusGConnection *connection, const GList *info_list, GObject *ob
               continue; /* FIXME: these could be listed as methods ? */
             }
           
-          closure = dbus_g_signal_closure_new (connection, object, signame, (char*) iface);
+          closure = dbus_g_signal_closure_new (object, signame, (char*) iface);
           g_closure_set_marshal (closure, signal_emitter_marshaller);
 
           g_signal_connect_closure_by_id (object,
@@ -2210,8 +2199,6 @@ export_signals (DBusGConnection *connection, const GList *info_list, GObject *ob
                           closure,
                           FALSE);
 
-          g_closure_add_finalize_notifier (closure, NULL,
-                           dbus_g_signal_closure_finalize);
           g_free (s);
         }
     }
@@ -2602,7 +2589,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
        * on the first registration, because inside the signal marshaller
        * we emit a signal for each registration.
        */
-      export_signals (connection, info_list, object);
+      export_signals (info_list, object);
       g_list_free (info_list);
     }
 
