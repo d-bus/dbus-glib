@@ -1,7 +1,7 @@
-/* Feature test for freedesktop.org #21219.
+/* Feature test for freedesktop.org #21219 and similar.
  *
  * Copyright © 2009 Collabora Ltd. <http://www.collabora.co.uk/>
- * Copyright © 2009 Nokia Corporation
+ * Copyright © 2009-2011 Nokia Corporation
  *
  * In preparation for dbus-glib relicensing (if it ever happens), this file is
  * licensed under (at your option) either the AFL v2.1, the GPL v2 or later,
@@ -36,36 +36,68 @@
  */
 
 #include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include "my-object.h"
 
-GMainLoop *loop;
+GMainLoop *loop = NULL;
+
+typedef struct {
+    DBusGConnection *bus;
+    GObject *object;
+} Fixture;
+
+static void
+setup (Fixture *f,
+    gconstpointer path_to_use)
+{
+  f->bus = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, NULL);
+  g_assert (f->bus != NULL);
+
+  f->object = g_object_new (MY_TYPE_OBJECT, NULL);
+  g_assert (MY_IS_OBJECT (f->object));
+}
+
+static void
+teardown (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  if (f->object != NULL)
+    {
+      g_object_unref (f->object);
+    }
+
+  if (f->bus != NULL)
+    {
+      dbus_connection_close (dbus_g_connection_get_connection (f->bus));
+      dbus_g_connection_unref (f->bus);
+    }
+}
+
+static void
+test_unregister (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+  dbus_g_connection_unregister_g_object (f->bus, f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
+}
 
 int
 main (int argc, char **argv)
 {
-  DBusGConnection *connection;
-  GError *error = NULL;
-  GObject *obj;
-
   loop = g_main_loop_new (NULL, FALSE);
 
   g_type_init ();
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
+  dbus_g_type_specialized_init ();
+  g_test_bug_base ("https://bugs.freedesktop.org/show_bug.cgi?id=");
+  g_test_init (&argc, &argv, NULL);
 
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_test_add ("/registrations/unregister", Fixture, NULL,
+      setup, test_unregister, teardown);
 
-  if (connection == NULL)
-    g_error ("failed to get bus: %s %d: %s", g_quark_to_string (error->domain),
-        error->code, error->message);
-
-  obj = g_object_new (MY_TYPE_OBJECT, NULL);
-  dbus_g_connection_register_g_object (connection, "/foo", obj);
-  g_assert (dbus_g_connection_lookup_g_object (connection, "/foo") == obj);
-  dbus_g_connection_unregister_g_object (connection, obj);
-  g_assert (dbus_g_connection_lookup_g_object (connection, "/foo") == NULL);
-
-  g_object_unref (obj);
-
-  return 0;
+  return g_test_run ();
 }
