@@ -2478,7 +2478,8 @@ object_registration_object_died (gpointer user_data, GObject *dead)
  * @connection: the D-BUS connection
  * @object: the object
  *
- * Removes @object from the bus. Properties, methods, and signals
+ * Removes @object from any object paths at which it is exported on
+ * @connection. Properties, methods, and signals
  * of the object can no longer be accessed remotely.
  */
 void
@@ -2497,12 +2498,15 @@ dbus_g_connection_unregister_g_object (DBusGConnection *connection,
   for (iter = registrations; iter; iter = iter->next)
     {
       ObjectRegistration *o = iter->data;
+
+      if (o->connection != connection)
+        continue;
+
       dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
           o->object_path);
     }
 
   g_slist_free (registrations);
-  g_assert (g_object_get_data (object, "dbus_glib_object_registrations") == NULL);
 }
 
 /**
