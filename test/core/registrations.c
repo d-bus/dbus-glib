@@ -140,6 +140,28 @@ test_unregister_on_forced_dispose (Fixture *f,
   g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
 }
 
+static void
+test_reregister (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+
+  /* Before 0.82, re-registering the same object path was leaky but successful.
+   * 0.82 disallowed this behaviour. Since 0.84 it was meant to be allowed
+   * again, and a no-op, but it actually had the effect of removing all
+   * record of the registrations (while leaving the object registered with
+   * libdbus). */
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+
+  /* This would critical in 0.84. */
+  dbus_g_connection_unregister_g_object (f->bus, f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") == NULL);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -159,6 +181,8 @@ main (int argc, char **argv)
       setup, test_unregister_on_last_unref, teardown);
   g_test_add ("/registrations/unregister-on-forced-dispose", Fixture, NULL,
       setup, test_unregister_on_forced_dispose, teardown);
+  g_test_add ("/registrations/reregister", Fixture, NULL,
+      setup, test_reregister, teardown);
 
   return g_test_run ();
 }
