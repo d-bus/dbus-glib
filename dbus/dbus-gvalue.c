@@ -1669,7 +1669,6 @@ marshal_map (DBusMessageIter   *iter,
 {
   GType gtype;
   DBusMessageIter arr_iter;
-  gboolean ret;
   struct DBusGLibHashMarshalData hashdata;
   char *key_sig;
   char *value_sig;
@@ -1679,8 +1678,6 @@ marshal_map (DBusMessageIter   *iter,
   char *array_sig;
 
   gtype = G_VALUE_TYPE (value);
-
-  ret = FALSE;
 
   key_type = dbus_g_type_get_map_key_specialization (gtype);
   g_assert (_dbus_gtype_is_valid_hash_key (key_type));
@@ -1746,13 +1743,10 @@ marshal_struct (DBusMessageIter   *iter,
 {
   GType gtype;
   DBusMessageIter subiter;
-  gboolean ret;
   guint size, i;
   GValue val = {0,};
 
   gtype = G_VALUE_TYPE (value);
-
-  ret = FALSE;
 
   size = dbus_g_type_get_struct_size (gtype);
 
