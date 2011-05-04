@@ -641,11 +641,9 @@ demarshal_static_variant (DBusGValueMarshalCtx    *context,
 			  GError                 **error)
 {
   char *sig;
-  int current_type;
   DBusMessageIter subiter;
   GType variant_type;
 
-  current_type = dbus_message_iter_get_arg_type (iter);
   dbus_message_iter_recurse (iter, &subiter);
   sig = dbus_message_iter_get_signature (&subiter);
 
