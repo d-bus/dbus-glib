@@ -262,6 +262,68 @@ test_twice (Fixture *f,
   f->frobnicate2_message = NULL;
 }
 
+static void
+test_clean_slate (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_bool_t mem;
+
+  dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
+      "", NULL);
+  mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
+      frobnicate_cb, f, NULL);
+  g_assert (mem);
+
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+
+  my_object_emit_frobnicate ((MyObject *) f->object, NULL);
+
+  while (f->frobnicate1_message == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  dbus_message_unref (f->frobnicate1_message);
+  f->frobnicate1_message = NULL;
+
+  /* unregister the object from its last object path, then put it back
+   * in the same location */
+  dbus_g_connection_unregister_g_object (f->bus, f->object);
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+
+  /* bug: in 0.92, this would be emitted twice because the hook was added
+   * twice */
+  my_object_emit_frobnicate ((MyObject *) f->object, NULL);
+
+  while (f->frobnicate1_message == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  dbus_message_unref (f->frobnicate1_message);
+  f->frobnicate1_message = NULL;
+
+  /* unregister the object from its last object path, then put it back
+   * at a different location */
+  dbus_g_connection_unregister_g_object (f->bus, f->object);
+  dbus_g_connection_register_g_object (f->bus2, "/bar", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus2, "/bar") ==
+      f->object);
+
+  my_object_emit_frobnicate ((MyObject *) f->object, NULL);
+
+  while (f->frobnicate2_message == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* check that this wasn't received anyway, which would indicate that
+   * either unregistration from /foo was unsuccessful, or the double
+   * emission mentioned above was seen */
+  g_assert (f->frobnicate1_message == NULL);
+
+  dbus_message_unref (f->frobnicate2_message);
+  f->frobnicate2_message = NULL;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -285,6 +347,8 @@ main (int argc, char **argv)
       setup, test_reregister, teardown);
   g_test_add ("/registrations/twice", Fixture, NULL,
       setup, test_twice, teardown);
+  g_test_add ("/registrations/clean-slate", Fixture, NULL,
+      setup, test_clean_slate, teardown);
 
   return g_test_run ();
 }
