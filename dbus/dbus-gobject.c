@@ -535,16 +535,38 @@ lookup_object_info_by_iface (GObject     *object,
 }
 
 typedef struct {
+    /* owned */
     GSList *registrations;
+    /* weak ref, or NULL if the object has been disposed */
+    GObject *object;
 } ObjectExport;
 
 typedef struct {
+    /* pseudo-weak ref, never NULL */
     DBusGConnection *connection;
+    /* owned, never NULL */
     gchar *object_path;
-    GObject *object;
+    /* borrowed pointer to parent, never NULL */
+    ObjectExport *export;
 } ObjectRegistration;
 
-static void object_registration_object_died (gpointer user_data, GObject *dead);
+static void object_export_object_died (gpointer user_data, GObject *dead);
+
+static void
+object_export_unregister_all (ObjectExport *oe)
+{
+  while (oe->registrations != NULL)
+    {
+      GSList *old = oe->registrations;
+      ObjectRegistration *o = oe->registrations->data;
+
+      dbus_connection_unregister_object_path (
+          DBUS_CONNECTION_FROM_G_CONNECTION (o->connection), o->object_path);
+
+      /* the link should have been removed by doing that */
+      g_assert (oe->registrations != old);
+    }
+}
 
 static void
 object_export_free (ObjectExport *oe)
@@ -561,15 +583,13 @@ object_export_new (void)
 static ObjectRegistration *
 object_registration_new (DBusGConnection *connection,
                          const gchar *object_path,
-                         GObject *object)
+                         ObjectExport *export)
 {
   ObjectRegistration *o = g_slice_new0 (ObjectRegistration);
 
   o->connection = connection;
   o->object_path = g_strdup (object_path);
-  o->object = object;
-
-  g_object_weak_ref (o->object, object_registration_object_died, o);
+  o->export = export;
 
   return o;
 }
@@ -577,21 +597,8 @@ object_registration_new (DBusGConnection *connection,
 static void
 object_registration_free (ObjectRegistration *o)
 {
-  if (o->object != NULL)
-    {
-      ObjectExport *oe;
-
-      /* Ok, the object is still around; clear out this particular registration
-       * from the registrations list.
-       */
-      oe = g_object_get_data (o->object, "dbus_glib_object_registrations");
-      /* If the object has ever been exported, this should exist; it persists
-       * until the object is actually freed. */
-      g_assert (oe != NULL);
-      oe->registrations = g_slist_remove (oe->registrations, o);
-
-      g_object_weak_unref (o->object, object_registration_object_died, o);
-    }
+  g_assert (o->export != NULL);
+  o->export->registrations = g_slist_remove (o->export->registrations, o);
 
   g_free (o->object_path);
 
@@ -1944,7 +1951,11 @@ object_registration_message (DBusConnection  *connection,
   ObjectRegistration *o;
 
   o = user_data;
-  object = G_OBJECT (o->object);
+  /* export is always non-NULL. If the object has been disposed, the weak-ref
+   * callback removes all registrations from the DBusConnection, so this
+   * should never be reached with object = NULL. */
+  object = G_OBJECT (o->export->object);
+  g_assert (object != NULL);
 
   if (dbus_message_is_method_call (message,
                                    DBUS_INTERFACE_INTROSPECTABLE,
@@ -2479,18 +2490,23 @@ dbus_g_error_domain_register (GQuark                domain,
 
 /* Called when the object is destroyed */
 static void
-object_registration_object_died (gpointer user_data, GObject *dead)
+object_export_object_died (gpointer user_data, GObject *dead)
 {
-  ObjectRegistration *o = user_data;
+  ObjectExport *oe = user_data;
 
-  g_assert (dead == o->object);
+  g_assert (dead == oe->object);
 
   /* this prevents the weak unref from taking place, which would cause an
    * assertion failure since the object has already gone... */
-  o->object = NULL;
+  oe->object = NULL;
 
-  /* ... while this results in a call to object_registration_unregistered */
-  dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection), o->object_path);
+  /* ... while this results in a call to object_registration_unregistered
+   * for each contained registration */
+  object_export_unregister_all (oe);
+
+  /* We deliberately don't remove the ObjectExport yet, in case the object is
+   * resurrected and re-registered: if that happens, we wouldn't want to call
+   * export_signals() again. */
 }
 
 /**
@@ -2586,6 +2602,15 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
           (GDestroyNotify) object_export_free);
     }
 
+  if (oe->object == NULL)
+    {
+      /* Either the ObjectExport is newly-created, or it already existed but
+       * the object was disposed and resurrected, causing the weak ref to
+       * fall off */
+      oe->object = object;
+      g_object_weak_ref (object, object_export_object_died, oe);
+    }
+
   for (iter = oe->registrations; iter; iter = iter->next)
     {
       o = iter->data;
@@ -2595,7 +2620,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
         return;
     }
 
-  o = object_registration_new (connection, at_path, object);
+  o = object_registration_new (connection, at_path, oe);
 
   if (!dbus_connection_register_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection),
                                              at_path,
@@ -2633,7 +2658,11 @@ dbus_g_connection_lookup_g_object (DBusGConnection       *connection,
     return NULL;
 
   o = p;
-  return G_OBJECT (o->object);
+
+  if (o->export->object == NULL)
+    return NULL;
+
+  return G_OBJECT (o->export->object);
 }
 
 typedef struct {
