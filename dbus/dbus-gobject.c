@@ -2554,10 +2554,8 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      GObject               *object)
 {
   ObjectExport *oe;
-  GList *info_list;
   GSList *iter;
   ObjectRegistration *o;
-  gboolean is_first_registration;
 
   g_return_if_fail (connection != NULL);
   g_return_if_fail (g_variant_is_object_path (at_path));
@@ -2567,6 +2565,22 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
 
   if (oe == NULL)
     {
+      GList *info_list = lookup_object_info (object);
+
+      if (info_list == NULL)
+        {
+          g_warning ("No introspection data registered for object class \"%s\"",
+                     g_type_name (G_TYPE_FROM_INSTANCE (object)));
+          return;
+        }
+
+      /* This adds a hook into every signal for the object.  Only do this
+       * on the first registration, because inside the signal marshaller
+       * we emit a signal for each registration.
+       */
+      export_signals (info_list, object);
+      g_list_free (info_list);
+
       oe = object_export_new ();
       g_object_set_data_full (object, "dbus_glib_object_registrations", oe,
           (GDestroyNotify) object_export_free);
@@ -2581,25 +2595,6 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
         return;
     }
 
-  is_first_registration = (oe->registrations == NULL);
-
-  /* This is used to hook up signals below, but we do this check
-   * before trying to register the object to make sure we have
-   * introspection data for it.
-   */
-  if (is_first_registration)
-    {
-      info_list = lookup_object_info (object);
-      if (info_list == NULL)
-        {
-          g_warning ("No introspection data registered for object class \"%s\"",
-                     g_type_name (G_TYPE_FROM_INSTANCE (object)));
-          return;
-        }
-    }
-  else
-    info_list = NULL;
-
   o = object_registration_new (connection, at_path, object);
 
   if (!dbus_connection_register_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection),
@@ -2609,18 +2604,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
     {
       g_error ("Failed to register GObject with DBusConnection");
       object_registration_free (o);
-      g_list_free (info_list);
       return;
-    }
-
-  if (is_first_registration)
-    {
-      /* This adds a hook into every signal for the object.  Only do this
-       * on the first registration, because inside the signal marshaller
-       * we emit a signal for each registration.
-       */
-      export_signals (info_list, object);
-      g_list_free (info_list);
     }
 
   oe->registrations = g_slist_append (oe->registrations, o);
