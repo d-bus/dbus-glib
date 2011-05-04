@@ -535,12 +535,28 @@ lookup_object_info_by_iface (GObject     *object,
 }
 
 typedef struct {
+    GSList *registrations;
+} ObjectExport;
+
+typedef struct {
     DBusGConnection *connection;
     gchar *object_path;
     GObject *object;
 } ObjectRegistration;
 
 static void object_registration_object_died (gpointer user_data, GObject *dead);
+
+static void
+object_export_free (ObjectExport *oe)
+{
+  g_slice_free (ObjectExport, oe);
+}
+
+static ObjectExport *
+object_export_new (void)
+{
+  return g_slice_new0 (ObjectExport);
+}
 
 static ObjectRegistration *
 object_registration_new (DBusGConnection *connection,
@@ -563,16 +579,16 @@ object_registration_free (ObjectRegistration *o)
 {
   if (o->object != NULL)
     {
-      GSList *registrations;
+      ObjectExport *oe;
 
       /* Ok, the object is still around; clear out this particular registration
        * from the registrations list.
        */
-      registrations = g_object_steal_data (o->object, "dbus_glib_object_registrations");
-      registrations = g_slist_remove (registrations, o);
-
-      if (registrations != NULL)
-        g_object_set_data (o->object, "dbus_glib_object_registrations", registrations);
+      oe = g_object_get_data (o->object, "dbus_glib_object_registrations");
+      /* If the object has ever been exported, this should exist; it persists
+       * until the object is actually freed. */
+      g_assert (oe != NULL);
+      oe->registrations = g_slist_remove (oe->registrations, o);
 
       g_object_weak_unref (o->object, object_registration_object_died, o);
     }
@@ -2127,15 +2143,19 @@ signal_emitter_marshaller (GClosure        *closure,
 			   gpointer         marshal_data)
 {
   DBusGSignalClosure *sigclosure;
-  GSList *registrations, *iter;
+  const ObjectExport *oe;
+  const GSList *iter;
 
   sigclosure = (DBusGSignalClosure *) closure;
 
   g_assert (retval == NULL);
 
-  registrations = g_object_get_data (sigclosure->object, "dbus_glib_object_registrations");
+  oe = g_object_get_data (sigclosure->object, "dbus_glib_object_registrations");
+  /* If the object has ever been exported, this should exist; it persists until
+   * the object is actually freed. */
+  g_assert (oe != NULL);
 
-  for (iter = registrations; iter; iter = iter->next)
+  for (iter = oe->registrations; iter; iter = iter->next)
     {
       ObjectRegistration *o = iter->data;
 
@@ -2486,18 +2506,21 @@ void
 dbus_g_connection_unregister_g_object (DBusGConnection *connection,
                                        GObject *object)
 {
-  GSList *registrations, *iter;
+  ObjectExport *oe = g_object_get_data (object, "dbus_glib_object_registrations");
+  GSList *registrations;
+
+  g_return_if_fail (oe != NULL);
+
+  g_return_if_fail (oe->registrations != NULL);
 
   /* Copy the list before iterating it: it will be modified in
    * object_registration_free() each time an object path is unregistered.
    */
-  registrations = g_slist_copy (g_object_get_data (object, "dbus_glib_object_registrations"));
-
-  g_return_if_fail (registrations != NULL);
-
-  for (iter = registrations; iter; iter = iter->next)
+  for (registrations = g_slist_copy (oe->registrations);
+      registrations != NULL;
+      registrations = g_slist_delete_link (registrations, registrations))
     {
-      ObjectRegistration *o = iter->data;
+      ObjectRegistration *o = registrations->data;
 
       if (o->connection != connection)
         continue;
@@ -2505,8 +2528,6 @@ dbus_g_connection_unregister_g_object (DBusGConnection *connection,
       dbus_connection_unregister_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
           o->object_path);
     }
-
-  g_slist_free (registrations);
 }
 
 /**
@@ -2532,8 +2553,9 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
                                      const char            *at_path,
                                      GObject               *object)
 {
+  ObjectExport *oe;
   GList *info_list;
-  GSList *registrations, *iter;
+  GSList *iter;
   ObjectRegistration *o;
   gboolean is_first_registration;
 
@@ -2541,12 +2563,14 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
   g_return_if_fail (g_variant_is_object_path (at_path));
   g_return_if_fail (G_IS_OBJECT (object));
 
-  /* This is a GSList of ObjectRegistration*.
-   * After this point you must "goto put_back" to give this back to
+  /* After this point you must "goto put_back" to give this back to
    * the object. */
-  registrations = g_object_steal_data (object, "dbus_glib_object_registrations");
+  oe = g_object_steal_data (object, "dbus_glib_object_registrations");
 
-  for (iter = registrations; iter; iter = iter->next)
+  if (oe == NULL)
+    oe = object_export_new ();
+
+  for (iter = oe->registrations; iter; iter = iter->next)
     {
       o = iter->data;
 
@@ -2555,7 +2579,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
         goto put_back;
     }
 
-  is_first_registration = registrations == NULL;
+  is_first_registration = (oe->registrations == NULL);
 
   /* This is used to hook up signals below, but we do this check
    * before trying to register the object to make sure we have
@@ -2597,10 +2621,11 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
       g_list_free (info_list);
     }
 
-  registrations = g_slist_append (registrations, o);
+  oe->registrations = g_slist_append (oe->registrations, o);
 
 put_back:
-  g_object_set_data (object, "dbus_glib_object_registrations", registrations);
+  g_object_set_data_full (object, "dbus_glib_object_registrations", oe,
+      (GDestroyNotify) object_export_free);
 }
 
 /**
