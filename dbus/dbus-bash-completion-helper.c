@@ -334,7 +334,6 @@ complete_dbus_send (char *str)
   char **tokens;
   int num_tokens;
   const char *cur;
-  const char *prev;
   gboolean have_system;
   gboolean have_session;
   gboolean have_print_reply;
@@ -354,15 +353,10 @@ complete_dbus_send (char *str)
 
   tokens = g_strsplit (str, " ", 0);
   num_tokens = g_strv_length (tokens);
-  if (num_tokens >= 2) {
+  if (num_tokens >= 1) {
     cur = tokens[num_tokens - 1];
-    prev = tokens[num_tokens - 2];
-  } else if (num_tokens == 1) {
-    cur = tokens[num_tokens - 1];
-    prev = "";
   } else {
     cur = "";
-    prev = "";
   }
 
   have_system = have_option (tokens, "--system");
