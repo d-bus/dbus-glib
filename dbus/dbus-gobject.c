@@ -2335,6 +2335,10 @@ dbus_set_g_error (GError    **gerror,
 {
   int code;
 
+  g_return_if_fail (error != NULL);
+  g_return_if_fail (dbus_error_is_set (error));
+  g_return_if_fail (gerror == NULL || *gerror == NULL);
+
   code = dbus_error_to_gerror_code (error->name);
   if (code != DBUS_GERROR_REMOTE_EXCEPTION)
     g_set_error (gerror, DBUS_GERROR,
@@ -2522,11 +2526,15 @@ void
 dbus_g_connection_unregister_g_object (DBusGConnection *connection,
                                        GObject *object)
 {
-  ObjectExport *oe = g_object_get_data (object, "dbus_glib_object_registrations");
+  ObjectExport *oe;
   GSList *registrations;
 
-  g_return_if_fail (oe != NULL);
+  g_return_if_fail (connection != NULL);
+  g_return_if_fail (G_IS_OBJECT (object));
 
+  oe = g_object_get_data (object, "dbus_glib_object_registrations");
+
+  g_return_if_fail (oe != NULL);
   g_return_if_fail (oe->registrations != NULL);
 
   /* Copy the list before iterating it: it will be modified in
@@ -2650,6 +2658,9 @@ dbus_g_connection_lookup_g_object (DBusGConnection       *connection,
 {
   gpointer p;
   ObjectRegistration *o;
+
+  g_return_val_if_fail (connection != NULL, NULL);
+  g_return_val_if_fail (g_variant_is_object_path (at_path), NULL);
 
   if (!dbus_connection_get_object_path_data (DBUS_CONNECTION_FROM_G_CONNECTION (connection), at_path, &p))
     return NULL;
@@ -2892,6 +2903,8 @@ dbus_g_method_get_sender (DBusGMethodInvocation *context)
 {
   const gchar *sender;
 
+  g_return_val_if_fail (context != NULL, NULL);
+
   sender = dbus_message_get_sender (dbus_g_message_get_message (context->message));
   return g_strdup (sender);
 }
@@ -2909,6 +2922,8 @@ dbus_g_method_get_sender (DBusGMethodInvocation *context)
 DBusMessage *
 dbus_g_method_get_reply (DBusGMethodInvocation *context)
 {
+  g_return_val_if_fail (context != NULL, NULL);
+
   return dbus_message_new_method_return (dbus_g_message_get_message (context->message));
 }
 
@@ -2924,6 +2939,9 @@ dbus_g_method_get_reply (DBusGMethodInvocation *context)
 void
 dbus_g_method_send_reply (DBusGMethodInvocation *context, DBusMessage *reply)
 {
+  g_return_if_fail (context != NULL);
+  g_return_if_fail (reply != NULL);
+
   dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
   dbus_message_unref (reply);
 
@@ -2949,7 +2967,9 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
   char *out_sig;
   GArray *argsig;
   guint i;
-  
+
+  g_return_if_fail (context != NULL);
+
   /* This field was initialized inside invoke_object_method; we
    * carry it over through the async invocation to here.
    */
@@ -3003,6 +3023,9 @@ void
 dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
 {
   DBusMessage *reply;
+
+  g_return_if_fail (context != NULL);
+  g_return_if_fail (error != NULL);
 
   /* See comment in dbus_g_method_return */
   if (!context->send_reply)
