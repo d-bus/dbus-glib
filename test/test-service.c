@@ -321,7 +321,6 @@ main (int    argc,
       char **argv)
 {
   DBusError error;
-  int result;
   DBusConnection *connection;
   
   dbus_error_init (&error);
@@ -352,7 +351,7 @@ main (int    argc,
       die ("dbus_connection_get_object_path_data() doesn't seem to work right\n");
   }
   
-  result = dbus_bus_request_name (connection, "org.freedesktop.DBus.GLib.TestEchoService",
+  dbus_bus_request_name (connection, "org.freedesktop.DBus.GLib.TestEchoService",
                                   0, &error);
   if (dbus_error_is_set (&error))
     {
