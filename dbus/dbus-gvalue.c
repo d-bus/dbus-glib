@@ -1934,7 +1934,6 @@ marshal_collection_array (DBusMessageIter   *iter,
   GType elt_gtype;
   DBusMessageIter subiter;
   GArray *array;
-  guint elt_size;
   char *subsignature_str;
 
   array = g_value_get_boxed (value);
@@ -1949,8 +1948,6 @@ marshal_collection_array (DBusMessageIter   *iter,
       return FALSE;
     }
   g_assert (g_variant_is_signature (subsignature_str));
-  
-  elt_size = _dbus_g_type_fixed_get_size (elt_gtype);
 
   if (!dbus_message_iter_open_container (iter,
 					 DBUS_TYPE_ARRAY,
