@@ -1926,6 +1926,16 @@ marshal_collection_ptrarray (DBusMessageIter         *iter,
   return dbus_message_iter_close_container (iter, &subiter);
 }
 
+/* If any of these assertions are violated, then marshal_collection_array
+ * is buggy for that type. dbus_g_value_basic_array_parse_variant() has
+ * general size-conversion code, if needed. */
+G_STATIC_ASSERT (sizeof (dbus_bool_t) == sizeof (gboolean));
+G_STATIC_ASSERT (sizeof (dbus_int32_t) == sizeof (gint));
+G_STATIC_ASSERT (sizeof (dbus_uint32_t) == sizeof (guint));
+/* These should be true regardless, but just for completeness... */
+G_STATIC_ASSERT (sizeof (dbus_int64_t) == sizeof (gint64));
+G_STATIC_ASSERT (sizeof (dbus_uint64_t) == sizeof (guint64));
+G_STATIC_ASSERT (sizeof (double) == sizeof (gdouble));
 
 static gboolean
 marshal_collection_array (DBusMessageIter   *iter,
