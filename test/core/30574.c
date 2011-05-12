@@ -44,6 +44,7 @@ send_and_allow_reentry (DBusConnection * bus, DBusMessage * message)
   g_main_loop_run  (closure.loop);
 
   g_main_loop_unref (closure.loop);
+  dbus_pending_call_unref (pending);
   return closure.reply;
 }
 
@@ -93,6 +94,8 @@ main(int argc, const char *argv[])
     fprintf(stderr, "Sorry; can't communicate: %s\n", error.message);
     exit(1);
   }
+  dbus_message_unref (reply);
+  dbus_message_unref (message);
 
   return 0;
 }
