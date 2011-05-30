@@ -1,3 +1,5 @@
+#include <config.h>
+
 /* -*- mode: C; c-file-style: "gnu" -*- */
 #include <dbus/dbus-glib.h>
 #include <stdio.h>

@@ -1,3 +1,5 @@
+#include <config.h>
+
 #include "test-objects.h"
 #include "test-interfaces.h"
 

@@ -20,6 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
+
+#include <config.h>
+
 #include "dbus-gparser.h"
 #include "dbus/dbus-glib-lowlevel.h"
 #include "dbus-gidl.h"

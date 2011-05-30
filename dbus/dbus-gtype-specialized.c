@@ -22,6 +22,8 @@
  *
  */
 
+#include <config.h>
+
 #include "dbus-glib.h"
 #include "dbus-gtype-specialized-priv.h"
 #include "dbus-gvalue-utils.h"

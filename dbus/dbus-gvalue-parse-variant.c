@@ -25,6 +25,8 @@
  *
  */
 
+#include <config.h>
+
 #include <dbus/dbus-gvalue-parse-variant.h>
 
 #include <string.h>

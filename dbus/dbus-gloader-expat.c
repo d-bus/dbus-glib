@@ -21,6 +21,8 @@
  *
  */
 
+#include <config.h>
+
 #include "dbus-gparser.h"
 #include <expat.h>
 #include <string.h>

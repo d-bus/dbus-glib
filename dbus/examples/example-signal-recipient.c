@@ -1,3 +1,5 @@
+#include <config.h>
+
 #include <dbus/dbus-glib.h>
 #include <stdio.h>
 #include <stdlib.h>

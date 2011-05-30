@@ -22,6 +22,8 @@
  *
  */
 
+#include <config.h>
+
 #include "dbus-gidl.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

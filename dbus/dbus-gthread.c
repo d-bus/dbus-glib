@@ -21,6 +21,8 @@
  *
  */
 
+#include <config.h>
+
 /* #define G_DEBUG_LOCKS 1 */
 
 #include <glib.h>
