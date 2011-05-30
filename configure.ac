@@ -226,20 +226,11 @@ CPPFLAGS=`echo "$CPPFLAGS" | sed -e 's/ +/ /g'`
 changequote([,])dnl
 
 if test x$enable_gcov = xyes; then
-     ## so that config.h changes when you toggle gcov support
-     AC_DEFINE_UNQUOTED(DBUS_GCOV_ENABLED, 1, [Defined if gcov is enabled to force a rebuild due to config.h changing])
-
-     AC_MSG_CHECKING([for gcc 3.3 version of gcov file format])
-     have_gcc33_gcov=no
-     AC_RUN_IFELSE( [AC_LANG_PROGRAM( , [[ if (__GNUC__ >=3 && __GNUC_MINOR__ >= 3) exit (0); else exit (1); ]])],  
-                   have_gcc33_gcov=yes)
-     if test x$have_gcc33_gcov = xyes ; then
-         AC_DEFINE_UNQUOTED(DBUS_HAVE_GCC33_GCOV, 1, [Defined if we have gcc 3.3 and thus the new gcov format])
-     fi
-     AC_MSG_RESULT($have_gcc33_gcov)
+     # so that config.h changes when you toggle gcov support
+     AC_DEFINE_UNQUOTED([DBUS_GCOV_ENABLED],
+       [__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__],
+       [Defined to the gcc version if gcov is enabled, to force a rebuild due to config.h changing])
 fi
-AM_CONDITIONAL(DBUS_GCOV_ENABLED, test x$enable_gcov = xyes)
-
 
 #### Various functions
 AC_SEARCH_LIBS([socket], [socket])
