@@ -34,7 +34,9 @@ statemachine-glue.h: statemachine.xml
 	$(LIBTOOL) --mode=execute $(DBUS_BINDING_TOOL) --prefix=sm_object --mode=glib-server --output=$@ $<
 
 sm-marshal.c: Makefile sm-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=sm_marshal $(srcdir)/sm-marshal.list --header --body > $@.tmp && mv $@.tmp $@
+	echo "#include <config.h>" > $@.tmp
+	@GLIB_GENMARSHAL@ --prefix=sm_marshal $(srcdir)/sm-marshal.list --header --body >> $@.tmp
+	mv $@.tmp $@
 
 sm-marshal.h: Makefile sm-marshal.list
 	@GLIB_GENMARSHAL@ --prefix=sm_marshal $(srcdir)/sm-marshal.list --header > $@.tmp && mv $@.tmp $@

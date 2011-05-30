@@ -91,7 +91,8 @@ dbus_binding_tool_LDADD= $(builddir)/libdbus-gtool.la $(builddir)/libdbus-glib-1
 ## convincing automake/make to do this properly
 regenerate-built-sources:
 	@GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --header > dbus-gmarshal.h && \
-	echo '#include "dbus-gmarshal.h"' > dbus-gmarshal.c &&					    \
+	echo '#include <config.h>' > dbus-gmarshal.c &&						    \
+	echo '#include "dbus-gmarshal.h"' >> dbus-gmarshal.c &&					    \
         @GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --body >> dbus-gmarshal.c
 
 

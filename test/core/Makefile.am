@@ -99,7 +99,9 @@ test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-bi
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object --mode=glib-client --output=test-service-glib-bindings.h $(srcdir)/test-service-glib.xml
 
 my-object-marshal.c: Makefile my-object-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header --body > my-object-marshal.c
+	echo "#include <config.h>" > $@.tmp
+	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header --body >> $@.tmp
+	mv $@.tmp $@
 
 my-object-marshal.h: Makefile my-object-marshal.list
 	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header > my-object-marshal.h
