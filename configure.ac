@@ -331,15 +331,9 @@ XML_CFLAGS=
 
 #### Set up final flags
 
-PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.2.16, have_dbus=yes, have_dbus=no)
-
-if test x$have_dbus = xno ; then
-    AC_MSG_ERROR([DBus development libraries not found])
-fi
-AM_CONDITIONAL(HAVE_DBUS, test x$have_dbus = xyes)
-
-AC_SUBST(DBUS_CFLAGS)
-AC_SUBST(DBUS_LIBS)
+PKG_CHECK_MODULES([DBUS], [dbus-1 >= 1.2.16])
+AC_SUBST([DBUS_CFLAGS])
+AC_SUBST([DBUS_LIBS])
 
 DBUS_INCLUDEDIR=`pkg-config dbus-1 --variable=includedir`
 AC_SUBST(DBUS_INCLUDEDIR)
