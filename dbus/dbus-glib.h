@@ -220,11 +220,13 @@ typedef struct _DBusGProxyClass  DBusGProxyClass;
 
 struct _DBusGProxy
 {
+  /*< private >*/
   GObject parent;
 };
 
 struct _DBusGProxyClass
 {
+  /*< private >*/
   GObjectClass parent_class;  /**< Parent class */
 };
 
