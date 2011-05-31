@@ -34,10 +34,8 @@ void dbus_set_g_error (GError   **gerror,
 
 #define DBUS_TYPE_CONNECTION      (dbus_connection_get_g_type ())
 #define DBUS_TYPE_MESSAGE         (dbus_message_get_g_type ())
-#define DBUS_TYPE_PENDING_CALL    (dbus_pending_call_get_g_type ())
 GType dbus_connection_get_g_type   (void) G_GNUC_CONST;
 GType dbus_message_get_g_type      (void) G_GNUC_CONST;
-GType dbus_pending_call_get_g_type (void) G_GNUC_CONST;
 
 void            dbus_connection_setup_with_g_main (DBusConnection  *connection,
                                                    GMainContext    *context);
@@ -51,12 +49,6 @@ void dbus_g_proxy_send (DBusGProxy    *proxy,
 DBusConnection*  dbus_g_connection_get_connection (DBusGConnection *gconnection);
 DBusGConnection* dbus_connection_get_g_connection (DBusConnection  *connection);
 DBusMessage*     dbus_g_message_get_message       (DBusGMessage    *gmessage);
-
-/* dbus_g_pending_call_get_pending_call() deliberately skipped for now;
- * not sure it makes sense to use any of the DBusPendingCall functions
- * on the wrapped pending call (once we have the right exported
- * g-functions anyhow)
- */
 
 gchar*            dbus_g_method_get_sender    (DBusGMethodInvocation *context);
 

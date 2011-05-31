@@ -117,10 +117,8 @@ dbus_server_setup_with_g_main
 DBUS_TYPE_CONNECTION
 DBUS_TYPE_MESSAGE
 <SUBSECTION Standard>
-DBUS_TYPE_PENDING_CALL
 dbus_connection_get_g_type
 dbus_message_get_g_type
-dbus_pending_call_get_g_type
 </SECTION>
 
 <SECTION>
