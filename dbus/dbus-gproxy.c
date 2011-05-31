@@ -2653,14 +2653,14 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
  * case this function will block if the results haven't yet been
  * received.
  *
- * If the call results in an error, the error is set as normal for
- * GError and the function returns #FALSE.
+ * All D-Bus method calls can fail with a remote error. If this occurs,
+ * the @error will be set and this function will return %FALSE.
  *
  * Otherwise, the "out" parameters and return value of the
  * method are stored in the provided varargs list.
  * The list should be terminated with G_TYPE_INVALID.
  *
- * Returns: #FALSE if an error is set.
+ * Returns: %TRUE on success
  */
 gboolean
 dbus_g_proxy_end_call (DBusGProxy          *proxy,
@@ -2703,7 +2703,7 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
  *
- * Returns: #FALSE if an error is set, #TRUE otherwise.
+ * Returns: %TRUE if the method succeeds, %FALSE if it fails
  */
 gboolean
 dbus_g_proxy_call (DBusGProxy        *proxy,
@@ -2763,7 +2763,7 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
  *
- * Returns: #FALSE if an error is set, #TRUE otherwise.
+ * Returns: %TRUE if the method succeeds, %FALSE if it fails
  */
 gboolean
 dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
