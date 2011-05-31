@@ -219,8 +219,11 @@ dbus_g_error_get_name (GError *error)
 }
 
 /**
- * dbus_connection_get_g_type:
- * Get the GLib type ID for a #DBusConnection boxed type.
+ * DBUS_TYPE_CONNECTION:
+ *
+ * Expands to a function call returning a boxed #GType representing a
+ * #DBusConnection pointer from libdbus. Not to be confused with
+ * %DBUS_TYPE_G_CONNECTION, which you should usually use instead.
  *
  * Returns: the GLib type
  */
@@ -238,8 +241,12 @@ dbus_connection_get_g_type (void)
 }
 
 /**
- * dbus_message_get_g_type:
- * Get the GLib type ID for a #DBusMessage boxed type.
+ * DBUS_TYPE_MESSAGE:
+ *
+ * Expands to a function call returning a boxed #GType representing a
+ * #DBusMessage pointer from libdbus. Not to be confused with
+ * %DBUS_TYPE_G_MESSAGE, which you should usually use instead.
+ *
  *
  * Returns: the GLib type
  */

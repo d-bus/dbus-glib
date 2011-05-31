@@ -114,9 +114,9 @@ dbus_set_g_error
 dbus_connection_setup_with_g_main
 dbus_connection_get_g_connection
 dbus_server_setup_with_g_main
-<SUBSECTION Standard>
 DBUS_TYPE_CONNECTION
 DBUS_TYPE_MESSAGE
+<SUBSECTION Standard>
 DBUS_TYPE_PENDING_CALL
 dbus_connection_get_g_type
 dbus_message_get_g_type
