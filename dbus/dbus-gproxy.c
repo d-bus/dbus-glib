@@ -1914,10 +1914,11 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
 /**
  * SECTION:dbus-gproxy
  * @short_description: DBus Proxy
- * @see_also: #DBusProxy
+ * @see_also: #DBusGProxy
  * @stability: Stable
  *
- * A #DBusGProxy is a boxed type abstracting a #DBusProxy.
+ * A #DBusGProxy is a #GObject representing a remote object in a D-Bus
+ * service.
  */
 
 /*
@@ -2212,8 +2213,9 @@ dbus_g_proxy_set_interface (DBusGProxy        *proxy,
 
 /**
  * dbus_g_proxy_get_path:
- * Gets the path this proxy is bound to
  * @proxy: the proxy
+ *
+ * Gets the path this proxy is bound to
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
@@ -2514,7 +2516,10 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
  * @notify: callback to be invoked when method returns
  * @user_data: user data passed to callback
  * @destroy: function called to destroy user_data
- * @first_arg_type: type of the first argument
+ * @first_arg_type: type of the first argument, or %G_TYPE_INVALID if there
+ *    are no arguments
+ * @...: first argument, followed by any further type/value pairs, followed
+ *    by %G_TYPE_INVALID
  *
  * Asynchronously invokes a method on a remote interface. The method
  * call will not be sent over the wire until the application returns
@@ -2575,7 +2580,10 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  * @user_data: user data passed to callback
  * @destroy: function called to destroy user_data
  * @timeout: the timeout in milliseconds, or -1 to use a default
- * @first_arg_type: type of the first argument
+ * @first_arg_type: type of the first argument, or %G_TYPE_INVALID if there
+ *    are no arguments
+ * @...: first argument, followed by any further type/value pairs, followed
+ *    by %G_TYPE_INVALID
  *
  * Asynchronously invokes a method on a remote interface. The method
  * call will not be sent over the wire until the application returns
@@ -2634,7 +2642,10 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
  * @proxy: a proxy for a remote interface
  * @call: the pending call ID from dbus_g_proxy_begin_call()
  * @error: return location for an error
- * @first_arg_type: type of first "out" argument
+ * @first_arg_type: type of first "out" argument, or %G_TYPE_INVALID if
+ *    there are no "out" arguments
+ * @...: return location for first "out" argument, followed by any further
+ *    type/location pairs, followed by %G_TYPE_INVALID
  *
  * Collects the results of a method call. The method call was normally
  * initiated with dbus_g_proxy_end_call(). You may use this function
@@ -2677,7 +2688,10 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
  * @proxy: a proxy for a remote interface
  * @method: method to invoke
  * @error: return location for an error
- * @first_arg_type: type of first "in" argument
+ * @first_arg_type: type of first "in" argument, or %G_TYPE_INVALID if none
+ * @...: value of first "in" argument, any further type/value pairs,
+ *    %G_TYPE_INVALID, type/location pairs for "out" arguments,
+ *    and %G_TYPE_INVALID again
  *
  * Function for synchronously invoking a method and receiving reply
  * values.  This function is equivalent to dbus_g_proxy_begin_call
@@ -2737,6 +2751,7 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
  * @timeout: the timeout in milliseconds, or -1 to use a default
  * @error: return location for an error
  * @first_arg_type: type of first "in" argument
+ * @...: as for dbus_g_proxy_call()
  *
  * Function for synchronously invoking a method and receiving reply
  * values.  This function is equivalent to dbus_g_proxy_begin_call
@@ -2793,7 +2808,10 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
  * dbus_g_proxy_call_no_reply:
  * @proxy: a proxy for a remote interface
  * @method: the name of the method to invoke
- * @first_arg_type: type of the first argument
+ * @first_arg_type: type of the first argument, or %G_TYPE_INVALID to call
+ *    the method without arguments
+ * @...: the first argument and any remaining type/argument pairs, followed by
+ *    %G_TYPE_INVALID to terminate the list
  *
  * Sends a method call message as with dbus_g_proxy_begin_call(), but
  * does not ask for a reply or allow you to receive one.
@@ -2953,7 +2971,8 @@ array_free_all (gpointer array)
  * dbus_g_proxy_add_signal:
  * @proxy: the proxy for a remote interface
  * @signal_name: the name of the signal
- * @first_type: the first argument type, or G_TYPE_INVALID if none
+ * @first_type: the first argument type, or %G_TYPE_INVALID if none
+ * @...: any subsequent argument types, followed by %G_TYPE_INVALID
  *
  * Specifies the argument signature of a D-Bus signal. When the signal is
  * emitted by the remote object, if the GTypes corresponding to its arguments'

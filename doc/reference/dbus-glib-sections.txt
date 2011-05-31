@@ -76,6 +76,8 @@ DBUS_GERROR
 <TITLE>DBusGProxy</TITLE>
 <INCLUDE>dbus/dbus-glib.h</INCLUDE>
 DBusGProxy
+DBusGProxyCall
+DBusGProxyCallNotify
 dbus_g_proxy_new_for_name
 dbus_g_proxy_new_for_name_owner
 dbus_g_proxy_new_from_proxy
@@ -104,6 +106,8 @@ dbus_g_proxy_get_type
 DBUS_G_PROXY_CLASS
 DBUS_IS_G_PROXY_CLASS
 DBUS_G_PROXY_GET_CLASS
+<SUBSECTION Private>
+DBusGAsyncData
 </SECTION>
 
 <SECTION>
