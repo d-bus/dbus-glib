@@ -339,7 +339,6 @@ AC_SUBST([DBUS_LIBS])
 PKG_CHECK_MODULES([DBUS_GLIB], [gobject-2.0 >= 2.26, gio-2.0 >= 2.26])
 PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.6, have_glib_threads=yes, have_glib_threads=no)
 
-AM_CONDITIONAL(HAVE_GLIB, test x$have_glib = xyes)
 AM_CONDITIONAL(HAVE_GLIB_THREADS, test x$have_glib_threads = xyes)
 
 GLIB_GENMARSHAL=`$PKG_CONFIG --variable=glib_genmarshal glib-2.0`
