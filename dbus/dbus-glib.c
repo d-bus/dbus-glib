@@ -98,39 +98,46 @@ dbus_g_connection_unref (DBusGConnection *connection)
  * @see_also: #DBusMessage
  * @stability: Stable
  *
- * A #DBusGConnection is a boxed type abstracting a DBusMessage.
+ * A #DBusGMessage is a boxed type abstracting a DBusMessage.
+ */
+
+/**
+ * DBusGMessage:
+ *
+ * A #DBusGMessage is a boxed type abstracting a DBusMessage from
+ * libdbus.
  */
 
 /**
  * dbus_g_message_ref:
- * @gmessage: the message to ref
+ * @message: the message to ref
  *
  * Increment refcount on a #DBusGMessage
  * 
  * Returns: the message that was ref'd
  */
 DBusGMessage*
-dbus_g_message_ref (DBusGMessage *gmessage)
+dbus_g_message_ref (DBusGMessage *message)
 {
   DBusMessage *c;
 
-  c = DBUS_MESSAGE_FROM_G_MESSAGE (gmessage);
+  c = DBUS_MESSAGE_FROM_G_MESSAGE (message);
   dbus_message_ref (c);
-  return gmessage;
+  return message;
 }
 
 /**
  * dbus_g_message_unref:
- * @gmessage: the message to unref
+ * @message: the message to unref
  * 
  * Decrement refcount on a #DBusGMessage
  */
 void
-dbus_g_message_unref (DBusGMessage *gmessage)
+dbus_g_message_unref (DBusGMessage *message)
 {
   DBusMessage *c;
 
-  c = DBUS_MESSAGE_FROM_G_MESSAGE (gmessage);
+  c = DBUS_MESSAGE_FROM_G_MESSAGE (message);
   dbus_message_unref (c);
 }
 
@@ -270,8 +277,9 @@ dbus_g_connection_get_g_type (void)
 }
 
 /**
- * dbus_g_message_get_g_type:
- * Get the GLib type ID for a #DBusGMessage boxed type.
+ * DBUS_TYPE_G_MESSAGE:
+ *
+ * Expands to a function call returning the boxed #GType of a #DBusGConnection.
  *
  * Returns: the GLib type
  */

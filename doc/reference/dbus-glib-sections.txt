@@ -37,11 +37,11 @@ dbus_glib_global_set_disable_legacy_property_access
 <TITLE>DBusGMessage</TITLE>
 <INCLUDE>dbus/dbus-glib.h</INCLUDE>
 DBusGMessage
+DBUS_TYPE_G_MESSAGE
 dbus_g_message_ref
 dbus_g_message_unref
 dbus_g_message_get_message
 <SUBSECTION Standard>
-DBUS_TYPE_G_MESSAGE
 dbus_g_message_get_g_type
 </SECTION>
 
