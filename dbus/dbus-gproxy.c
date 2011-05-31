@@ -1977,8 +1977,8 @@ dbus_g_proxy_new (DBusGConnection *connection,
  * dbus_g_proxy_new_for_name:
  * @connection: the connection to the remote bus
  * @name: any name on the message bus
- * @path_name: name of the object instance to call methods on
- * @interface_name: name of the interface to call methods on
+ * @path: name of the object instance to call methods on
+ * @iface: name of the interface to call methods on
  *
  * Creates a new proxy for a remote interface exported by a connection
  * on a message bus. Method calls and signal connections over this
@@ -2004,24 +2004,23 @@ dbus_g_proxy_new (DBusGConnection *connection,
 DBusGProxy*
 dbus_g_proxy_new_for_name (DBusGConnection *connection,
                            const char      *name,
-                           const char      *path_name,
-                           const char      *interface_name)
+                           const char      *path,
+                           const char      *iface)
 {
   g_return_val_if_fail (connection != NULL, NULL);
   g_return_val_if_fail (g_dbus_is_name (name), NULL);
-  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path), NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (iface), NULL);
 
-  return dbus_g_proxy_new (connection, name,
-			   path_name, interface_name);
+  return dbus_g_proxy_new (connection, name, path, iface);
 }
 
 /**
  * dbus_g_proxy_new_for_name_owner:
  * @connection: the connection to the remote bus
  * @name: any name on the message bus
- * @path_name: name of the object inside the service to call methods on
- * @interface_name: name of the interface to call methods on
+ * @path: name of the object inside the service to call methods on
+ * @iface: name of the interface to call methods on
  * @error: return location for an error
  *
  * Similar to dbus_g_proxy_new_for_name(), but makes a round-trip
@@ -2044,8 +2043,8 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
 DBusGProxy*
 dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
                                  const char               *name,
-                                 const char               *path_name,
-                                 const char               *interface_name,
+                                 const char               *path,
+                                 const char               *iface,
                                  GError                  **error)
 {
   DBusGProxy *proxy;
@@ -2053,14 +2052,13 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
 
   g_return_val_if_fail (connection != NULL, NULL);
   g_return_val_if_fail (g_dbus_is_name (name), NULL);
-  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path), NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (iface), NULL);
 
   if (!(unique_name = get_name_owner (DBUS_CONNECTION_FROM_G_CONNECTION (connection), name, error)))
     return NULL;
 
-  proxy = dbus_g_proxy_new (connection, unique_name,
-			    path_name, interface_name);
+  proxy = dbus_g_proxy_new (connection, unique_name, path, iface);
   g_free (unique_name);
   return proxy;
 }
@@ -2068,8 +2066,8 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
 /**
  * dbus_g_proxy_new_from_proxy:
  * @proxy: the proxy to use as a template
+ * @iface: name of the interface to call methods on
  * @path: of the object inside the peer to call methods on
- * @interface: name of the interface to call methods on
  *
  * Creates a proxy using an existing proxy as a template, substituting
  * the specified interface and path.  Either or both may be NULL.
@@ -2078,33 +2076,33 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
  */
 DBusGProxy*
 dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
-			     const char        *interface,
+			     const char        *iface,
 			     const char        *path)
 {
   DBusGProxyPrivate *priv;
 
   g_return_val_if_fail (DBUS_IS_G_PROXY (proxy), NULL);
   g_return_val_if_fail (path == NULL || g_variant_is_object_path (path), NULL);
-  g_return_val_if_fail (interface == NULL ||
-      g_dbus_is_interface_name (interface), NULL);
+  g_return_val_if_fail (iface == NULL ||
+      g_dbus_is_interface_name (iface), NULL);
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   
-  if (interface == NULL)
-    interface = priv->interface;
+  if (iface == NULL)
+    iface = priv->interface;
   if (path == NULL)
     path = priv->path;
 
   return dbus_g_proxy_new (DBUS_G_CONNECTION_FROM_CONNECTION (priv->manager->connection),
 			   priv->name,
-			   path, interface);
+			   path, iface);
 }
 
 /**
  * dbus_g_proxy_new_for_peer:
  * @connection: the connection to the peer
- * @path_name: name of the object inside the peer to call methods on
- * @interface_name: name of the interface to call methods on
+ * @path: name of the object inside the peer to call methods on
+ * @iface: name of the interface to call methods on
  *
  * Creates a proxy for an object in peer application (one
  * we're directly connected to). That is, this function is
@@ -2116,17 +2114,16 @@ dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
  */
 DBusGProxy*
 dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
-                           const char               *path_name,
-                           const char               *interface_name)
+                           const char               *path,
+                           const char               *iface)
 {
   DBusGProxy *proxy;
   
   g_return_val_if_fail (connection != NULL, NULL);
-  g_return_val_if_fail (g_variant_is_object_path (path_name), NULL);
-  g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
+  g_return_val_if_fail (g_variant_is_object_path (path), NULL);
+  g_return_val_if_fail (g_dbus_is_interface_name (iface), NULL);
 
-  proxy = dbus_g_proxy_new (connection, NULL,
-                            path_name, interface_name);
+  proxy = dbus_g_proxy_new (connection, NULL, path, iface);
 
   return proxy;
 }

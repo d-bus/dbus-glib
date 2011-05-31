@@ -247,10 +247,10 @@ DBusGProxy*       dbus_g_proxy_new_for_name_owner    (DBusGConnection   *connect
                                                       GError           **error);
 DBusGProxy*       dbus_g_proxy_new_from_proxy        (DBusGProxy        *proxy,
                                                       const char        *iface,
-                                                      const char        *path_name);
+                                                      const char        *path);
 DBusGProxy*       dbus_g_proxy_new_for_peer          (DBusGConnection   *connection,
-                                                      const char        *path_name,
-                                                      const char        *interface_name);
+                                                      const char        *path,
+                                                      const char        *iface);
 
 void              dbus_g_proxy_set_interface         (DBusGProxy        *proxy,
 						      const char        *interface_name);
@@ -290,7 +290,7 @@ void              dbus_g_proxy_call_no_reply         (DBusGProxy        *proxy,
 DBusGProxyCall *  dbus_g_proxy_begin_call            (DBusGProxy        *proxy,
                                                       const char        *method,
 						      DBusGProxyCallNotify notify,
-						      gpointer           data,
+						      gpointer           user_data,
 						      GDestroyNotify     destroy,
                                                       GType              first_arg_type,
                                                       ...);
