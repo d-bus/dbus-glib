@@ -67,7 +67,6 @@ dbus_g_error_has_name
 dbus_g_error_get_name
 dbus_g_error_quark
 dbus_g_error_domain_register
-<SUBSECTION Standard>
 DBUS_GERROR
 </SECTION>
 

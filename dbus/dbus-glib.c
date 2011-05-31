@@ -151,12 +151,18 @@ dbus_g_message_unref (DBusGMessage *message)
  */
 
 /**
- * dbus_g_error_quark:
+ * DBusGError:
  *
- * The implementation of #DBUS_GERROR error domain. See documentation
- * for #GError in GLib reference manual.
+ * A #GError enumeration for the domain %DBUS_GERROR. The values' meanings
+ * can be found by looking at the comments for the corresponding constants
+ * in dbus-protocol.h.
+ */
+
+/**
+ * DBUS_GERROR:
  *
- * Returns: the error domain quark for use with #GError
+ * Expands to a function call returning the error domain quark for #DBusGError,
+ * for use with #GError.
  */
 GQuark
 dbus_g_error_quark (void)
@@ -171,17 +177,16 @@ dbus_g_error_quark (void)
  * dbus_g_error_has_name:
  * @error: the GError given from the remote method
  * @name: the D-BUS error name
- * @msg: the D-BUS error detailed message
  *
  * Determine whether D-BUS error name for a remote exception matches
  * the given name.  This function is intended to be invoked on a
- * GError returned from an invocation of a remote method, e.g. via
- * dbus_g_proxy_end_call.  It will silently return FALSE for errors
+ * #GError returned from an invocation of a remote method, e.g. via
+ * dbus_g_proxy_end_call().  It will silently return %FALSE for errors
  * which are not remote D-BUS exceptions (i.e. with a domain other
- * than DBUS_GERROR or a code other than
- * DBUS_GERROR_REMOTE_EXCEPTION).
+ * than %DBUS_GERROR or a code other than
+ * %DBUS_GERROR_REMOTE_EXCEPTION).
  *
- * Returns: TRUE iff the remote error has the given name
+ * Returns: %TRUE if and only if the remote error has the given name
  */
 gboolean
 dbus_g_error_has_name (GError *error, const char *name)
@@ -198,13 +203,11 @@ dbus_g_error_has_name (GError *error, const char *name)
 /**
  * dbus_g_error_get_name:
  * @error: the #GError given from the remote method
- * @name: the D-BUS error name
- * @msg: the D-BUS error detailed message
  *
  * This function may only be invoked on a #GError returned from an
- * invocation of a remote method, e.g. via dbus_g_proxy_end_call.
- * Moreover, you must ensure that the error's domain is #DBUS_GERROR,
- * and the code is #DBUS_GERROR_REMOTE_EXCEPTION.
+ * invocation of a remote method, e.g. via dbus_g_proxy_end_call().
+ * Moreover, you must ensure that the error's domain is %DBUS_GERROR,
+ * and the code is %DBUS_GERROR_REMOTE_EXCEPTION.
  *
  * Returns: the D-BUS name for a remote exception.
  */
