@@ -2580,6 +2580,7 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
   ObjectExport *oe;
   GSList *iter;
   ObjectRegistration *o;
+  DBusError error;
 
   g_return_if_fail (connection != NULL);
   g_return_if_fail (g_variant_is_object_path (at_path));
@@ -2630,12 +2631,16 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
 
   o = object_registration_new (connection, at_path, oe);
 
-  if (!dbus_connection_register_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection),
-                                             at_path,
-                                             &gobject_dbus_vtable,
-                                             o))
+  dbus_error_init (&error);
+  if (!dbus_connection_try_register_object_path (DBUS_CONNECTION_FROM_G_CONNECTION (connection),
+                                                 at_path,
+                                                 &gobject_dbus_vtable,
+                                                 o,
+                                                 &error))
     {
-      g_error ("Failed to register GObject with DBusConnection");
+      g_error ("Failed to register GObject with DBusConnection: %s %s",
+               error.name, error.message);
+      dbus_error_free (&error);
       object_registration_free (o);
       return;
     }
