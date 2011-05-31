@@ -30,10 +30,6 @@
 #include "dbus/dbus-signature.h"
 #include <string.h>
 
-#include <libintl.h>
-#define _(x) gettext ((x))
-#define N_(x) x
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #define ELEMENT_IS(name) (strcmp (element_name, (name)) == 0)
@@ -120,7 +116,7 @@ locate_attributes (const char  *element_name,
                   g_set_error (error,
                                G_MARKUP_ERROR,
                                G_MARKUP_ERROR_PARSE,
-                               _("Attribute \"%s\" repeated twice on the same <%s> element"),
+                               "Attribute \"%s\" repeated twice on the same <%s> element",
                                attrs[j].name, element_name);
                   retval = FALSE;
                   goto out;
@@ -141,7 +137,7 @@ locate_attributes (const char  *element_name,
               g_set_error (error,
                            G_MARKUP_ERROR,
                            G_MARKUP_ERROR_PARSE,
-                           _("Attribute \"%s\" is invalid on <%s> element in this context"),
+                           "Attribute \"%s\" is invalid on <%s> element in this context",
                            attribute_names[i], element_name);
               retval = FALSE;
               goto out;
@@ -167,7 +163,7 @@ check_no_attributes (const char  *element_name,
       g_set_error (error,
                    G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Attribute \"%s\" is invalid on <%s> element in this context"),
+                   "Attribute \"%s\" is invalid on <%s> element in this context",
                    attribute_names[0], element_name);
       return FALSE;
     }
@@ -263,7 +259,7 @@ parse_node (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -280,7 +276,7 @@ parse_node (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -290,7 +286,7 @@ parse_node (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute on <%s> element must be an absolute object path, \"%s\" not OK"),
+                   "\"%s\" attribute on <%s> element must be an absolute object path, \"%s\" not OK",
                    "name", element_name, name);
       return FALSE;
     }
@@ -300,7 +296,7 @@ parse_node (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute on <%s> element must not be an absolute object path, \"%s\" starts with /"),
+                   "\"%s\" attribute on <%s> element must not be an absolute object path, \"%s\" starts with /",
                    "name", element_name, name);
       return FALSE;
     }
@@ -340,7 +336,7 @@ parse_interface (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -356,7 +352,7 @@ parse_interface (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -392,7 +388,7 @@ parse_method (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -408,7 +404,7 @@ parse_method (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -442,7 +438,7 @@ parse_signal (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -458,7 +454,7 @@ parse_signal (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -512,7 +508,7 @@ parse_property (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -530,7 +526,7 @@ parse_property (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -539,7 +535,7 @@ parse_property (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "access", element_name);
       return FALSE;
     }
@@ -548,7 +544,7 @@ parse_property (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "type", element_name);
       return FALSE;
     }
@@ -567,7 +563,7 @@ parse_property (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("access=\"%s\" must have value readwrite, read, or write on %s\n"),
+                   "access=\"%s\" must have value readwrite, read, or write on %s\n",
                    access, element_name);
       return FALSE;
     }
@@ -603,7 +599,7 @@ parse_arg (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -623,7 +619,7 @@ parse_arg (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "type", element_name);
       return FALSE;
     }
@@ -652,11 +648,11 @@ parse_arg (Parser      *parser,
       if (parser->signal)
         g_set_error (error, G_MARKUP_ERROR,
                      G_MARKUP_ERROR_PARSE,
-                     _("Signals must have direction=\"out\" (just omit the direction attribute)"));
+                     "Signals must have direction=\"out\" (just omit the direction attribute)");
       else
         g_set_error (error, G_MARKUP_ERROR,
                      G_MARKUP_ERROR_PARSE,
-                     _("\"%s\" attribute on <%s> has value \"in\" or \"out\""),
+                     "\"%s\" attribute on <%s> has value \"in\" or \"out\"",
                      "direction", element_name);
       return FALSE;
     }
@@ -705,7 +701,7 @@ parse_annotation (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("Can't put <%s> element here"),
+                   "Can't put <%s> element here",
                    element_name);
       return FALSE;      
     }
@@ -722,7 +718,7 @@ parse_annotation (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
       return FALSE;
     }
@@ -730,7 +726,7 @@ parse_annotation (Parser      *parser,
     {
       g_set_error (error, G_MARKUP_ERROR,
                    G_MARKUP_ERROR_PARSE,
-                   _("\"%s\" attribute required on <%s> element "),
+                   "\"%s\" attribute required on <%s> element ",
                    "value", element_name);
       return FALSE;
     }
@@ -809,7 +805,7 @@ parser_start_element (Parser      *parser,
         {
           g_set_error (error, G_MARKUP_ERROR,
                        G_MARKUP_ERROR_PARSE,
-                       _("Element <%s> not recognized"),
+                       "Element <%s> not recognized",
                        element_name);
           return FALSE;
         }

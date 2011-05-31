@@ -31,7 +31,6 @@
 #include "dbus/dbus-glib.h"
 #include <string.h>
 #include <glib.h>
-#include <glib/gi18n.h>
 #include "dbus/dbus-signature.h"
 
 /* Seems reasonable, but this should probably be part of the standard protocol */
@@ -628,7 +627,7 @@ demarshal_basic (DBusGValueMarshalCtx      *context,
     g_set_error (error,
                  DBUS_GERROR,
                  DBUS_GERROR_INVALID_ARGS,
-                 _("Expected type %s, got type code \'%c\'"), 
+                 "Expected type %s, got type code \'%c\'",
                  g_type_name (G_VALUE_TYPE (value)),
                  (guchar) current_type);
     return FALSE;
@@ -695,7 +694,7 @@ demarshal_proxy (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS object path, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS object path, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -724,7 +723,7 @@ demarshal_object_path (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS object path, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS object path, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -751,7 +750,7 @@ demarshal_object (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS object path, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS object path, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
   g_assert (context->proxy == NULL);
@@ -764,7 +763,7 @@ demarshal_object (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Unregistered object at path '%s'"),
+		   "Unregistered object at path '%s'",
 		   objpath);
       return FALSE;
     }
@@ -788,7 +787,7 @@ demarshal_signature (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS signature, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS signature, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -815,7 +814,7 @@ demarshal_strv (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS array, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS array, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -828,7 +827,7 @@ demarshal_strv (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS string, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS string, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -869,7 +868,7 @@ demarshal_valuearray (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS struct, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS struct, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -895,7 +894,7 @@ demarshal_valuearray (DBusGValueMarshalCtx    *context,
 	  g_set_error (error,
 		       DBUS_GERROR,
 		       DBUS_GERROR_INVALID_ARGS,
-		       _("Couldn't demarshal argument with signature \"%s\""), current_sig);
+		       "Couldn't demarshal argument with signature \"%s\"", current_sig);
 	  dbus_free (current_sig);
 	  return FALSE;
 	}
@@ -937,7 +936,7 @@ demarshal_map (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS array, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS array, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -952,7 +951,7 @@ demarshal_map (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS dict entry, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS dict entry, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -1018,7 +1017,7 @@ demarshal_struct (DBusGValueMarshalCtx    *context,
       g_set_error (error,
                    DBUS_GERROR,
                    DBUS_GERROR_INVALID_ARGS,
-                   _("Expected D-BUS struct, got type code \'%c\'"), (guchar) current_type);
+                   "Expected D-BUS struct, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -1039,8 +1038,8 @@ demarshal_struct (DBusGValueMarshalCtx    *context,
           g_set_error (error,
                        DBUS_GERROR,
                        DBUS_GERROR_INVALID_ARGS,
-                       _("Couldn't demarshal argument, "
-                         "struct type %s has no member %d"),
+                       "Couldn't demarshal argument, "
+                         "struct type %s has no member %d",
                        g_type_name (G_VALUE_TYPE(value)), i);
           return FALSE;
         }
@@ -1133,7 +1132,7 @@ demarshal_collection_ptrarray (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Expected D-BUS array, got type code \'%c\'"), (guchar) current_type);
+		   "Expected D-BUS array, got type code \'%c\'", (guchar) current_type);
       return FALSE;
     }
 
@@ -1149,7 +1148,7 @@ demarshal_collection_ptrarray (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("No demarshaller registered for type \"%s\" of collection \"%s\""),
+		   "No demarshaller registered for type \"%s\" of collection \"%s\"",
 		   g_type_name (coltype),
 		   g_type_name (subtype));
       return FALSE;
@@ -1246,7 +1245,7 @@ _dbus_gvalue_demarshal (DBusGValueMarshalCtx    *context,
       g_set_error (error,
 		   DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("No demarshaller registered for type \"%s\""),
+		   "No demarshaller registered for type \"%s\"",
 		   g_type_name (gtype));
     
       goto out;
@@ -1292,7 +1291,7 @@ _dbus_gvalue_demarshal_message  (DBusGValueMarshalCtx    *context,
 	{
 	  g_set_error (error, DBUS_GERROR,
 		       DBUS_GERROR_INVALID_ARGS,
-		       _("Too many arguments in message"));
+		       "Too many arguments in message");
 	  goto lose;
 	}
       
@@ -1311,7 +1310,7 @@ _dbus_gvalue_demarshal_message  (DBusGValueMarshalCtx    *context,
     {
       g_set_error (error, DBUS_GERROR,
 		   DBUS_GERROR_INVALID_ARGS,
-		   _("Too few arguments in message"));
+		   "Too few arguments in message");
       goto lose;
     }
 

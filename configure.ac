@@ -13,10 +13,6 @@ AM_CONFIG_HEADER(config.h)
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 AC_CONFIG_MACRO_DIR(m4)
 
-GETTEXT_PACKAGE=dbus-glib-1
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",[The name of the gettext domain])
-
  ## must come before we use the $USE_MAINTAINER_MODE variable later
 AM_MAINTAINER_MODE
 
@@ -318,24 +314,6 @@ fi
 # unix:path=/foo or unix:abstract=/foo 
 AC_SUBST(DBUS_PATH_OR_ABSTRACT)
 
-#### Sort out gettext
-
-# this makes us require GLib to run autoconf, but not at runtime
-ALL_LINGUAS=""
-AM_GLIB_GNU_GETTEXT
-
-# INTLLIBS is now set
-
-# (if someone wants to go through and make internationalization 
-#  conditional with #ifdef ENABLE_NLS then go crazy and send us a patch, 
-#  but right now we won't build without gettext)
-if test "$gt_cv_have_gettext" != "yes" ; then
-  AC_MSG_ERROR([
-*** You must have either have gettext support in your C library, or use the 
-*** GNU gettext library. (http://www.gnu.org/software/gettext/gettext.html
-])
-fi
-
 #### Sort out XML library
 
 # see what we have
@@ -391,7 +369,7 @@ AC_SUBST(DBUS_GLIB_LIBS)
 AC_SUBST(DBUS_GLIB_THREADS_LIBS)
 
 DBUS_GLIB_TOOL_CFLAGS=$XML_CFLAGS
-DBUS_GLIB_TOOL_LIBS="$XML_LIBS $INTLLIBS"
+DBUS_GLIB_TOOL_LIBS="$XML_LIBS"
 AC_SUBST(DBUS_GLIB_TOOL_CFLAGS)
 AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 
@@ -554,7 +532,6 @@ echo "
         Building Doxygen docs:    ${enable_doxygen_docs}
         Building Gtk-doc docs:    ${enable_gtk_doc}
         Bash Completion:          ${enable_bash_completion}
-        Gettext libs (empty OK):  ${INTLLIBS}
         Using XML parser:         ${with_xml}
         'make check' socket dir:  ${TEST_SOCKET_DIR}
 "

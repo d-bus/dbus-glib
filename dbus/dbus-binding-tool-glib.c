@@ -250,7 +250,7 @@ compute_gsignature (MethodInfo *method, GType *rettype, GArray **params, GError 
   g_set_error (error,
 	       DBUS_BINDING_TOOL_ERROR,
 	       DBUS_BINDING_TOOL_ERROR_UNSUPPORTED_CONVERSION,
-	       _("Unsupported conversion from D-BUS type %s to glib-genmarshal type"),
+	       "Unsupported conversion from D-BUS type %s to glib-genmarshal type",
 	       arg_type);
   return FALSE;
 }
@@ -983,7 +983,7 @@ write_formal_parameters (InterfaceInfo *iface, MethodInfo *method, GIOChannel *c
 	  g_set_error (error,
 		       DBUS_BINDING_TOOL_ERROR,
 		       DBUS_BINDING_TOOL_ERROR_UNSUPPORTED_CONVERSION,
-		       _("Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\""),
+		       "Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\"",
 		       arg_info_get_type (arg),
 		       method_info_get_name (method),
 		       interface_info_get_name (iface));
@@ -1247,7 +1247,7 @@ write_formal_declarations_for_direction (InterfaceInfo *iface, MethodInfo *metho
          g_set_error (error,
                       DBUS_BINDING_TOOL_ERROR,
                       DBUS_BINDING_TOOL_ERROR_UNSUPPORTED_CONVERSION,
-                      _("Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\""),
+                      "Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\"",
                       arg_info_get_type (arg),
                       method_info_get_name (method),
                       interface_info_get_name (iface));
@@ -1341,7 +1341,7 @@ write_formal_parameters_for_direction (InterfaceInfo *iface, MethodInfo *method,
 	  g_set_error (error,
 		       DBUS_BINDING_TOOL_ERROR,
 		       DBUS_BINDING_TOOL_ERROR_UNSUPPORTED_CONVERSION,
-		       _("Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\""),
+		       "Unsupported conversion from D-BUS type signature \"%s\" to glib C type in method \"%s\" of interface \"%s\"",
 		       arg_info_get_type (arg),
 		       method_info_get_name (method),
 		       interface_info_get_name (iface));

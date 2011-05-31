@@ -27,10 +27,6 @@
 #include "dbus-gutils.h"
 #include "dbus-glib-tool.h"
 #include "dbus-binding-tool-glib.h"
-#include <locale.h>
-#include <libintl.h>
-#define _(x) dgettext (GETTEXT_PACKAGE, x)
-#define N_(x) x
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -97,9 +93,9 @@ pretty_print (BaseInfo *base,
         NodeInfo *n = (NodeInfo*) base;
         
         if (name == NULL)
-          printf (_("<anonymous node> {\n"));
+          printf ("<anonymous node> {\n");
         else
-          printf (_("node \"%s\" {\n"), name);
+          printf ("node \"%s\" {\n", name);
 
         pretty_print_list (node_info_get_interfaces (n), depth + 1);
         pretty_print_list (node_info_get_nodes (n), depth + 1);
@@ -115,7 +111,7 @@ pretty_print (BaseInfo *base,
 
         g_assert (name != NULL);
 
-        printf (_("interface \"%s\" {\n"), name);
+        printf ("interface \"%s\" {\n", name);
 
 	annotations = interface_info_get_annotations (i);
 	for (elt = annotations; elt; elt = elt->next)
@@ -123,7 +119,7 @@ pretty_print (BaseInfo *base,
 	    const char *name = elt->data;
 	    const char *value = interface_info_get_annotation (i, name);
 
-	    printf (_(" (binding \"%s\": \"%s\") "),
+	    printf (" (binding \"%s\": \"%s\") ",
 		    name, value);
 	  }
 	g_slist_free (annotations);
@@ -144,13 +140,13 @@ pretty_print (BaseInfo *base,
         g_assert (name != NULL);
 
 	annotations = method_info_get_annotations (m);
-        printf (_("method \"%s\""), name);
+        printf ("method \"%s\"", name);
 	for (elt = annotations; elt; elt = elt->next)
 	  {
 	    const char *name = elt->data;
 	    const char *value = method_info_get_annotation (m, name);
 
-	    printf (_(" (annotation \"%s\": \"%s\") "),
+	    printf (" (annotation \"%s\": \"%s\") ",
 		    name, value);
 	  }
 	g_slist_free (annotations);
@@ -167,7 +163,7 @@ pretty_print (BaseInfo *base,
 
         g_assert (name != NULL);
 
-        printf (_("signal \"%s\" (\n"), name);
+        printf ("signal \"%s\" (\n", name);
 
         pretty_print_list (signal_info_get_args (s), depth + 1);
 
@@ -283,11 +279,6 @@ main (int argc, char **argv)
   gboolean ignore_unsupported;
   gboolean has_prefix = FALSE;
 
-  setlocale (LC_ALL, "");
-  bindtextdomain (GETTEXT_PACKAGE, DBUS_LOCALEDIR);
-  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-  textdomain (GETTEXT_PACKAGE); 
-
   g_type_init ();
 
   outputmode = DBUS_BINDING_OUTPUT_NONE;
@@ -390,7 +381,7 @@ main (int argc, char **argv)
       output_file_tmp = g_strconcat (output_file, ".tmp", NULL);
 
       if (!(channel = g_io_channel_new_file (output_file_tmp, "w", &error)))
-	lose_gerror (_("Couldn't open temporary file"), error);
+	lose_gerror ("Couldn't open temporary file", error);
     }
   else
     {
@@ -398,7 +389,7 @@ main (int argc, char **argv)
       output_file_tmp = NULL; /* silence gcc */
     }
   if (!g_io_channel_set_encoding (channel, NULL, &error))
-    lose_gerror (_("Couldn't set channel encoding to NULL"), error);
+    lose_gerror ("Couldn't set channel encoding to NULL", error);
 
 
   for (tmp = files; tmp != NULL; tmp = tmp->next)
@@ -414,7 +405,7 @@ main (int argc, char **argv)
                                          &error);
       if (node == NULL)
         {
-	  lose (_("Unable to load \"%s\": %s"), filename, error->message);
+	  lose ("Unable to load \"%s\": %s", filename, error->message);
         }
       else
 	{
@@ -425,11 +416,11 @@ main (int argc, char **argv)
 	      break;
 	    case DBUS_BINDING_OUTPUT_GLIB_SERVER:
 	      if (!dbus_binding_tool_output_glib_server ((BaseInfo *) node, channel, prefix, &error))
-		lose_gerror (_("Compilation failed"), error);
+		lose_gerror ("Compilation failed", error);
 	      break;
 	    case DBUS_BINDING_OUTPUT_GLIB_CLIENT:
 	      if (!dbus_binding_tool_output_glib_client ((BaseInfo *) node, channel, ignore_unsupported, &error))
-		lose_gerror (_("Compilation failed"), error);
+		lose_gerror ("Compilation failed", error);
 	      break;
 	    case DBUS_BINDING_OUTPUT_NONE:
 	      break;
@@ -441,7 +432,7 @@ main (int argc, char **argv)
     }
 
   if (g_io_channel_shutdown (channel, TRUE, &error) != G_IO_STATUS_NORMAL)
-    lose_gerror (_("Failed to shutdown IO channel"), error);
+    lose_gerror ("Failed to shutdown IO channel", error);
   g_io_channel_unref (channel);
 
   if (output_file)

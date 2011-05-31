@@ -2390,7 +2390,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 	    {
 	      g_set_error (error, DBUS_GERROR,
 			   DBUS_GERROR_INVALID_ARGS,
-			   _("Too few arguments in reply"));
+			   "Too few arguments in reply");
 	      goto out;
 	    }
 
@@ -2409,7 +2409,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 		  g_set_error (error,
 			       DBUS_GERROR,
 			       DBUS_GERROR_INVALID_ARGS,
-			       _("Couldn't convert argument, expected \"%s\""),
+			       "Couldn't convert argument, expected \"%s\"",
 			       g_type_name (valtype));
 		  goto out;
 		}
@@ -2443,7 +2443,7 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 	{
 	  g_set_error (error, DBUS_GERROR,
 		       DBUS_GERROR_INVALID_ARGS,
-		       _("Too many arguments in reply; expected %d, got %d"),
+		       "Too many arguments in reply; expected %d, got %d",
 		       n_retvals_processed, over);
 	  goto out;
 	}
@@ -2711,7 +2711,7 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
     {
       g_set_error (error, DBUS_GERROR,
 		   DBUS_GERROR_FAILED,
-		   _("Disconnection or out-of-memory"));
+		   "Disconnection or out-of-memory");
       ret = FALSE;
     }
 
