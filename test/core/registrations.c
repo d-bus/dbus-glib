@@ -232,7 +232,7 @@ test_twice (Fixture *f,
       f->object);
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
-      "", NULL);
+      "type='signal'", NULL);
   mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
       frobnicate_cb, f, NULL);
   g_assert (mem);
@@ -269,7 +269,7 @@ test_clean_slate (Fixture *f,
   dbus_bool_t mem;
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
-      "", NULL);
+      "type='signal'", NULL);
   mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
       frobnicate_cb, f, NULL);
   g_assert (mem);
