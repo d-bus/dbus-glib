@@ -1,7 +1,7 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ(2.52)
 
-AC_INIT([dbus-glib], [0.94],
+AC_INIT([dbus-glib], [0.95],
   [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
 
 AC_CANONICAL_HOST
