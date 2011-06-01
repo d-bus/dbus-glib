@@ -215,11 +215,11 @@ dbus_binding_tool_error_quark (void)
   return quark;
 }
 
-static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
-static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
+static void warn (const char *fmt, ...) G_GNUC_PRINTF (1, 2);
+static void warn_gerror (const char *prefix, GError *error);
 
 static void
-lose (const char *str, ...)
+warn (const char *str, ...)
 {
   va_list args;
 
@@ -229,14 +229,12 @@ lose (const char *str, ...)
   fputc ('\n', stderr);
 
   va_end (args);
-
-  exit (1);
 }
 
 static void
-lose_gerror (const char *prefix, GError *error) 
+warn_gerror (const char *prefix, GError *error) 
 {
-  lose ("%s: %s", prefix, error->message);
+  warn ("%s: %s", prefix, error->message);
 }
 
 static void
@@ -264,13 +262,13 @@ main (int argc, char **argv)
 {
   const char *output_file;
   const char *prefix;
-  char *output_file_tmp;
+  char *output_file_tmp = NULL;
   int i;
   GSList *files;
   DBusBindingOutputMode outputmode;
   gboolean end_of_args;
   GSList *tmp;
-  GIOChannel *channel;
+  GIOChannel *channel = NULL;
   GError *error;
   time_t newest_src;
   struct stat srcbuf;
@@ -365,7 +363,10 @@ main (int argc, char **argv)
 
 	  filename = tmp->data;
 	  if (stat (filename, &srcbuf) < 0)
-	    lose ("Couldn't stat %s: %s", filename, g_strerror (errno));
+            {
+              warn ("Couldn't stat %s: %s", filename, g_strerror (errno));
+              goto lose;
+            }
 
 	  if (srcbuf.st_mtime > newest_src)
 	    newest_src = srcbuf.st_mtime;
@@ -381,15 +382,21 @@ main (int argc, char **argv)
       output_file_tmp = g_strconcat (output_file, ".tmp", NULL);
 
       if (!(channel = g_io_channel_new_file (output_file_tmp, "w", &error)))
-	lose_gerror ("Couldn't open temporary file", error);
+        {
+          warn_gerror ("Couldn't open temporary file", error);
+          goto lose;
+        }
     }
   else
     {
       channel = g_io_channel_unix_new (fileno (stdout));
-      output_file_tmp = NULL; /* silence gcc */
     }
+
   if (!g_io_channel_set_encoding (channel, NULL, &error))
-    lose_gerror ("Couldn't set channel encoding to NULL", error);
+    {
+      warn_gerror ("Couldn't set channel encoding to NULL", error);
+      goto lose;
+    }
 
 
   for (tmp = files; tmp != NULL; tmp = tmp->next)
@@ -405,7 +412,8 @@ main (int argc, char **argv)
                                          &error);
       if (node == NULL)
         {
-	  lose ("Unable to load \"%s\": %s", filename, error->message);
+          warn ("Unable to load \"%s\": %s", filename, error->message);
+          goto lose;
         }
       else
 	{
@@ -416,11 +424,19 @@ main (int argc, char **argv)
 	      break;
 	    case DBUS_BINDING_OUTPUT_GLIB_SERVER:
 	      if (!dbus_binding_tool_output_glib_server ((BaseInfo *) node, channel, prefix, &error))
-		lose_gerror ("Compilation failed", error);
+                {
+                  warn_gerror ("Compilation failed", error);
+                  node_info_unref (node);
+                  goto lose;
+                }
 	      break;
 	    case DBUS_BINDING_OUTPUT_GLIB_CLIENT:
 	      if (!dbus_binding_tool_output_glib_client ((BaseInfo *) node, channel, ignore_unsupported, &error))
-		lose_gerror ("Compilation failed", error);
+                {
+                  warn_gerror ("Compilation failed", error);
+                  node_info_unref (node);
+                  goto lose;
+                }
 	      break;
 	    case DBUS_BINDING_OUTPUT_NONE:
 	      break;
@@ -432,18 +448,40 @@ main (int argc, char **argv)
     }
 
   if (g_io_channel_shutdown (channel, TRUE, &error) != G_IO_STATUS_NORMAL)
-    lose_gerror ("Failed to shutdown IO channel", error);
+    {
+      warn ("Failed to shutdown IO channel", error);
+      goto lose;
+    }
+
   g_io_channel_unref (channel);
+  channel = NULL;
 
   if (output_file)
     {
       if (rename (output_file_tmp, output_file) < 0)
-	lose ("Failed to rename %s to %s: %s", output_file_tmp, output_file,
-	      g_strerror (errno));
+        {
+          warn ("Failed to rename %s to %s: %s", output_file_tmp, output_file,
+              g_strerror (errno));
+          goto lose;
+        }
       g_free (output_file_tmp);
     }
 
   return 0;
+
+lose:
+  /* ignore errors, we're already handling an error */
+  if (channel != NULL)
+    {
+      (void) g_io_channel_shutdown (channel, FALSE, NULL);
+      g_io_channel_unref (channel);
+    }
+
+  if (output_file_tmp != NULL)
+    (void) g_remove (output_file_tmp);
+
+  g_free (output_file_tmp);
+  return 1;
 }
 
 
@@ -451,7 +489,7 @@ main (int argc, char **argv)
 static void
 test_die (const char *failure)
 {
-  lose ("Unit test failed: %s", failure);
+  g_error ("Unit test failed: %s", failure);
 }
 
 /**
