@@ -38,8 +38,6 @@ $(srcdir)/ChangeLog:
 	  echo A git checkout and git-log are required to generate this file >> $@); \
 	fi
 
-all-local: Doxyfile
-
 %.tar.gz.asc: %.tar.gz
 	$(AM_V_GEN)gpg --detach-sign --armor $@
 

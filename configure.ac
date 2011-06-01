@@ -49,7 +49,6 @@ AC_ARG_ENABLE(ansi, AS_HELP_STRING([--enable-ansi],[enable -ansi -pedantic gcc f
 AC_ARG_ENABLE(verbose-mode, AS_HELP_STRING([--enable-verbose-mode],[support verbose debug mode]),enable_verbose_mode=$enableval,enable_verbose_mode=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(asserts, AS_HELP_STRING([--enable-asserts],[include assertion checks]),enable_asserts=$enableval,enable_asserts=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(checks, AS_HELP_STRING([--enable-checks],[include sanity checks on public API]),enable_checks=$enableval,enable_checks=yes)
-AC_ARG_ENABLE(doxygen-docs, AS_HELP_STRING([--enable-doxygen-docs],[build DOXYGEN documentation (requires Doxygen)]),enable_doxygen_docs=$enableval,enable_doxygen_docs=auto)
 AC_ARG_ENABLE(gcov, AS_HELP_STRING([--enable-gcov],[compile with coverage profiling instrumentation (gcc only)]),enable_gcov=$enableval,enable_gcov=no)
 AC_ARG_ENABLE(bash-completion, AS_HELP_STRING([--enable-bash-completion],[install bash completion scripts]),enable_bash_completion=$enableval,enable_bash_completion=yes)
 AC_ARG_WITH(test-socket-dir, AS_HELP_STRING([--with-test-socket-dir=[dirname]],[Where to put sockets for make check]))
@@ -357,35 +356,6 @@ AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 ### gtk-doc Documentation
 GTK_DOC_CHECK(1.4)
 
-### Doxygen Documentation
-
-AC_PATH_PROG(DOXYGEN, doxygen, no)
-
-AC_MSG_CHECKING([whether to build Doxygen documentation])
-
-if test x$DOXYGEN = xno ; then
-    have_doxygen=no
-else
-    have_doxygen=yes
-fi
-
-if test x$enable_doxygen_docs = xauto ; then
-    if test x$have_doxygen = xno ; then
-        enable_doxygen_docs=no
-    else
-        enable_doxygen_docs=yes
-    fi
-fi
-
-if test x$enable_doxygen_docs = xyes; then
-    if test x$have_doxygen = xno; then
-	AC_MSG_ERROR([Building Doxygen docs explicitly required, but Doxygen not found])
-    fi
-fi
-
-AM_CONDITIONAL(DBUS_DOXYGEN_DOCS_ENABLED, test x$enable_doxygen_docs = xyes)
-AC_MSG_RESULT(yes)
-
 #### Have to go $localstatedir->$prefix/var->/usr/local/var   
 #### someone please fix this a better way...
 
@@ -482,7 +452,6 @@ test/data/valid-service-files/interfaces-test.service
 tools/Makefile
 dbus-glib-1.pc
 dbus-glib-1-uninstalled.pc
-Doxyfile
 ])
 
 dnl ==========================================================================
@@ -501,7 +470,7 @@ echo "
 	compiler:		  ${CC}
 	cflags:		          ${CFLAGS}
 	cppflags:		  ${CPPFLAGS}
-        Doxygen:                  ${DOXYGEN}"
+"
 
 echo "
         Maintainer mode:          ${USE_MAINTAINER_MODE}
@@ -510,7 +479,6 @@ echo "
         Building verbose mode:    ${enable_verbose_mode}
         Building assertions:      ${enable_asserts}
         Building checks:          ${enable_checks}
-        Building Doxygen docs:    ${enable_doxygen_docs}
         Building Gtk-doc docs:    ${enable_gtk_doc}
         Bash Completion:          ${enable_bash_completion}
         Using XML parser:         ${with_xml}
