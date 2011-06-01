@@ -34,10 +34,6 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef DBUS_BUILD_TESTS
-static void run_all_tests (const char *test_data_dir);
-#endif
-
 typedef enum {
   DBUS_BINDING_OUTPUT_NONE,
   DBUS_BINDING_OUTPUT_PRETTY,
@@ -301,10 +297,6 @@ main (int argc, char **argv)
             version ();
           else if (strcmp (arg, "--force") == 0)
             force = TRUE;
-#ifdef DBUS_BUILD_TESTS
-          else if (strcmp (arg, "--self-test") == 0)
-            run_all_tests (NULL);
-#endif /* DBUS_BUILD_TESTS */
           else if (strncmp (arg, "--mode=", 7) == 0)
             {
 	      const char *mode = arg + 7;
@@ -483,43 +475,3 @@ lose:
   g_free (output_file_tmp);
   return 1;
 }
-
-
-#ifdef DBUS_BUILD_TESTS
-static void
-test_die (const char *failure)
-{
-  g_error ("Unit test failed: %s", failure);
-}
-
-/**
- * @ingroup DBusGTool
- * Unit test for GLib utility tool
- * Returns: #TRUE on success.
- */
-static gboolean
-_dbus_gtool_test (const char *test_data_dir)
-{
-
-  return TRUE;
-}
-
-static void
-run_all_tests (const char *test_data_dir)
-{
-  if (test_data_dir == NULL)
-    test_data_dir = g_getenv ("DBUS_TEST_DATA");
-
-  if (test_data_dir != NULL)
-    printf ("Test data in %s\n", test_data_dir);
-  else
-    printf ("No test data!\n");
-
-  printf ("%s: running binding tests\n", "dbus-binding-tool");
-  if (!_dbus_gtool_test (test_data_dir))
-    test_die ("gtool");
-
-  printf ("%s: completed successfully\n", "dbus-binding-tool");
-}
-
-#endif /* DBUS_BUILD_TESTS */
