@@ -27,6 +27,7 @@
 #include "dbus-gutils.h"
 #include "dbus-glib-tool.h"
 #include "dbus-binding-tool-glib.h"
+#include <glib/gstdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -441,7 +442,7 @@ main (int argc, char **argv)
 
   if (g_io_channel_shutdown (channel, TRUE, &error) != G_IO_STATUS_NORMAL)
     {
-      warn ("Failed to shutdown IO channel", error);
+      warn_gerror ("Failed to shutdown IO channel", error);
       goto lose;
     }
 
