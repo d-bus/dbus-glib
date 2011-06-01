@@ -3136,20 +3136,3 @@ dbus_g_proxy_set_default_timeout (DBusGProxy        *proxy,
 
 
 /** @} End of DBusGLib public */
-
-#ifdef DBUS_BUILD_TESTS
-
-/**
- * @ingroup DBusGLibInternals
- * Unit test for GLib proxy functions
- * Returns: #TRUE on success.
- */
-gboolean
-_dbus_g_proxy_test (void)
-{
-  
-  
-  return TRUE;
-}
-
-#endif /* DBUS_BUILD_TESTS */
