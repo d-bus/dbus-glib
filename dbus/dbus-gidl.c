@@ -26,8 +26,6 @@
 
 #include "dbus-gidl.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 struct BaseInfo
 {
   unsigned int refcount : 28;
@@ -769,5 +767,3 @@ arg_info_add_annotation (ArgInfo             *info,
 		       g_strdup (name),
 		       g_strdup (value));
 }
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */

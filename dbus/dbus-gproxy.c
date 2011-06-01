@@ -49,23 +49,10 @@ oom (void)
   g_error ("no memory");
 }
 
-/**
- * @addtogroup DBusGLibInternals
- *
- * @{
- */
-
-/**
- * DBusGProxyManager typedef
- */
-
 typedef struct _DBusGProxyManager DBusGProxyManager;
 
 typedef struct _DBusGProxyPrivate DBusGProxyPrivate;
 
-/**
- * Internals of DBusGProxy
- */
 struct _DBusGProxyPrivate
 {
   DBusGProxyManager *manager; /**< Proxy manager */
@@ -127,7 +114,7 @@ static gboolean dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
 						GType              first_arg_type,
 						va_list            args);
 
-/**
+/*
  * A list of proxies with a given name+path+interface, used to
  * route incoming signals.
  */
@@ -142,7 +129,7 @@ typedef struct
   
 } DBusGProxyList;
 
-/**
+/*
  * DBusGProxyManager's primary task is to route signals to the proxies
  * those signals are emitted on. In order to do this it also has to
  * track the owners of the names proxies are bound to.
@@ -1905,12 +1892,6 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
   return call;
 }
 
-/** @} End of DBusGLibInternals */
-
-/** @addtogroup DBusGLib
- * @{
- */
-
 /**
  * SECTION:dbus-gproxy
  * @short_description: DBus Proxy
@@ -3133,6 +3114,3 @@ dbus_g_proxy_set_default_timeout (DBusGProxy        *proxy,
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
   priv->default_timeout = timeout;
 }
-
-
-/** @} End of DBusGLib public */

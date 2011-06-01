@@ -29,10 +29,6 @@
 #include <dbus/dbus.h>
 #include "dbus-glib.h"
 
-/** @addtogroup DBusGLib
- * @{
- */
-
 /**
  * dbus_g_thread_init:
  *
@@ -49,5 +45,3 @@ dbus_g_thread_init (void)
 
   dbus_threads_init_default ();
 }
-
-/** @} end of public API */

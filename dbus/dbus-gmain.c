@@ -33,16 +33,9 @@
 #include "dbus-gsignature.h"
 #include <string.h>
 
-/**
- * @defgroup DBusGLibInternals GLib bindings implementation details
- * @ingroup  DBusInternals
- * @brief Implementation details of GLib bindings
- *
- * @{
- */
-
-/**
+/*
  * DBusGMessageQueue:
+ *
  * A GSource subclass for dispatching DBusConnection messages.
  * We need this on top of the IO handlers, because sometimes
  * there are messages to dispatch queued up but no IO pending.
@@ -520,12 +513,6 @@ connection_setup_new_from_old (GMainContext    *context,
   return cs;
 }
 
-/** @} */ /* End of GLib bindings internals */
-
-/** @addtogroup DBusGLib
- * @{
- */
-
 /**
  * dbus_connection_setup_with_g_main:
  * @connection: the connection
@@ -800,12 +787,9 @@ dbus_g_bus_get_private (DBusBusType     type,
   return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
 }
 
-/** @} */ /* end of public API */
-
 #ifdef DBUS_BUILD_TESTS
 
-/**
- * @ingroup DBusGLibInternals
+/*
  * Unit test for GLib main loop integration
  * Returns: #TRUE on success.
  */

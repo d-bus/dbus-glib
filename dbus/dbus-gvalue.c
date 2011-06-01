@@ -2025,10 +2025,7 @@ assert_bidirectional_mapping (GType gtype, const char *expected_sig)
   assert_signature_maps_to (expected_sig, gtype);
 }
 
-/**
- * @ingroup DBusGLibInternals
- * @test_data_dir:
- *
+/*
  * Unit test for general glib stuff
  * Returns: #TRUE on success.
  */

@@ -344,8 +344,7 @@ dbus_g_message_get_message (DBusGMessage *gmessage)
 
 #ifdef DBUS_BUILD_TESTS
 
-/**
- * @ingroup DBusGLibInternals
+/*
  * Unit test for general glib stuff
  * Returns: #TRUE on success.
  */

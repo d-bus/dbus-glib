@@ -3117,8 +3117,7 @@ const DBusGObjectInfo dbus_glib_internal_test_object_info = {
 };
 
 
-/**
- * @ingroup DBusGLibInternals
+/*
  * Unit test for GLib GObject integration ("skeletons")
  * Returns: #TRUE on success.
  */

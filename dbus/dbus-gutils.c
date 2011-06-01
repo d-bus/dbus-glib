@@ -26,8 +26,6 @@
 #include "dbus-gtest.h"
 #include <string.h>
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 char**
 _dbus_gutils_split_path (const char *path)
 {
@@ -109,5 +107,3 @@ _dbus_gutils_wincaps_to_uscore (const char *caps)
 
   return g_string_free (str, FALSE);
 }
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
