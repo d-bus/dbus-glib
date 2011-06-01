@@ -110,21 +110,4 @@ _dbus_gutils_wincaps_to_uscore (const char *caps)
   return g_string_free (str, FALSE);
 }
 
-
-#ifdef DBUS_BUILD_TESTS
-
-/**
- * @ingroup DBusGLibInternals
- * Unit test for GLib utils internals
- * Returns: #TRUE on success.
- */
-gboolean
-_dbus_gutils_test (const char *test_data_dir)
-{
-
-  return TRUE;
-}
-
-#endif /* DBUS_BUILD_TESTS */
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

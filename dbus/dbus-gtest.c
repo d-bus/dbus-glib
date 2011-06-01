@@ -70,11 +70,7 @@ dbus_glib_internal_do_not_use_run_tests (const char *test_data_dir)
   printf ("%s: running glib tests\n", "dbus-glib-test");
   if (!_dbus_glib_test (test_data_dir))
     die ("glib");
-  
-  printf ("%s: running utils tests\n", "dbus-glib-test");
-  if (!_dbus_gutils_test (test_data_dir))
-    die ("gutils");
-  
+
   printf ("%s: running mainloop integration tests\n", "dbus-glib-test");
   if (!_dbus_gmain_test (test_data_dir))
     die ("gmain");
