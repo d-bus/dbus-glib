@@ -36,7 +36,7 @@ die (const char *failure)
 }
 #endif /* DBUS_BUILD_TESTS */
 
-/**
+/*
  * An exported symbol to be run in order to execute
  * unit tests. Should not be used by
  * any app other than our test app, this symbol

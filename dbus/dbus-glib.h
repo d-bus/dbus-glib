@@ -32,11 +32,11 @@ G_BEGIN_DECLS
 #define DBUS_INSIDE_DBUS_GLIB_H 1
 
 
-/**
+/*
  * Convert to DBusConnection with dbus_g_connection_get_connection() in dbus-glib-lowlevel.h
  */
 typedef struct _DBusGConnection DBusGConnection;
-/**
+/*
  * Convert to DBusMessage with dbus_g_message_get_message() in dbus-glib-lowlevel.h
  */
 typedef struct _DBusGMessage DBusGMessage;

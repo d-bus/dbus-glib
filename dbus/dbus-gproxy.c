@@ -1901,7 +1901,7 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  * A #DBusGProxy is a boxed type abstracting a #DBusProxy.
  */
 
-/**
+/*
  * dbus_g_proxy_get_type:
  * Standard GObject get_type() function for DBusGProxy.
  *

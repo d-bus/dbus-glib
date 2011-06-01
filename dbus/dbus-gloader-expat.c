@@ -46,7 +46,7 @@ static XML_Memory_Handling_Suite memsuite =
   g_free
 };
 
-/**
+/*
  * Context for Expat parser for introspection data.
  */
 typedef struct
