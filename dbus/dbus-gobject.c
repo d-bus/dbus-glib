@@ -3049,16 +3049,16 @@ out:
 const char *
 _dbus_gobject_get_path (GObject *obj)
 {
-  GSList *registrations;
+  ObjectExport *oe;
   ObjectRegistration *o;
 
-  registrations = g_object_get_data (obj, "dbus_glib_object_registrations");
+  oe = g_object_get_data (obj, "dbus_glib_object_registrations");
 
-  if (registrations == NULL)
+  if (oe == NULL || oe->registrations == NULL)
     return NULL;
 
   /* First one to have been registered wins */
-  o = registrations->data;
+  o = oe->registrations->data;
 
   return o->object_path;
 }
