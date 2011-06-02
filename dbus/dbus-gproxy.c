@@ -33,7 +33,6 @@
 #include "dbus-gvalue-utils.h"
 #include "dbus-gobject.h"
 #include <string.h>
-#include <glib/gi18n.h>
 #include <gobject/gvaluecollector.h>
 #include <gio/gio.h>
 

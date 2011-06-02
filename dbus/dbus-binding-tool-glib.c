@@ -32,7 +32,6 @@
 #include "dbus-gvalue-utils.h"
 #include "dbus-glib-tool.h"
 #include "dbus-binding-tool-glib.h"
-#include <glib/gi18n.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
