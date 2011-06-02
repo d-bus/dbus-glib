@@ -184,6 +184,10 @@
     <!-- Export signals -->
     <signal name="Frobnicate"/>
 
+    <signal name="Objectified">
+      <arg type="o"/>
+    </signal>
+
     <method name="Terminate">
     </method>
   </interface>

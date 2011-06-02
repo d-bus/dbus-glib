@@ -116,4 +116,6 @@ void my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context)
 
 void my_object_unsafe_disable_legacy_property_access (MyObject *obj);
 
+void my_object_emit_objectified (MyObject *obj, GObject *other);
+
 #endif

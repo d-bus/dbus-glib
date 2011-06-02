@@ -50,6 +50,7 @@ typedef struct {
     GObject *object;
     DBusMessage *frobnicate1_message;
     DBusMessage *frobnicate2_message;
+    gboolean received_objectified;
 } Fixture;
 
 static void
@@ -324,6 +325,71 @@ test_clean_slate (Fixture *f,
   f->frobnicate2_message = NULL;
 }
 
+static DBusHandlerResult
+objectified_cb (DBusConnection *conn,
+    DBusMessage *message,
+    void *user_data)
+{
+  Fixture *f = user_data;
+
+  if (dbus_message_is_signal (message,
+        "org.freedesktop.DBus.GLib.Tests.MyObject", "Objectified"))
+    {
+      const char *sender = dbus_message_get_sender (message);
+      const char *path = dbus_message_get_path (message);
+      dbus_bool_t ok;
+      DBusError e;
+
+      dbus_error_init (&e);
+
+      g_assert (sender != NULL);
+      g_assert (path != NULL);
+
+      g_assert_cmpstr (path, ==, "/foo");
+      g_assert_cmpstr (sender, ==, dbus_bus_get_unique_name (
+            dbus_g_connection_get_connection (f->bus)));
+
+      path = NULL;
+      ok = dbus_message_get_args (message, &e,
+          DBUS_TYPE_OBJECT_PATH, &path,
+          DBUS_TYPE_INVALID);
+
+      if (dbus_error_is_set (&e))
+        g_error ("%s: %s", e.name, e.message);
+
+      g_assert (ok);
+      g_assert_cmpstr (path, ==, "/foo");
+
+      f->received_objectified = TRUE;
+    }
+
+  return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static void
+test_marshal_object (Fixture *f,
+    gconstpointer test_data G_GNUC_UNUSED)
+{
+  dbus_bool_t mem;
+
+  g_test_bug ("37852");
+
+  dbus_g_connection_register_g_object (f->bus, "/foo", f->object);
+  g_assert (dbus_g_connection_lookup_g_object (f->bus, "/foo") ==
+      f->object);
+
+  dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
+      "type='signal'", NULL);
+  mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
+      objectified_cb, f, NULL);
+  g_assert (mem);
+
+  my_object_emit_objectified ((MyObject *) f->object, f->object);
+
+  while (!f->received_objectified)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -349,6 +415,8 @@ main (int argc, char **argv)
       setup, test_twice, teardown);
   g_test_add ("/registrations/clean-slate", Fixture, NULL,
       setup, test_clean_slate, teardown);
+  g_test_add ("/registrations/marshal-object", Fixture, NULL,
+      setup, test_marshal_object, teardown);
 
   return g_test_run ();
 }

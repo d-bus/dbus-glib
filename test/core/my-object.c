@@ -23,6 +23,7 @@ enum
 enum
 {
   FROBNICATE,
+  OBJECTIFIED,
   SIG0,
   SIG1,
   SIG2,
@@ -170,6 +171,15 @@ my_object_class_init (MyObjectClass *mobject_class)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__INT,
                   G_TYPE_NONE, 1, G_TYPE_INT);
+
+  signals[OBJECTIFIED] =
+    g_signal_new ("objectified",
+                  G_OBJECT_CLASS_TYPE (mobject_class),
+                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, G_TYPE_OBJECT);
 
   signals[SIG0] =
     g_signal_new ("sig0",
@@ -865,4 +875,11 @@ my_object_terminate (MyObject *obj, GError **error)
 {
   g_main_loop_quit (loop);
   return TRUE;
+}
+
+void
+my_object_emit_objectified (MyObject *obj,
+    GObject *other)
+{
+  g_signal_emit (obj, signals[OBJECTIFIED], 0, other);
 }
