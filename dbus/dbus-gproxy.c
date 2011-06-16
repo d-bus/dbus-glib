@@ -1089,10 +1089,12 @@ dbus_g_proxy_manager_unregister (DBusGProxyManager *manager,
 	    }
 	  else
 	    {
-	      link = g_slist_find (manager->unassociated_proxies, proxy);
-	      g_assert (link != NULL);
-
-	      manager->unassociated_proxies = g_slist_delete_link (manager->unassociated_proxies, link);
+              link = g_slist_find (manager->unassociated_proxies, proxy);
+              if (link != NULL)
+                {
+                  manager->unassociated_proxies = g_slist_delete_link (
+                      manager->unassociated_proxies, link);
+                }
 	    }
 	}
       else
