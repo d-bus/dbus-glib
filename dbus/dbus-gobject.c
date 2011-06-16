@@ -3000,7 +3000,13 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
 	  g_warning("%s", error);
 	  g_free (error);
 	}
-      _dbus_gvalue_marshal (&iter, &value);
+      else
+        {
+          if (!_dbus_gvalue_marshal (&iter, &value))
+            g_warning ("failed to marshal parameter %d for method %s",
+                       i, dbus_message_get_member (
+                         dbus_g_message_get_message (context->message)));
+        }
     }
   va_end (args);
 
