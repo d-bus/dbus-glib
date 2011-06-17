@@ -357,56 +357,6 @@ AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 ### gtk-doc Documentation
 GTK_DOC_CHECK(1.4)
 
-#### Have to go $localstatedir->$prefix/var->/usr/local/var   
-#### someone please fix this a better way...
-
-#### find the actual value for $prefix that we'll end up with
-##   (I know this is broken and should be done in the Makefile, but
-##    that's a major pain and almost nobody actually seems to care)
-REAL_PREFIX=
-if test "x$prefix" = "xNONE"; then
-  REAL_PREFIX=$ac_default_prefix
-else
-  REAL_PREFIX=$prefix
-fi
-
-## temporarily change prefix and exec_prefix
-old_prefix=$prefix
-prefix=$REAL_PREFIX
-
-if test "x$exec_prefix" = xNONE ; then
-   REAL_EXEC_PREFIX=$REAL_PREFIX
-else
-   REAL_EXEC_PREFIX=$exec_prefix
-fi
-old_exec_prefix=$exec_prefix
-exec_prefix=$REAL_EXEC_PREFIX
-
-## eval everything
-LOCALSTATEDIR_TMP="$localstatedir"
-EXPANDED_LOCALSTATEDIR=`eval echo $LOCALSTATEDIR_TMP`
-AC_SUBST(EXPANDED_LOCALSTATEDIR)
-
-SYSCONFDIR_TMP="$sysconfdir"
-EXPANDED_SYSCONFDIR=`eval echo $SYSCONFDIR_TMP`
-AC_SUBST(EXPANDED_SYSCONFDIR)
-
-BINDIR_TMP="$bindir"
-EXPANDED_BINDIR=`eval echo $BINDIR_TMP`
-AC_SUBST(EXPANDED_BINDIR)
-
-LIBDIR_TMP="$libdir"
-EXPANDED_LIBDIR=`eval echo $LIBDIR_TMP`
-AC_SUBST(EXPANDED_LIBDIR)
-
-DATADIR_TMP="$datadir"
-EXPANDED_DATADIR=`eval echo $DATADIR_TMP`
-AC_SUBST(EXPANDED_DATADIR)
-
-## put prefix and exec_prefix back
-prefix=$old_prefix
-exec_prefix=$old_exec_prefix
-
 #### Tell tests where to find certain stuff in builddir
 ABSOLUTE_TOP_BUILDDIR=`cd ${ac_top_builddir}. && pwd`
 
@@ -464,11 +414,6 @@ echo "
 
 	prefix:                   ${prefix}
 	exec_prefix:              ${exec_prefix}
-        libdir:                   ${EXPANDED_LIBDIR}
-        bindir:                   ${EXPANDED_BINDIR}
-        sysconfdir:               ${EXPANDED_SYSCONFDIR}
-        localstatedir:            ${EXPANDED_LOCALSTATEDIR}
-	datadir:                  ${EXPANDED_DATADIR}
 	source code location:	  ${srcdir}
 	compiler:		  ${CC}
 	cflags:		          ${CFLAGS}
