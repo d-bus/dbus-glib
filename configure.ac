@@ -357,26 +357,6 @@ AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 ### gtk-doc Documentation
 GTK_DOC_CHECK(1.4)
 
-#### Tell tests where to find certain stuff in builddir
-ABSOLUTE_TOP_BUILDDIR=`cd ${ac_top_builddir}. && pwd`
-
-AC_DEFUN([TEST_PATH], [
-TEST_$1=${ABSOLUTE_TOP_BUILDDIR}/test/$2
-AC_DEFINE_UNQUOTED(TEST_$1, "$TEST_$1",
-                   [Full path to test file test/$2 in builddir])
-AC_SUBST(TEST_$1)
-])
-
-TEST_PATH(SERVICE_DIR, data/valid-service-files)
-TEST_PATH(SERVICE_BINARY, test-service)
-TEST_PATH(SHELL_SERVICE_BINARY, test-shell-service)
-TEST_PATH(CORE_SERVICE_BINARY, core/test-service-glib)
-TEST_PATH(INTERFACES_SERVICE_BINARY, interfaces/test-service)
-TEST_PATH(EXIT_BINARY, test-exit)
-TEST_PATH(SEGFAULT_BINARY, test-segfault)
-TEST_PATH(SLEEP_FOREVER_BINARY, test-sleep-forever)
-AC_SUBST(ABSOLUTE_TOP_BUILDDIR)
-
 if ! test -z "$with_test_socket_dir" ; then
    TEST_SOCKET_DIR="$with_test_socket_dir"
 else

@@ -24,7 +24,7 @@ tool_ldadd = \
 ## so if adding tests not to be run in make check, don't add them to 
 ## TESTS
 if DBUS_BUILD_TESTS
-TESTS_ENVIRONMENT=DBUS_TOP_BUILDDIR=$(ABSOLUTE_TOP_BUILDDIR)
+TESTS_ENVIRONMENT=DBUS_TOP_BUILDDIR=@abs_top_builddir@
 TESTS=run-test.sh run-peer-test.sh
 else
 TESTS=
