@@ -54,12 +54,19 @@ noinst_PROGRAMS = \
 	peer-client \
 	test-types \
 	test-30574 \
+	test-proxy-peer \
 	test-registrations \
 	test-variant-recursion \
 	test-gvariant
 
 test_30574_SOURCES = \
 	30574.c
+
+test_proxy_peer_SOURCES = \
+	my-object-marshal.c \
+	my-object.c \
+	my-object.h \
+	proxy-peer.c
 
 test_registrations_SOURCES = \
 	my-object.c \
