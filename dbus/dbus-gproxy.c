@@ -2332,6 +2332,16 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
   DBusPendingCall *pending;
   DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
 
+  if (call_id == 0)
+    {
+      /* Being disconnected is the only reason this can happen, except
+       * for programmer error; if it was programmer error, we already
+       * emitted a critical warning. */
+      g_set_error (error, DBUS_GERROR, DBUS_GERROR_DISCONNECTED,
+          "Disconnected from D-Bus (or argument error during call)");
+      return FALSE;
+    }
+
   reply = NULL;
   ret = FALSE;
   n_retvals_processed = 0;
@@ -2835,6 +2845,12 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
 
   call_id = DBUS_G_PROXY_CALL_TO_ID (call);
+
+  if (call_id == 0)
+    {
+      /* nothing to cancel */
+      return;
+    }
 
   pending = g_hash_table_lookup (priv->pending_calls, GUINT_TO_POINTER (call_id));
   g_hash_table_remove (priv->pending_calls, GUINT_TO_POINTER (call_id));
