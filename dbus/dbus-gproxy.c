@@ -2692,18 +2692,9 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 
   g_value_array_free (in_args);
 
-  if (call_id > 0)
-    {
-      first_arg_type = va_arg (args, GType);
-      ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type, args);
-    }
-  else
-    {
-      g_set_error (error, DBUS_GERROR,
-		   DBUS_GERROR_FAILED,
-		   "Disconnection or out-of-memory");
-      ret = FALSE;
-    }
+  first_arg_type = va_arg (args, GType);
+  ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type,
+      args);
 
   va_end (args);
 
