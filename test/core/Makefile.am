@@ -70,7 +70,9 @@ test_registrations_SOURCES = \
 	registrations.c
 
 test_dbus_glib_SOURCES=				\
-	my-object-marshal.c                             \
+	my-object.c \
+	my-object.h \
+	my-object-marshal.c \
 	test-dbus-glib.c
 
 test_dbus_glib_LDADD= $(tool_ldadd)

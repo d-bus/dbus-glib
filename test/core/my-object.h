@@ -7,6 +7,7 @@
 typedef struct MyObject MyObject;
 typedef struct MyObjectClass MyObjectClass;
 
+void my_object_register_marshallers (void);
 GType my_object_get_type (void);
 
 struct MyObject

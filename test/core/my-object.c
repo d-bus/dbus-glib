@@ -10,6 +10,16 @@ static gboolean my_object_throw_error_under_score (MyObject *obj,
 
 #include "test-service-glib-glue.h"
 
+void
+my_object_register_marshallers (void)
+{
+  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_INT_STRING,
+      G_TYPE_NONE, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INVALID);
+
+  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_BOXED,
+      G_TYPE_NONE, G_TYPE_STRING, G_TYPE_VALUE, G_TYPE_INVALID);
+}
+
 /* Properties */
 enum
 {
@@ -124,6 +134,8 @@ static void
 my_object_class_init (MyObjectClass *mobject_class)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (mobject_class);
+
+  my_object_register_marshallers ();
 
   dbus_g_object_type_install_info (MY_TYPE_OBJECT,
 				   &dbus_glib_my_object_object_info);

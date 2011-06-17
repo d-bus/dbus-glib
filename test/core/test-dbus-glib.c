@@ -10,9 +10,10 @@
 #include <dbus/dbus-gparser.h>
 #include <glib.h>
 #include <glib-object.h>
-#include "my-object-marshal.h"
+#include "my-object.h"
 
-static GMainLoop *loop = NULL;
+GMainLoop *loop = NULL;
+
 static const char *await_terminating_service = NULL;
 static int n_times_foo_received = 0;
 static int n_times_frobnicate_received = 0;
@@ -1719,11 +1720,7 @@ main (int argc, char **argv)
   if (proxy == NULL)
     lose_gerror ("Failed to create proxy for name owner", error);
 
-  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_INT_STRING, 
-				     G_TYPE_NONE, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INVALID);
-
-  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_BOXED, 
-				     G_TYPE_NONE, G_TYPE_STRING, G_TYPE_VALUE, G_TYPE_INVALID);
+  my_object_register_marshallers ();
 
   dbus_g_proxy_add_signal (proxy, "Sig0", G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INVALID);
   dbus_g_proxy_add_signal (proxy, "Sig1", G_TYPE_STRING, G_TYPE_VALUE, G_TYPE_INVALID);
