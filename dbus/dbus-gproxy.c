@@ -1832,26 +1832,40 @@ d_pending_call_free (void *data)
 
   g_free (closure);
 }
-  
+
 #define DBUS_G_VALUE_ARRAY_COLLECT_ALL(VALARRAY, FIRST_ARG_TYPE, ARGS) \
-do { \
+G_STMT_START { \
   GType valtype; \
-  int i = 0; \
+  guint i = 0; \
+  \
   VALARRAY = g_value_array_new (6); \
   valtype = FIRST_ARG_TYPE; \
+  \
   while (valtype != G_TYPE_INVALID) \
     { \
-      const char *collect_err; \
+      gchar *collect_err; \
       GValue *val; \
+      \
       g_value_array_append (VALARRAY, NULL); \
       val = g_value_array_get_nth (VALARRAY, i); \
       g_value_init (val, valtype); \
       collect_err = NULL; \
       G_VALUE_COLLECT (val, ARGS, G_VALUE_NOCOPY_CONTENTS, &collect_err); \
+      \
+      if (collect_err) \
+        { \
+          g_critical ("%s: unable to collect argument %u: %s", \
+              G_STRFUNC, i, collect_err); \
+          g_free (collect_err); \
+          g_value_array_free (VALARRAY); \
+          VALARRAY = NULL; \
+          break; \
+        } \
+      \
       valtype = va_arg (ARGS, GType); \
       i++; \
     } \
-} while (0)
+} G_STMT_END
 
 DBusGProxyCall *
 manager_begin_bus_call (DBusGProxyManager    *manager,
@@ -1862,7 +1876,7 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
 			GType                 first_arg_type,
 			...)
 {
-  DBusGProxyCall *call;
+  guint call_id = 0;
   DBusGProxyPrivate *priv;
   va_list args;
   GValueArray *arg_values;
@@ -1881,14 +1895,18 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
     }
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
-  
-  call = DBUS_G_PROXY_ID_TO_CALL (dbus_g_proxy_begin_call_internal (manager->bus_proxy, method, notify, user_data, destroy, arg_values,-1));
 
-  g_value_array_free (arg_values);
+  if (arg_values != NULL)
+    {
+      call_id = dbus_g_proxy_begin_call_internal (manager->bus_proxy, method,
+          notify, user_data, destroy, arg_values, -1);
+
+      g_value_array_free (arg_values);
+    }
 
   va_end (args);
 
-  return call;
+  return DBUS_G_PROXY_ID_TO_CALL (call_id);
 }
 
 /**
@@ -2524,7 +2542,7 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
 			 GType                first_arg_type,
 			 ...)
 {
-  guint call_id;
+  guint call_id = 0;
   va_list args;
   GValueArray *arg_values;
   DBusGProxyPrivate *priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
@@ -2536,10 +2554,14 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
   va_start (args, first_arg_type);
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
-  
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values, priv->default_timeout);
 
-  g_value_array_free (arg_values);
+  if (arg_values != NULL)
+    {
+      call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify,
+          user_data, destroy, arg_values, priv->default_timeout);
+
+      g_value_array_free (arg_values);
+    }
 
   va_end (args);
 
@@ -2582,7 +2604,7 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
                          GType                first_arg_type,
                          ...)
 {
-  guint call_id;
+  guint call_id = 0;
   va_list args;
   GValueArray *arg_values;
 
@@ -2595,9 +2617,13 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (arg_values, first_arg_type, args);
 
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify, user_data, destroy, arg_values,timeout);
+  if (arg_values != NULL)
+    {
+      call_id = dbus_g_proxy_begin_call_internal (proxy, method, notify,
+          user_data, destroy, arg_values, timeout);
 
-  g_value_array_free (arg_values);
+      g_value_array_free (arg_values);
+    }
 
   va_end (args);
 
@@ -2674,7 +2700,7 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 		   ...)
 {
   gboolean ret;
-  guint call_id;
+  guint call_id = 0;
   va_list args;
   GValueArray *in_args;
   DBusGProxyPrivate *priv;
@@ -2688,9 +2714,13 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
 
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args, priv->default_timeout);
+  if (in_args != NULL)
+    {
+      call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL,
+          NULL, in_args, priv->default_timeout);
 
-  g_value_array_free (in_args);
+      g_value_array_free (in_args);
+    }
 
   first_arg_type = va_arg (args, GType);
   ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type,
@@ -2730,7 +2760,7 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
                    ...)
 {
   gboolean ret;
-  guint call_id;
+  guint call_id = 0;
   va_list args;
   GValueArray *in_args;
 
@@ -2743,12 +2773,17 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
 
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
 
-  call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL, NULL, in_args,timeout);
+  if (in_args != NULL)
+    {
+      call_id = dbus_g_proxy_begin_call_internal (proxy, method, NULL, NULL,
+          NULL, in_args, timeout);
 
-  g_value_array_free (in_args);
+      g_value_array_free (in_args);
+    }
 
   first_arg_type = va_arg (args, GType);
-  ret = dbus_g_proxy_end_call_internal (proxy, call_id, error, first_arg_type, args);
+  ret = dbus_g_proxy_end_call_internal (proxy, call_id, error,
+      first_arg_type, args);
 
   va_end (args);
 
@@ -2776,7 +2811,7 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
 			    GType                     first_arg_type,
 			    ...)
 {
-  DBusMessage *message;
+  DBusMessage *message = NULL;
   va_list args;
   GValueArray *in_args;
   DBusGProxyPrivate *priv;
@@ -2790,9 +2825,13 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
   va_start (args, first_arg_type);
   DBUS_G_VALUE_ARRAY_COLLECT_ALL (in_args, first_arg_type, args);
 
-  message = dbus_g_proxy_marshal_args_to_message (proxy, method, in_args);
+  if (in_args != NULL)
+    {
+      message = dbus_g_proxy_marshal_args_to_message (proxy, method, in_args);
 
-  g_value_array_free (in_args);
+      g_value_array_free (in_args);
+    }
+
   va_end (args);
 
   /* can only happen on a programming error or OOM; we already critical'd */
