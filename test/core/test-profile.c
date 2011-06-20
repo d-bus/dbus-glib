@@ -289,8 +289,7 @@ no_bus_init_server (ServerData       *sd)
   DBusError error;
 
   dbus_error_init (&error);
-  server = dbus_server_listen ("unix:tmpdir="DBUS_TEST_SOCKET_DIR,
-                               &error);
+  server = dbus_server_listen ("unix:tmpdir=/tmp", &error);
   if (server == NULL)
     {
       g_printerr ("Could not start server: %s\n",

@@ -352,14 +352,6 @@ AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 ### gtk-doc Documentation
 GTK_DOC_CHECK(1.4)
 
-if ! test -z "$with_test_socket_dir" ; then
-   TEST_SOCKET_DIR="$with_test_socket_dir"
-else
-   TEST_SOCKET_DIR=$DEFAULT_SOCKET_DIR
-fi
-AC_SUBST(TEST_SOCKET_DIR)
-AC_DEFINE_UNQUOTED(DBUS_TEST_SOCKET_DIR, "$TEST_SOCKET_DIR", [Where to put test sockets])
-
 AC_OUTPUT([
 Makefile
 m4/Makefile
@@ -404,7 +396,6 @@ echo "
         Building Gtk-doc docs:    ${enable_gtk_doc}
         Bash Completion:          ${enable_bash_completion}
         Using XML parser:         ${with_xml}
-        'make check' socket dir:  ${TEST_SOCKET_DIR}
 "
 
 if test x$enable_tests = xyes; then
