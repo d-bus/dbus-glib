@@ -79,7 +79,6 @@ if test x$enable_asserts = xno; then
     AC_DEFINE(G_DISABLE_ASSERT,1,[Disable GLib assertion macros])
 fi
 if test x$enable_checks = xno; then
-    AC_DEFINE(DBUS_DISABLE_CHECKS,1,[Disable public API sanity checking])
     AC_DEFINE(G_DISABLE_CHECKS,1,[Disable GLib public API sanity checking])
 fi
 
