@@ -1110,11 +1110,7 @@ main (int argc, char *argv[])
 #ifndef DBUS_DISABLE_ASSERT
   g_printerr ("You should probably --disable-asserts before you profile as they have noticeable overhead\n");
 #endif
-  
-#if DBUS_ENABLE_VERBOSE_MODE
-  g_printerr ("You should probably --disable-verbose-mode before you profile as verbose has noticeable overhead\n");
-#endif
-  
+
   payload = g_malloc (PAYLOAD_SIZE);
 
   /* The actual size of the DBusMessage on the wire, as of Nov 23 2004,

@@ -47,7 +47,6 @@ AC_HEADER_STDC
 
 AC_ARG_ENABLE(tests, AS_HELP_STRING([--enable-tests],[enable unit test code]),enable_tests=$enableval,enable_tests=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(ansi, AS_HELP_STRING([--enable-ansi],[enable -ansi -pedantic gcc flags]),enable_ansi=$enableval,enable_ansi=no)
-AC_ARG_ENABLE(verbose-mode, AS_HELP_STRING([--enable-verbose-mode],[support verbose debug mode]),enable_verbose_mode=$enableval,enable_verbose_mode=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(asserts, AS_HELP_STRING([--enable-asserts],[include assertion checks]),enable_asserts=$enableval,enable_asserts=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(checks, AS_HELP_STRING([--enable-checks],[include sanity checks on public API]),enable_checks=$enableval,enable_checks=yes)
 AC_ARG_ENABLE(gcov, AS_HELP_STRING([--enable-gcov],[compile with coverage profiling instrumentation (gcc only)]),enable_gcov=$enableval,enable_gcov=no)
@@ -63,10 +62,6 @@ if test x$enable_bash_completion = xyes; then
   AC_DEFINE(DBUS_BASH_COMPLETION,1,[Enable bash completion])
 fi
 
-if test x$enable_verbose_mode = xyes; then
-    AC_DEFINE(DBUS_ENABLE_VERBOSE_MODE,1,[Support a verbose mode])
-fi
-
 AC_ARG_WITH(dbus-binding-tool,
   AS_HELP_STRING([--with-dbus-binding-tool=[filename]],[Use external dbus-binding-tool program]),
   [DBUS_BINDING_TOOL=$withval],[DBUS_BINDING_TOOL=\$\(top_builddir\)/dbus/dbus-binding-tool])
@@ -80,9 +75,6 @@ if test x$enable_tests = xyes; then
     AC_DEFINE(DBUS_BUILD_TESTS,1,[Build test code])
 fi
 
-if test x$enable_verbose_mode = xyes; then
-    AC_DEFINE(DBUS_ENABLE_VERBOSE_MODE,1,[Support a verbose mode])
-fi
 if test x$enable_asserts = xno; then
     AC_DEFINE(DBUS_DISABLE_ASSERT,1,[Disable assertion checking])
     AC_DEFINE(G_DISABLE_ASSERT,1,[Disable GLib assertion macros])
@@ -404,7 +396,6 @@ echo "
         Maintainer mode:          ${USE_MAINTAINER_MODE}
         gcc coverage profiling:   ${enable_gcov}
         Building unit tests:      ${enable_tests}
-        Building verbose mode:    ${enable_verbose_mode}
         Building assertions:      ${enable_asserts}
         Building checks:          ${enable_checks}
         Building Gtk-doc docs:    ${enable_gtk_doc}
@@ -421,9 +412,6 @@ if test x$enable_tests = xyes -a x$enable_asserts = xno; then
 fi
 if test x$enable_gcov = xyes; then
         echo "NOTE: building with coverage profiling is definitely for developers only."
-fi
-if test x$enable_verbose_mode = xyes; then
-        echo "NOTE: building with verbose mode increases library size, may slightly increase security risk, and decreases performance."
 fi
 if test x$enable_asserts = xyes; then
         echo "NOTE: building with assertions increases library size and decreases performance."
