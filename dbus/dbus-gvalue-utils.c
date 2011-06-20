@@ -1436,7 +1436,6 @@ _dbus_gvalue_utils_test (const char *datadir)
   GType type;
 
   dbus_g_type_specialized_init ();
- _dbus_g_type_specialized_builtins_init ();
 
   type = dbus_g_type_get_collection ("GArray", G_TYPE_UINT);
   g_assert (dbus_g_type_is_collection (type));
