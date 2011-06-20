@@ -17,6 +17,7 @@ LDADD = \
 if DBUS_BUILD_TESTS
 test_programs = \
 	test-errors \
+	test-specialized-types \
 	$(NULL)
 
 # not actually tests, but used by tests
@@ -26,6 +27,7 @@ test_related_programs = \
 endif
 
 test_errors_SOURCES = errors.c
+test_specialized_types_SOURCES = specialized-types.c
 
 test_service_SOURCES=				\
 	test-service.c

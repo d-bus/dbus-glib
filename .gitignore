@@ -192,6 +192,7 @@ stamp-h1
 test/Makefile
 test/Makefile.in
 /test/test-errors
+/test/test-specialized-types
 test/core/Makefile
 test/core/Makefile.in
 test/core/my-object-marshal.c

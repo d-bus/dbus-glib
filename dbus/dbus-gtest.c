@@ -59,10 +59,6 @@ dbus_glib_internal_do_not_use_run_tests (const char *test_data_dir)
 
   g_type_init ();
 
-  printf ("%s: running GValue util tests\n", "dbus-glib-test");
-  if (!_dbus_gvalue_utils_test (test_data_dir))
-    die ("gvalue utils");
-
   printf ("%s: running GValue tests\n", "dbus-glib-test");
   if (!_dbus_gvalue_test (test_data_dir))
     die ("gvalue utils");
