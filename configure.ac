@@ -76,7 +76,6 @@ if test x$enable_tests = xyes; then
 fi
 
 if test x$enable_asserts = xno; then
-    AC_DEFINE(DBUS_DISABLE_ASSERT,1,[Disable assertion checking])
     AC_DEFINE(G_DISABLE_ASSERT,1,[Disable GLib assertion macros])
 fi
 if test x$enable_checks = xno; then

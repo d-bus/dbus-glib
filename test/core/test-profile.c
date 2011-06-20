@@ -1107,7 +1107,7 @@ main (int argc, char *argv[])
   g_thread_init (NULL);
   dbus_g_thread_init ();
 
-#ifndef DBUS_DISABLE_ASSERT
+#ifndef G_DISABLE_ASSERT
   g_printerr ("You should probably --disable-asserts before you profile as they have noticeable overhead\n");
 #endif
 
