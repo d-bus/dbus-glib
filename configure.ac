@@ -47,8 +47,6 @@ AC_HEADER_STDC
 
 AC_ARG_ENABLE(tests, AS_HELP_STRING([--enable-tests],[enable unit test code]),enable_tests=$enableval,enable_tests=$USE_MAINTAINER_MODE)
 AC_ARG_ENABLE(ansi, AS_HELP_STRING([--enable-ansi],[enable -ansi -pedantic gcc flags]),enable_ansi=$enableval,enable_ansi=no)
-AC_ARG_ENABLE(asserts, AS_HELP_STRING([--enable-asserts],[include assertion checks]),enable_asserts=$enableval,enable_asserts=$USE_MAINTAINER_MODE)
-AC_ARG_ENABLE(checks, AS_HELP_STRING([--enable-checks],[include sanity checks on public API]),enable_checks=$enableval,enable_checks=yes)
 AC_ARG_ENABLE(gcov, AS_HELP_STRING([--enable-gcov],[compile with coverage profiling instrumentation (gcc only)]),enable_gcov=$enableval,enable_gcov=no)
 AC_ARG_ENABLE(bash-completion, AS_HELP_STRING([--enable-bash-completion],[install bash completion scripts]),enable_bash_completion=$enableval,enable_bash_completion=yes)
 AC_ARG_WITH(test-socket-dir, AS_HELP_STRING([--with-test-socket-dir=[dirname]],[Where to put sockets for make check]))
@@ -75,11 +73,18 @@ if test x$enable_tests = xyes; then
     AC_DEFINE(DBUS_BUILD_TESTS,1,[Build test code])
 fi
 
+AC_ARG_ENABLE([asserts],
+  [AS_HELP_STRING([--enable-asserts], [include assertion checks])],
+  [enable_asserts=$enableval], [enable_asserts=$USE_MAINTAINER_MODE])
 if test x$enable_asserts = xno; then
-    AC_DEFINE(G_DISABLE_ASSERT,1,[Disable GLib assertion macros])
+    AC_DEFINE([G_DISABLE_ASSERT], [1], [Disable GLib assertion macros])
 fi
+
+AC_ARG_ENABLE([checks],
+  [AS_HELP_STRING([--enable-checks], [include sanity checks on public API])],
+  [enable_checks=$enableval], [enable_checks=yes])
 if test x$enable_checks = xno; then
-    AC_DEFINE(G_DISABLE_CHECKS,1,[Disable GLib public API sanity checking])
+    AC_DEFINE([G_DISABLE_CHECKS], [1], [Disable GLib public API sanity checking])
 fi
 
 #### gcc warning flags
