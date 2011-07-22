@@ -137,7 +137,7 @@ pretty_print (BaseInfo *base,
         g_assert (name != NULL);
 
 	annotations = method_info_get_annotations (m);
-        printf ("method \"%s\"", name);
+        printf ("method \"%s\" (\n", name);
 	for (elt = annotations; elt; elt = elt->next)
 	  {
 	    const char *name = elt->data;
