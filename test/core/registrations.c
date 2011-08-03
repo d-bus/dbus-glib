@@ -45,6 +45,7 @@
 GMainLoop *loop = NULL;
 
 typedef struct {
+    DBusError dbus_error;
     DBusGConnection *bus;
     DBusGConnection *bus2;
     GObject *object;
@@ -53,10 +54,23 @@ typedef struct {
     gboolean received_objectified;
 } Fixture;
 
+#define assert_no_error(e) _assert_no_error (e, __FILE__, __LINE__)
+static void
+_assert_no_error (const DBusError *e,
+    const char *file,
+    int line)
+{
+  if (G_UNLIKELY (dbus_error_is_set (e)))
+    g_error ("%s:%d: expected success but got error: %s: %s",
+        file, line, e->name, e->message);
+}
+
 static void
 setup (Fixture *f,
     gconstpointer path_to_use)
 {
+  dbus_error_init (&f->dbus_error);
+
   f->bus = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, NULL);
   g_assert (f->bus != NULL);
 
@@ -89,6 +103,10 @@ teardown (Fixture *f,
     {
       g_object_unref (f->object);
     }
+
+  /* This is safe to call on an initialized-but-unset DBusError, a bit like
+   * g_clear_error */
+  dbus_error_free (&f->dbus_error);
 }
 
 static void
@@ -233,7 +251,8 @@ test_twice (Fixture *f,
       f->object);
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
-      "type='signal'", NULL);
+      "type='signal'", &f->dbus_error);
+  assert_no_error (&f->dbus_error);
   mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
       frobnicate_cb, f, NULL);
   g_assert (mem);
@@ -267,10 +286,12 @@ static void
 test_clean_slate (Fixture *f,
     gconstpointer test_data G_GNUC_UNUSED)
 {
+  DBusError e;
   dbus_bool_t mem;
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
-      "type='signal'", NULL);
+      "type='signal'", &f->dbus_error);
+  assert_no_error (&f->dbus_error);
   mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
       frobnicate_cb, f, NULL);
   g_assert (mem);
@@ -379,7 +400,8 @@ test_marshal_object (Fixture *f,
       f->object);
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
-      "type='signal'", NULL);
+      "type='signal'", &f->dbus_error);
+  assert_no_error (&f->dbus_error);
   mem = dbus_connection_add_filter (dbus_g_connection_get_connection (f->bus),
       objectified_cb, f, NULL);
   g_assert (mem);
