@@ -1671,7 +1671,6 @@ invoke_object_method (GObject         *object,
   GValueArray *out_param_gvalues = NULL;
   int out_param_count;
   int out_param_pos, out_param_gvalue_pos;
-  DBusHandlerResult result;
   DBusMessage *reply = NULL;
   gboolean have_retval;
   gboolean retval_signals_error;
@@ -2019,8 +2018,6 @@ invoke_object_method (GObject         *object,
     }
 
 done:
-  result = DBUS_HANDLER_RESULT_HANDLED;
-
   g_free (in_signature);
 
   if (!is_async)
@@ -2033,7 +2030,7 @@ done:
     g_clear_error (&gerror);
 
   g_value_array_free (value_array);
-  return result;
+  return DBUS_HANDLER_RESULT_HANDLED;
 }
 
 /*
