@@ -37,6 +37,13 @@
 
 #include <gio/gio.h>
 
+G_GNUC_NORETURN static void
+oom (const gchar *explanation)
+{
+  g_error (explanation == NULL ? "Out of memory" : explanation);
+  g_assert_not_reached ();
+}
+
 static DBusMessage *
 reply_or_die (DBusMessage *in_reply_to)
 {
@@ -47,7 +54,7 @@ reply_or_die (DBusMessage *in_reply_to)
   reply = dbus_message_new_method_return (in_reply_to);
 
   if (reply == NULL)
-    g_error ("dbus_message_new_method_return failed: out of memory?");
+    oom ("dbus_message_new_method_return failed: out of memory?");
 
   return reply;
 }
@@ -67,7 +74,7 @@ error_or_die (DBusMessage *in_reply_to,
   reply = dbus_message_new_error (in_reply_to, error_name, error_message);
 
   if (reply == NULL)
-    g_error ("dbus_message_new_error failed: out of memory?");
+    oom ("dbus_message_new_error failed: out of memory?");
 
   return reply;
 }
@@ -80,7 +87,7 @@ connection_send_or_die (DBusConnection *connection,
   g_return_if_fail (message != NULL);
 
   if (!dbus_connection_send (connection, message, NULL))
-    g_error ("dbus_connection_send failed: out of memory?");
+    oom ("dbus_connection_send failed: out of memory?");
 }
 
 static char *lookup_property_name (GObject    *object,
@@ -969,7 +976,7 @@ handle_introspect (DBusConnection *connection,
   if (!dbus_connection_list_registered (connection, 
                                         dbus_message_get_path (message),
                                         &children))
-    g_error ("Out of memory");
+    oom (NULL);
   
   xml = g_string_new (NULL);
 
@@ -1274,7 +1281,7 @@ get_all_object_properties (DBusConnection        *connection,
                                          DBUS_TYPE_VARIANT_AS_STRING
                                          DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
                                          &iter_dict))
-    goto oom;
+    oom (NULL);
 
   p = object_info->exported_properties;
   while (p != NULL && *p != '\0')
@@ -1332,12 +1339,12 @@ get_all_object_properties (DBusConnection        *connection,
                                              DBUS_TYPE_DICT_ENTRY,
                                              NULL,
                                              &iter_dict_entry))
-        goto oom;
+        oom (NULL);
 
       /* prop_name is valid UTF-8, so this can't fail except by OOM; no point
        * in abandoning @iter_dict_entry since we're about to crash out */
       if (!dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &prop_name))
-        goto oom;
+        oom (NULL);
 
       /* variant_sig has been asserted to be valid, so this can't fail
        * except by OOM */
@@ -1345,7 +1352,7 @@ get_all_object_properties (DBusConnection        *connection,
                                              DBUS_TYPE_VARIANT,
                                              variant_sig,
                                              &iter_dict_value))
-        goto oom;
+        oom (NULL);
 
       g_free (variant_sig);
 
@@ -1377,20 +1384,17 @@ get_all_object_properties (DBusConnection        *connection,
       /* these shouldn't fail except by OOM now that we were successful */
       if (!dbus_message_iter_close_container (&iter_dict_entry,
                                               &iter_dict_value))
-        goto oom;
+        oom (NULL);
       if (!dbus_message_iter_close_container (&iter_dict, &iter_dict_entry))
-        goto oom;
+        oom (NULL);
 
       g_value_unset (&value);
   }
 
   if (!dbus_message_iter_close_container (&iter_ret, &iter_dict))
-    goto oom;
+    oom (NULL);
 
   return ret;
-
- oom:
-  g_error ("out of memory");
 }
 
 static gboolean
@@ -2316,10 +2320,7 @@ emit_signal_for_registration (ObjectRegistration *o,
                                     sigclosure->sigiface,
                                     sigclosure->signame);
   if (!signal)
-    {
-      g_error ("out of memory");
-      return;
-    }
+    oom (NULL);
 
   dbus_message_iter_init_append (signal, &iter);
 
