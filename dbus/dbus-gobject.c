@@ -72,6 +72,17 @@ error_or_die (DBusMessage *in_reply_to,
   return reply;
 }
 
+static void
+connection_send_or_die (DBusConnection *connection,
+    DBusMessage *message)
+{
+  g_return_if_fail (connection != NULL);
+  g_return_if_fail (message != NULL);
+
+  if (!dbus_connection_send (connection, message, NULL))
+    g_error ("dbus_connection_send failed: out of memory?");
+}
+
 static char *lookup_property_name (GObject    *object,
                                    const char *wincaps_propiface,
                                    const char *requested_propname);
@@ -1014,7 +1025,7 @@ handle_introspect (DBusConnection *connection,
                             DBUS_TYPE_STRING, &xml->str,
                             DBUS_TYPE_INVALID);
 
-  dbus_connection_send (connection, ret, NULL);
+  connection_send_or_die (connection, ret);
   dbus_message_unref (ret);
 
   g_string_free (xml, TRUE);
@@ -1670,7 +1681,7 @@ invoke_object_method (GObject         *object,
 	g_free (in_signature); 
 	g_array_free (types_array, TRUE);
         reply = error_or_die (message, "org.freedesktop.DBus.GLib.ErrorError", error->message);
-	dbus_connection_send (connection, reply, NULL);
+        connection_send_or_die (connection, reply);
 	dbus_message_unref (reply);
 	g_error_free (error);
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -1953,9 +1964,7 @@ invoke_object_method (GObject         *object,
 
   if (reply)
     {
-      if (!dbus_connection_send (connection, reply, NULL))
-        g_error ("dbus_connection_send failed: out of memory?");
-
+      connection_send_or_die (connection, reply);
       dbus_message_unref (reply);
     }
 
@@ -2053,7 +2062,7 @@ error:
   ret = error_or_die (message, DBUS_ERROR_ACCESS_DENIED, error_message);
   g_free (error_message);
 
-  dbus_connection_send (connection, ret, NULL);
+  connection_send_or_die (connection, ret);
   dbus_message_unref (ret);
   return FALSE;
 }
@@ -2208,7 +2217,7 @@ object_registration_message (DBusConnection  *connection,
     g_warning ("Property get, set or set all had too many arguments\n");
 
 out:
-  dbus_connection_send (connection, ret, NULL);
+  connection_send_or_die (connection, ret);
   dbus_message_unref (ret);
   return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -2279,8 +2288,9 @@ emit_signal_for_registration (ObjectRegistration *o,
           goto out;
         }
     }
-  dbus_connection_send (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
-                        signal, NULL);
+
+  connection_send_or_die (DBUS_CONNECTION_FROM_G_CONNECTION (o->connection),
+      signal);
 out:
   dbus_message_unref (signal);
 }
@@ -3101,7 +3111,8 @@ dbus_g_method_send_reply (DBusGMethodInvocation *context, DBusMessage *reply)
   g_return_if_fail (context != NULL);
   g_return_if_fail (reply != NULL);
 
-  dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
+  connection_send_or_die (dbus_g_connection_get_connection (context->connection),
+      reply);
   dbus_message_unref (reply);
 
   dbus_g_connection_unref (context->connection);
@@ -3164,7 +3175,8 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
     }
   va_end (args);
 
-  dbus_connection_send (dbus_g_connection_get_connection (context->connection), reply, NULL);
+  connection_send_or_die (dbus_g_connection_get_connection (context->connection),
+      reply);
   dbus_message_unref (reply);
 
   g_free (out_sig);
@@ -3197,10 +3209,8 @@ dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
     goto out;
 
   reply = gerror_to_dbus_error_message (context->object, dbus_g_message_get_message (context->message), error);
-  if (!dbus_connection_send (
-        dbus_g_connection_get_connection (context->connection), reply, NULL))
-    g_error ("dbus_connection_send failed: out of memory?");
-
+  connection_send_or_die (
+      dbus_g_connection_get_connection (context->connection), reply);
   dbus_message_unref (reply);
 
 out:
