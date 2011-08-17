@@ -1651,7 +1651,7 @@ invoke_object_method (GObject         *object,
       {
 	g_free (in_signature); 
 	g_array_free (types_array, TRUE);
-	reply = dbus_message_new_error (message, "org.freedesktop.DBus.GLib.ErrorError", error->message);
+        reply = error_or_die (message, "org.freedesktop.DBus.GLib.ErrorError", error->message);
 	dbus_connection_send (connection, reply, NULL);
 	dbus_message_unref (reply);
 	g_error_free (error);
@@ -3021,7 +3021,7 @@ dbus_g_method_get_reply (DBusGMethodInvocation *context)
 {
   g_return_val_if_fail (context != NULL, NULL);
 
-  return dbus_message_new_method_return (dbus_g_message_get_message (context->message));
+  return reply_or_die (dbus_g_message_get_message (context->message));
 }
 
 /**
@@ -3073,7 +3073,7 @@ dbus_g_method_return (DBusGMethodInvocation *context, ...)
   if (!context->send_reply)
     goto out;
 
-  reply = dbus_message_new_method_return (dbus_g_message_get_message (context->message));
+  reply = dbus_g_method_get_reply (context);
   out_sig = method_output_signature_from_object_info (context->object, context->method);
   argsig = _dbus_gtypes_from_arg_signature (out_sig, FALSE);
 
