@@ -5,6 +5,7 @@
 #include <dbus/dbus.h>
 #include <glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+#include "test/lib/util.h"
 
 DBusConnection *bus;
 GMainContext *main_context;
@@ -57,7 +58,7 @@ main(int argc, const char *argv[])
 
   main_context = g_main_context_new ();
   dbus_error_init (&error);
-  bus = dbus_bus_get (DBUS_BUS_SESSION, &error);
+  bus = dbus_bus_get_private (DBUS_BUS_SESSION, &error);
   if (!bus)
   {
     fprintf(stderr, "Couldn't connect to bus: %s\n", error.name);
@@ -96,6 +97,13 @@ main(int argc, const char *argv[])
   }
   dbus_message_unref (reply);
   dbus_message_unref (message);
+
+  test_run_until_disconnected (dbus_connection_get_g_connection (bus),
+                               NULL);
+  dbus_connection_unref (bus);
+
+  dbus_shutdown ();
+  g_main_context_unref (main_context);
 
   return 0;
 }
