@@ -80,10 +80,17 @@ dbus_g_value_dict_parse_variant (GVariant *variant,
           child != NULL;
           child = g_variant_iter_next_value (&iter))
         {
-          dbus_g_value_parse_variant_by_type (
-              g_variant_get_child_value (child, 0), key_type, &key_parsed);
-          dbus_g_value_parse_variant_by_type (
-              g_variant_get_child_value (child, 1), value_type, &value_parsed);
+          GVariant *grandchild;
+
+          grandchild = g_variant_get_child_value (child, 0);
+          dbus_g_value_parse_variant_by_type (grandchild, key_type,
+                                              &key_parsed);
+          g_variant_unref (grandchild);
+
+          grandchild = g_variant_get_child_value (child, 1);
+          dbus_g_value_parse_variant_by_type (grandchild, value_type,
+                                              &value_parsed);
+          g_variant_unref (grandchild);
 
           /* Here be dragons: this steals the *contents of* key_parsed and
            * value_parsed, so we can't g_value_unset() them. */
@@ -132,10 +139,11 @@ dbus_g_value_basic_array_parse_variant (GVariant *variant,
 
                 for (i = 0; i < n; i++)
                   {
-                    gchar *s = g_variant_dup_string (
-                        g_variant_get_child_value (variant, i), NULL);
+                    GVariant *child = g_variant_get_child_value (variant, i);
+                    gchar *s = g_variant_dup_string (child, NULL);
 
                     g_ptr_array_add (pa, s);
+                    g_variant_unref (child);
                   }
 
                 g_value_take_boxed (value, pa);
@@ -232,10 +240,12 @@ dbus_g_value_basic_array_parse_variant (GVariant *variant,
 
           for (i = 0; i < n; i++)
             {
+              GVariant *child;
               GValue v = { 0 };
 
-              dbus_g_value_parse_g_variant (
-                  g_variant_get_child_value (variant, i), &v);
+              child = g_variant_get_child_value (variant, i);
+              dbus_g_value_parse_g_variant (child, &v);
+              g_variant_unref (child);
               dbus_g_type_specialized_collection_append (&ctx, &v);
             }
 
@@ -261,11 +271,20 @@ dbus_g_value_tuple_parse_variant (GVariant *variant,
       i < n;
       i++, inner_type = g_variant_type_next (inner_type))
     {
+      GVariant *inner_variant;
+
+      if (variant == NULL)
+        inner_variant = NULL;
+      else
+        inner_variant = g_variant_get_child_value (variant, i);
+
       g_value_array_append (va, NULL);
-      dbus_g_value_parse_variant_by_type (
-          variant == NULL ? NULL : g_variant_get_child_value (variant, i),
-          inner_type, &va->values[i]);
+      dbus_g_value_parse_variant_by_type (inner_variant, inner_type,
+                                          &va->values[i]);
       types[i] = G_VALUE_TYPE (&va->values[i]);
+
+      if (inner_variant != NULL)
+        g_variant_unref (inner_variant);
     }
 
   g_value_init (value, dbus_g_type_get_structv ("GValueArray", n, types));
@@ -352,11 +371,12 @@ dbus_g_value_array_parse_variant (GVariant *variant,
     {
       for (i = 0; i < n; i++)
         {
+          GVariant *child = g_variant_get_child_value (variant, i);
           GValue tmp = { 0 };
 
-          dbus_g_value_parse_g_variant (g_variant_get_child_value (variant, i),
-              &tmp);
+          dbus_g_value_parse_g_variant (child, &tmp);
           g_ptr_array_add (pa, g_value_dup_boxed (&tmp));
+          g_variant_unref (child);
           g_value_unset (&tmp);
         }
 
@@ -476,12 +496,12 @@ dbus_g_value_parse_variant_by_type (GVariant *variant,
 
         if (variant != NULL)
           {
-            GValue *inner_variant = g_new0 (GValue, 1);
+            GVariant *inner_variant = g_variant_get_variant (variant);
+            GValue *inner_value = g_new0 (GValue, 1);
 
-            dbus_g_value_parse_g_variant (g_variant_get_variant (variant),
-                inner_variant);
-
-            g_value_take_boxed (value, inner_variant);
+            dbus_g_value_parse_g_variant (inner_variant, inner_value);
+            g_value_take_boxed (value, inner_value);
+            g_variant_unref (inner_variant);
           }
         break;
 
