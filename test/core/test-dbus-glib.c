@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "my-object.h"
+#include "test/lib/util.h"
 
 GMainLoop *loop = NULL;
 
@@ -91,8 +92,11 @@ static void
 test_terminate_proxy1_destroyed_cb (DBusGProxy *proxy, gpointer user_data)
 {
    proxy_destroyed = TRUE;
+
   if (proxy_destroy_and_nameowner && !proxy_destroy_and_nameowner_complete && await_terminating_service == NULL)
     {
+      g_object_unref(test_terminate_proxy1);
+      test_terminate_proxy1 = NULL;
       g_object_unref(test_terminate_proxy2);
       test_terminate_proxy2 = NULL;
       g_source_remove (exit_timeout);
@@ -544,8 +548,8 @@ main (int argc, char **argv)
   loop = g_main_loop_new (NULL, FALSE);
 
   error = NULL;
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION,
-                               &error);
+  connection = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, &error);
+
   if (connection == NULL)
     lose_gerror ("Failed to open connection to bus", error);
 
@@ -1026,6 +1030,8 @@ main (int argc, char **argv)
       lose_gerror ("Failed to complete (wrapped) zero-length recursive1 call", error);
     if (arraylen != 0)
       lose ("(wrapped) zero-length recursive1 call returned invalid length %u", arraylen);
+
+    g_array_unref (array);
   }
 
   {
@@ -1052,6 +1058,8 @@ main (int argc, char **argv)
       lose_gerror ("Failed to complete (wrapped) recursive1 call", error);
     if (arraylen != 5)
       lose ("(wrapped) recursive1 call returned invalid length %u", arraylen);
+
+    g_array_unref (array);
   }
 
   {
@@ -1286,6 +1294,7 @@ main (int argc, char **argv)
       lose_gerror ("Failed to complete RecArrays call", error);
     g_free (g_ptr_array_index (in_array, 0));
     g_free (g_ptr_array_index (in_array, 1));
+    g_ptr_array_free (in_array, TRUE);
 
     g_assert (out_array);
     g_assert (out_array->len == 2);
@@ -1387,6 +1396,8 @@ main (int argc, char **argv)
       lose_gerror ("Failed to complete (wrapped) GetValue call", error);
     if (val != 3)
       lose ("(wrapped) GetValue returned invalid value %d", val);
+
+    g_object_unref (ret_proxy);
   }
 
   run_mainloop ();
@@ -1770,7 +1781,8 @@ main (int argc, char **argv)
     lose ("Didn't get proxy_destroyed");
   g_print ("Proxy destroyed successfully\n");
 
-  /* Don't need to unref, proxy was destroyed */
+  /* "destroy" does not mean last-unref! */
+  g_object_unref (proxy);
 
   run_mainloop ();
 
@@ -2021,7 +2033,8 @@ main (int argc, char **argv)
 
     if (!(found_introspectable && found_myobject && found_properties))
       lose ("Missing interface"); 
-    g_free (node);
+
+    node_info_unref (node);
   }
   g_free (v_STRING_2);
 
@@ -2362,11 +2375,20 @@ main (int argc, char **argv)
       lose_gerror ("Failed to complete (wrapped) DoNothing call", error);
     
     g_object_unref (G_OBJECT (proxy));
+
+    test_run_until_disconnected (privconn, NULL);
+    dbus_g_connection_unref (privconn);
   }
 
   g_object_unref (G_OBJECT (driver));
 
+  test_run_until_disconnected (connection, NULL);
+  dbus_g_connection_unref (connection);
+
   g_print ("Successfully completed %s\n", argv[0]);
+
+  dbus_shutdown ();
+  g_main_loop_unref (loop);
 
   return 0;
 }
