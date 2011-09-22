@@ -2,12 +2,18 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+
 #include "dbus/dbus-gparser.h"
 #include "test-song-bindings.h"
 #include "test-hello-bindings.h"
 #include "test-goodbye-bindings.h"
 #include "test-dup-prop-a-bindings.h"
 #include "test-dup-prop-b-bindings.h"
+
+#include "test/lib/util.h"
 
 #define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Test.Interfaces"
 #define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/Interfaces"
@@ -96,13 +102,16 @@ main (int    argc,
 
   g_type_init ();
 
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  connection = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, &error);
   if (connection == NULL)
     {
       g_error ("Failed to make connection to session bus: %s", error->message);
       g_error_free (error);
       exit(1);
     }
+
+  dbus_connection_set_exit_on_disconnect (dbus_g_connection_get_connection (connection),
+                                          FALSE);
 
   proxy = dbus_g_proxy_new_for_name (connection, TEST_NAMESPACE, TEST_OBJECT_PATH,
                                      "org.freedesktop.DBus.GLib.Test.Interfaces.Song");
@@ -270,6 +279,10 @@ main (int    argc,
 
   g_object_unref (dp_proxy);
 
+  test_run_until_disconnected (connection, NULL);
+  dbus_g_connection_unref (connection);
+
+  dbus_shutdown ();
   exit(0);
 }
 
