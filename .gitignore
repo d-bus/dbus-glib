@@ -209,6 +209,7 @@ test/core/test-proxy-peer
 test/core/test-service-glib
 test/core/test-service-glib-bindings.h
 test/core/test-service-glib-glue.h
+/test/core/test-shared-bus
 test/core/test-thread-client
 test/core/test-thread-server
 test/core/test-types

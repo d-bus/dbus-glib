@@ -63,7 +63,9 @@ noinst_PROGRAMS = \
 	test-proxy-peer \
 	test-registrations \
 	test-variant-recursion \
-	test-gvariant
+	test-gvariant \
+	test-shared-bus \
+	$(NULL)
 
 test_30574_SOURCES = \
 	30574.c
@@ -155,6 +157,8 @@ test_gvariant_SOURCES = \
 	test-gvariant.c
 
 test_peer_on_bus_SOURCES = peer-on-bus.c
+
+test_shared_bus_SOURCES = shared-bus.c
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \

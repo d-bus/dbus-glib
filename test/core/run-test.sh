@@ -43,6 +43,7 @@ else
   if test x$DBUS_TEST_MONITOR != x; then
     dbus-monitor --session &
   fi
+  ${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-shared-bus || die "test-shared-bus failed"
   ${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-types || die "test-types failed"
   ${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-registrations || die "test-registrations failed"
   ${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/core/test-dbus-glib || die "test-dbus-glib failed"
