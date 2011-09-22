@@ -16,6 +16,8 @@ if test -z "$DBUS_TEST_GLIB_IN_RUN_TEST"; then
   exec $DBUS_TOP_SRCDIR/tools/run-with-tmp-session-bus.sh $SCRIPTNAME $MODE
 fi  
 
+set -e
+
 for x in annotated-node nested-annotation; do
   if ! test -f $srcdir/invalid-$x.xml; then
     echo "invalid-$x.xml missing">&2
@@ -34,4 +36,4 @@ for x in annotated-node nested-annotation; do
 done
 
 echo "running test-client"
-${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/interfaces/test-client || die "test-client failed"
+${DBUS_TOP_BUILDDIR}/libtool --mode=execute $DEBUG $DBUS_TOP_BUILDDIR/test/interfaces/test-client
