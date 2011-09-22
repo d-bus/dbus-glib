@@ -32,7 +32,7 @@ main (int argc, char **argv)
   dbus_error_init (&derror);
 
   /* Check DBusGConnection -> DBusConnection -> DBusGConnection */
-  gconn = dbus_g_bus_get (DBUS_BUS_SESSION, &gerror);
+  gconn = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, &gerror);
   if (!gconn)
     lose ("Cannot get connection: %s", gerror->message);
   
@@ -43,8 +43,10 @@ main (int argc, char **argv)
   gconn2 = dbus_connection_get_g_connection (conn);
   if (gconn != gconn2)
     lose ("Retrieved DBusGConection != original DBusGConnection");
-  
+
+  dbus_connection_close (conn);
   dbus_g_connection_unref (gconn);
-  
+  dbus_shutdown ();
+
   return 0;
 }
