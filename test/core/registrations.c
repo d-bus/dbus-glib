@@ -286,7 +286,6 @@ static void
 test_clean_slate (Fixture *f,
     gconstpointer test_data G_GNUC_UNUSED)
 {
-  DBusError e;
   dbus_bool_t mem;
 
   dbus_bus_add_match (dbus_g_connection_get_connection (f->bus),
@@ -415,8 +414,6 @@ test_marshal_object (Fixture *f,
 int
 main (int argc, char **argv)
 {
-  loop = g_main_loop_new (NULL, FALSE);
-
   g_type_init ();
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
   dbus_g_type_specialized_init ();
