@@ -1,12 +1,16 @@
 #include <config.h>
 
 /* -*- mode: C; c-file-style: "gnu" -*- */
-#include <dbus/dbus-glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <glib.h>
 #include <glib-object.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+
+#include "test/lib/util.h"
 
 static gboolean
 make_recursive_stringify_call (int recursion_depth, 
@@ -59,7 +63,7 @@ main (int argc, char **argv)
   
   loop = g_main_loop_new (NULL, FALSE);
 
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  connection = dbus_g_bus_get_private (DBUS_BUS_SESSION, NULL, &error);
   if (connection == NULL)
     g_error ("Failed to open connection to bus: %s", error->message);
 
@@ -94,7 +98,11 @@ main (int argc, char **argv)
 
   g_object_unref (G_OBJECT (proxy));
 
+  test_run_until_disconnected (connection, NULL);
+  dbus_g_connection_unref (connection);
+
   g_main_loop_unref (loop);
+  dbus_shutdown ();
 
   return 0;
 }
