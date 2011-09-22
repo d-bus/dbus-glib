@@ -256,7 +256,9 @@ main (int    argc,
               }
           }
       }
+
     g_free (str);
+    node_info_unref (node);
 
     if (!found_iface_a_prop || !found_iface_b_prop)
       {
@@ -265,6 +267,8 @@ main (int    argc,
         exit(1);
       }
   }
+
+  g_object_unref (dp_proxy);
 
   exit(0);
 }
