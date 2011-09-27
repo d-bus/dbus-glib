@@ -260,7 +260,13 @@ register_container (const char                         *name,
 		    const DBusGTypeSpecializedVtable   *vtable)
 {
   DBusGTypeSpecializedContainer *klass;
-  
+
+  g_warn_if_fail (vtable->constructor != NULL);
+  /* must have either free_func or simple_free_func */
+  g_warn_if_fail (vtable->free_func != NULL ||
+                  vtable->simple_free_func != NULL);
+  g_warn_if_fail (vtable->copy_func != NULL);
+
   klass = g_new0 (DBusGTypeSpecializedContainer, 1);
   klass->type = type;
   klass->vtable = vtable;
@@ -291,6 +297,11 @@ _dbus_g_type_register_collection (const char                                   *
 				  const DBusGTypeSpecializedCollectionVtable   *vtable,
 				  guint                                         flags)
 {
+  /* fixed_accessor is optional */
+  g_warn_if_fail (vtable->iterator != NULL);
+  g_warn_if_fail (vtable->append_func != NULL);
+  /* end_append_func is optional */
+
   register_container (name, DBUS_G_SPECTYPE_COLLECTION, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
@@ -317,6 +328,9 @@ _dbus_g_type_register_map (const char                            *name,
 			   const DBusGTypeSpecializedMapVtable   *vtable,
 			   guint                                  flags)
 {
+  g_warn_if_fail (vtable->iterator != NULL);
+  g_warn_if_fail (vtable->append_func != NULL);
+
   register_container (name, DBUS_G_SPECTYPE_MAP, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
@@ -343,6 +357,9 @@ _dbus_g_type_register_struct (const char                             *name,
 			      const DBusGTypeSpecializedStructVtable *vtable,
 			      guint                                   flags)
 {
+  g_warn_if_fail (vtable->get_member != NULL);
+  g_warn_if_fail (vtable->set_member != NULL);
+
   register_container (name, DBUS_G_SPECTYPE_STRUCT, (const DBusGTypeSpecializedVtable*) vtable);
 }
 
