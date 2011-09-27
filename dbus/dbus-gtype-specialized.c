@@ -814,8 +814,11 @@ dbus_g_type_collection_value_iterate (const GValue                           *va
   g_return_if_fail (G_VALUE_HOLDS_BOXED (value));
 
   gtype = G_VALUE_TYPE (value);
+  g_return_val_if_fail (dbus_g_type_is_collection (gtype), FALSE);
+
   data = lookup_specialization_data (gtype);
-  g_return_if_fail (data != NULL);
+  /* dbus_g_type_is_collection() already checked this */
+  g_assert (data != NULL);
 
   ((DBusGTypeSpecializedCollectionVtable *) data->klass->vtable)->iterator (gtype,
 									    g_value_get_boxed (value),
@@ -870,6 +873,9 @@ dbus_g_type_specialized_collection_append (DBusGTypeSpecializedAppendContext *ct
 					   GValue                            *elt)
 {
   DBusGTypeSpecializedAppendContextReal *realctx = (DBusGTypeSpecializedAppendContextReal *) ctx;
+
+  g_return_if_fail (dbus_g_type_is_collection (realctx->gtype));
+
   ((DBusGTypeSpecializedCollectionVtable *) realctx->specdata->klass->vtable)->append_func (ctx, elt);
 }
 
@@ -884,6 +890,9 @@ void
 dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext *ctx)
 {
   DBusGTypeSpecializedAppendContextReal *realctx = (DBusGTypeSpecializedAppendContextReal *) ctx;
+
+  g_return_if_fail (dbus_g_type_is_collection (realctx->gtype));
+
   if (((DBusGTypeSpecializedCollectionVtable *) realctx->specdata->klass->vtable)->end_append_func != NULL)
     ((DBusGTypeSpecializedCollectionVtable *) realctx->specdata->klass->vtable)->end_append_func (ctx);
 }
@@ -903,6 +912,9 @@ dbus_g_type_specialized_map_append (DBusGTypeSpecializedAppendContext *ctx,
 				    GValue                            *val)
 {
   DBusGTypeSpecializedAppendContextReal *realctx = (DBusGTypeSpecializedAppendContextReal *) ctx;
+
+  g_return_if_fail (dbus_g_type_is_map (realctx->gtype));
+
   ((DBusGTypeSpecializedMapVtable *) realctx->specdata->klass->vtable)->append_func (ctx, key, val);
 }
 
@@ -931,8 +943,11 @@ dbus_g_type_map_value_iterate (const GValue                           *value,
   g_return_if_fail (G_VALUE_HOLDS_BOXED (value));
 
   gtype = G_VALUE_TYPE (value);
+  g_return_if_fail (dbus_g_type_is_map (gtype));
+
   data = lookup_specialization_data (gtype);
-  g_return_if_fail (data != NULL);
+  /* already checked by dbus_g_type_is_map() */
+  g_assert (data != NULL);
 
   ((DBusGTypeSpecializedMapVtable *) data->klass->vtable)->iterator (gtype,
 								     g_value_get_boxed (value),
@@ -964,8 +979,11 @@ dbus_g_type_struct_get_member (const GValue *value,
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
+  g_return_if_fail (dbus_g_type_is_struct (gtype));
+
   data = lookup_specialization_data (gtype);
-  g_return_val_if_fail (data != NULL, FALSE);
+  /* already checked by dbus_g_type_is_struct() */
+  g_assert (data != NULL);
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->get_member(gtype,
 											   g_value_get_boxed (value),
@@ -996,8 +1014,11 @@ dbus_g_type_struct_set_member (GValue       *value,
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
+  g_return_if_fail (dbus_g_type_is_struct (gtype));
+
   data = lookup_specialization_data (gtype);
-  g_return_val_if_fail (data != NULL, FALSE);
+  /* already checked by dbus_g_type_is_struct() */
+  g_assert (data != NULL);
 
   return ((DBusGTypeSpecializedStructVtable *) (data->klass->vtable))->set_member(gtype,
 											   g_value_get_boxed (value),
