@@ -62,6 +62,7 @@ typedef struct {
   /* public */
   GValue *val;
   GType specialization_type;
+  /*< private >*/
   /* padding */
   gpointer b;
   guint c;
@@ -80,8 +81,8 @@ void           dbus_g_type_specialized_map_append              (DBusGTypeSpecial
 								
 
 gboolean       dbus_g_type_collection_get_fixed             (GValue                                 *value,
-							     gpointer                               *data,
-							     guint                                  *len);
+							     gpointer                               *data_ret,
+							     guint                                  *len_ret);
 
 void           dbus_g_type_collection_value_iterate         (const GValue                           *value,
 							     DBusGTypeSpecializedCollectionIterator  iterator,
@@ -115,6 +116,7 @@ typedef struct {
   DBusGTypeSpecializedFreeFunc       free_func;
   DBusGTypeSpecializedCopyFunc       copy_func;
   GDestroyNotify                     simple_free_func; /* for type-independent freeing if possible */
+  /*<private>*/
   gpointer                           padding2;
   gpointer                           padding3;
 } DBusGTypeSpecializedVtable;

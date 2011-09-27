@@ -175,6 +175,7 @@ dbus_g_type_register_collection
 dbus_g_type_register_map
 dbus_g_type_map_peek_vtable
 dbus_g_type_collection_peek_vtable
+dbus_g_type_struct_peek_vtable
 dbus_g_type_register_struct
 dbus_g_value_build_g_variant
 dbus_g_value_parse_g_variant
