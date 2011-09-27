@@ -769,6 +769,7 @@ dbus_g_type_collection_get_fixed (GValue   *value,
 				  guint    *len_ret)
 {
   DBusGTypeSpecializedData *data;
+  DBusGTypeSpecializedCollectionVtable *vtable;
   GType gtype;
 
   dbus_g_type_specialized_init();
@@ -776,12 +777,17 @@ dbus_g_type_collection_get_fixed (GValue   *value,
   g_return_val_if_fail (G_VALUE_HOLDS_BOXED (value), FALSE);
 
   gtype = G_VALUE_TYPE (value);
-  data = lookup_specialization_data (gtype);
-  g_return_val_if_fail (data != NULL, FALSE);
+  g_return_val_if_fail (dbus_g_type_is_collection (gtype), FALSE);
 
-  return ((DBusGTypeSpecializedCollectionVtable *) (data->klass->vtable))->fixed_accessor (gtype,
-											   g_value_get_boxed (value),
-											   data_ret, len_ret);
+  data = lookup_specialization_data (gtype);
+  /* dbus_g_type_is_collection() already checked this */
+  g_assert (data != NULL);
+
+  vtable = (DBusGTypeSpecializedCollectionVtable *) (data->klass->vtable);
+  g_return_val_if_fail (vtable->fixed_accessor != NULL, FALSE);
+
+  return vtable->fixed_accessor (gtype, g_value_get_boxed (value),
+                                 data_ret, len_ret);
 }
 
 /**
