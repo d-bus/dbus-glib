@@ -159,7 +159,7 @@ void       dbus_glib_global_set_disable_legacy_property_access (void);
 void       dbus_g_object_type_install_info     (GType                 object_type,
                                                 const DBusGObjectInfo *info);
 
-void       dbus_g_object_type_register_shadow_property (GType         object_type,
+void       dbus_g_object_type_register_shadow_property (GType         iface_type,
                                                         const char    *dbus_prop_name,
                                                         const char    *shadow_prop_name);
 

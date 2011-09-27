@@ -65,9 +65,10 @@ dbus_g_method_return_error
 DBusGError
 dbus_g_error_has_name
 dbus_g_error_get_name
-dbus_g_error_quark
 dbus_g_error_domain_register
 DBUS_GERROR
+<SUBSECTION Standard>
+dbus_g_error_quark
 </SECTION>
 
 <SECTION>
@@ -122,6 +123,8 @@ DBUS_TYPE_MESSAGE
 <SUBSECTION Standard>
 dbus_connection_get_g_type
 dbus_message_get_g_type
+<SUBSECTION Private>
+DBUS_INSIDE_DBUS_GLIB_H
 </SECTION>
 
 <SECTION>
@@ -192,5 +195,6 @@ DBUS_TYPE_G_SIGNATURE
 DBusGObjectPath
 DBUS_TYPE_G_OBJECT_PATH
 <SUBSECTION Private>
+dbus_g_object_path_get_g_type
 dbus_g_signature_get_g_type
 </SECTION>

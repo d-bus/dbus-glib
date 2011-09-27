@@ -2027,7 +2027,7 @@ assert_bidirectional_mapping (GType gtype, const char *expected_sig)
 
 /*
  * Unit test for general glib stuff
- * Returns: #TRUE on success.
+ * Returns: %TRUE on success.
  */
 gboolean
 _dbus_gvalue_test (const char *test_data_dir)

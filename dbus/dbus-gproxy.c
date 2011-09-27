@@ -1806,6 +1806,17 @@ dbus_g_proxy_emit_remote_signal (DBusGProxy  *proxy,
   goto out;
 }
 
+/**
+ * DBusGProxyCallNotify:
+ * @proxy: the proxy on which the method was called
+ * @call_id: the call in progress
+ * @user_data: data passed to dbus_g_proxy_begin_call() or similar
+ *
+ * Called when a reply to the call represented by @call_id arrives.
+ * Use dbus_g_proxy_end_call() to see whether @call_id succeeded or
+ * failed, and get the arguments returned (if any) on success.
+ */
+
 typedef struct
 {
   DBusGProxy *proxy;
@@ -1919,6 +1930,18 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  *
  * A #DBusGProxy is a #GObject representing a remote object in a D-Bus
  * service.
+ */
+
+/**
+ * DBusGProxy:
+ *
+ * A #GObject representing a remote object in a D-Bus service.
+ */
+
+/**
+ * DBusGProxyCall:
+ *
+ * An opaque pointer representing an asynchronous call in progress.
  */
 
 /*
@@ -2039,7 +2062,7 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
  * dbus_g_proxy_new_for_name_owner() will bind to the unique name
  * of that owner rather than the generic name.
  * 
- * Returns: new proxy object, or #NULL on error
+ * Returns: new proxy object, or %NULL on error
  */
 DBusGProxy*
 dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
@@ -2133,12 +2156,12 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
  * dbus_g_proxy_get_bus_name:
  * @proxy: the proxy
  *
- * Gets the bus name a proxy is bound to (may be #NULL in some cases).
+ * Gets the bus name a proxy is bound to (may be %NULL in some cases).
  * If you created the proxy with dbus_g_proxy_new_for_name(), then
  * the name you passed to that will be returned.
  * If you created it with dbus_g_proxy_new_for_name_owner(), then the
  * unique connection name will be returned. If you created it
- * with dbus_g_proxy_new_for_peer() then #NULL will be returned.
+ * with dbus_g_proxy_new_for_peer() then %NULL will be returned.
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
@@ -2162,7 +2185,7 @@ dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
  * dbus_g_proxy_get_interface:
  * @proxy: the proxy
  *
- * Gets the object interface proxy is bound to (may be #NULL in some cases).
+ * Gets the object interface proxy is bound to (may be %NULL in some cases).
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
@@ -2910,7 +2933,7 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
  * dbus_g_proxy_send:
  * @proxy: a proxy for a remote interface
  * @message: the message to address and send
- * @client_serial: return location for message's serial, or #NULL 
+ * @client_serial: return location for message's serial, or %NULL
  *
  * Sends a message to the interface we're proxying for.  Does not
  * block or wait for a reply. The message is only actually written out

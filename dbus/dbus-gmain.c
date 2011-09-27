@@ -516,11 +516,11 @@ connection_setup_new_from_old (GMainContext    *context,
 /**
  * dbus_connection_setup_with_g_main:
  * @connection: the connection
- * @context: the #GMainContext or #NULL for default context
+ * @context: the #GMainContext or %NULL for default context
  *
  * Sets the watch and timeout functions of a #DBusConnection
  * to integrate the connection with the GLib main loop.
- * Pass in #NULL for the #GMainContext unless you're
+ * Pass in %NULL for the #GMainContext unless you're
  * doing something specialized.
  *
  * If called twice for the same context, does nothing the second
@@ -594,11 +594,11 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
 /**
  * dbus_server_setup_with_g_main:
  * @server: the server
- * @context: the #GMainContext or #NULL for default
+ * @context: the #GMainContext or %NULL for default
  *
  * Sets the watch and timeout functions of a #DBusServer
  * to integrate the server with the GLib main loop.
- * In most cases the context argument should be #NULL.
+ * In most cases the context argument should be %NULL.
  *
  * If called twice for the same context, does nothing the second
  * time. If called once with context A and once with context B,
@@ -791,7 +791,7 @@ dbus_g_bus_get_private (DBusBusType     type,
 
 /*
  * Unit test for GLib main loop integration
- * Returns: #TRUE on success.
+ * Returns: %TRUE on success.
  */
 gboolean
 _dbus_gmain_test (const char *test_data_dir)

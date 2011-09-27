@@ -1637,6 +1637,8 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
  */
 
 /**
+ * DBusGMethodInvocation:
+ *
  * The context of an asynchronous method call.  See dbus_g_method_return() and
  * dbus_g_method_return_error().
  */
@@ -2041,7 +2043,7 @@ done:
  * Check that the requested property exists and the requested access is
  * allowed. If not, reply with a D-Bus AccessDenied error message.
  *
- * Returns: %TRUE if property access can continue, or FALSE if an error
+ * Returns: %TRUE if property access can continue, or %FALSE if an error
  *    reply has been sent
  */
 static gboolean
@@ -2518,7 +2520,7 @@ dbus_error_to_gerror_code (const char *derr)
 /**
  * dbus_set_g_error:
  * @gerror: an error
- * @error: a #DBusError
+ * @derror: a #DBusError
  *
  * Store the information from a DBus method error return into a
  * GError.  For the normal case of an arbitrary remote process,
@@ -2539,27 +2541,27 @@ dbus_error_to_gerror_code (const char *derr)
  */
 void
 dbus_set_g_error (GError    **gerror,
-		  DBusError  *error)
+                  DBusError  *derror)
 {
   int code;
 
-  g_return_if_fail (error != NULL);
-  g_return_if_fail (dbus_error_is_set (error));
+  g_return_if_fail (derror != NULL);
+  g_return_if_fail (dbus_error_is_set (derror));
   g_return_if_fail (gerror == NULL || *gerror == NULL);
 
-  code = dbus_error_to_gerror_code (error->name);
+  code = dbus_error_to_gerror_code (derror->name);
   if (code != DBUS_GERROR_REMOTE_EXCEPTION)
     g_set_error (gerror, DBUS_GERROR,
 		 code,
 		 "%s",
-		 error->message);
+		 derror->message);
   else
     g_set_error (gerror, DBUS_GERROR,
 		 code,
 		 "%s%c%s",
-		 error->message ? error->message : "",
+		 derror->message ? derror->message : "",
 		 '\0',
-		 error->name);
+		 derror->name);
 }
 
 static void
@@ -2616,7 +2618,7 @@ dbus_glib_global_set_disable_legacy_property_access (void)
  * class_init() for the object class.
  *
  * Once introspection information has been installed, instances of the
- * object registered with #dbus_g_connection_register_g_object() can have
+ * object registered with dbus_g_connection_register_g_object() can have
  * their methods invoked remotely.
  */
 void
@@ -3030,7 +3032,7 @@ _dbus_gobject_lookup_marshaller (GType        rettype,
  * dbus_g_object_register_marshaller:
  * @marshaller: a GClosureMarshal to be used for invocation
  * @rettype: a GType for the return type of the function
- * @:... The parameter #GTypes, followed by %G_TYPE_INVALID
+ * @...: The parameter #GTypes, followed by %G_TYPE_INVALID
  *
  * Register a #GClosureMarshal to be used for signal invocations,
  * giving its return type and a list of parameter types,
@@ -3069,7 +3071,7 @@ dbus_g_object_register_marshaller (GClosureMarshal  marshaller,
  * @types: a C array of GTypes values
  *
  * Register a #GClosureMarshal to be used for signal invocations.
- * @see_also #dbus_g_object_register_marshaller
+ * @see_also dbus_g_object_register_marshaller()
  */
 void
 dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
@@ -3142,9 +3144,10 @@ dbus_g_method_get_reply (DBusGMethodInvocation *context)
 
 /**
  * dbus_g_method_send_reply:
- * Send a manually created reply message
  * @context: the method context
  * @reply: the reply message, will be unreffed
+ *
+ * Send a manually created reply message.
  *
  * Used as a sidedoor when you can't generate dbus values
  * of the correct type due to glib binding limitations
@@ -3168,6 +3171,8 @@ dbus_g_method_send_reply (DBusGMethodInvocation *context, DBusMessage *reply)
 /**
  * dbus_g_method_return:
  * @context: the method context
+ * @...: zero or more values to return from the method, with their number
+ *    and types given by its #DBusGObjectInfo
  *
  * Send a return message for a given method invocation, with arguments.
  * This function also frees the sending context.
@@ -3336,7 +3341,7 @@ const DBusGObjectInfo dbus_glib_internal_test_object_info = {
 
 /*
  * Unit test for GLib GObject integration ("skeletons")
- * Returns: #TRUE on success.
+ * Returns: %TRUE on success.
  */
 gboolean
 _dbus_gobject_test (const char *test_data_dir)

@@ -372,7 +372,7 @@ dbus_g_message_get_message (DBusGMessage *gmessage)
 
 /*
  * Unit test for general glib stuff
- * Returns: #TRUE on success.
+ * Returns: %TRUE on success.
  */
 gboolean
 _dbus_glib_test (const char *test_data_dir)
