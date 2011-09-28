@@ -13,6 +13,7 @@ GType my_object_get_type (void);
 struct MyObject
 {
   GObject parent;
+  GError *saved_error;
   char *this_is_a_string;
   guint notouching;
   guint val;
@@ -118,5 +119,9 @@ void my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context)
 void my_object_unsafe_disable_legacy_property_access (MyObject *obj);
 
 void my_object_emit_objectified (MyObject *obj, GObject *other);
+
+/* Not a D-Bus method. */
+void my_object_save_error (MyObject *obj, GQuark domain, gint code,
+    const gchar *message);
 
 #endif
