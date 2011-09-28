@@ -1492,7 +1492,15 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 
 	  domain_str = info->default_iface;
 	  if (value)
-	    code_str = value->value_nick;
+            {
+              code_str = value->value_nick;
+            }
+          else
+            {
+              g_warning ("Error code %d out of range for GError domain %s",
+                         code, g_quark_to_string (domain));
+              code_str = NULL;
+            }
 	}
     }
 
