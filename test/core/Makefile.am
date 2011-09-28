@@ -48,6 +48,7 @@ endif
 ## build even when not doing "make check"
 noinst_PROGRAMS = \
 	test-dbus-glib \
+	test-error-mapping \
 	test-service-glib \
 	$(THREAD_APPS) \
 	peer-server \
@@ -83,6 +84,12 @@ test_dbus_glib_SOURCES=				\
 	test-dbus-glib.c
 
 test_dbus_glib_LDADD= $(tool_ldadd)
+
+test_error_mapping_SOURCES = \
+	my-object.c \
+	my-object.h \
+	my-object-marshal.c \
+	error-mapping.c
 
 test_variant_recursion_SOURCES=test-variant-recursion.c
 

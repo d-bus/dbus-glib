@@ -199,6 +199,7 @@ test/core/run-with-tmp-session-bus.conf
 test/core/peer-client
 test/core/peer-server
 test/core/test-dbus-glib
+/test/core/test-error-mapping
 test/core/test-profile
 test/core/test-proxy-peer
 test/core/test-service-glib
