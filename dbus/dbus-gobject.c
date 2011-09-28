@@ -1523,7 +1523,8 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
           g_free (uscored);
         }
 
-      g_string_append_printf (dbus_error_name, "Code%d", code);
+      /* Map -1 to (unsigned) -1 to avoid "-", which is not valid */
+      g_string_append_printf (dbus_error_name, "Code%u", (unsigned) code);
     }
   else
     {
