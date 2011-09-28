@@ -224,3 +224,4 @@ tools/dbus-glib-bindings.h
 /test/interfaces/test-server
 /test/interfaces/test-service
 /test/interfaces/test-client
+/test/manual/test-invalid-usage

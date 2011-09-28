@@ -450,6 +450,7 @@ test/interfaces/Makefile
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/interfaces-test.service
+test/manual/Makefile
 tools/Makefile
 dbus-glib-1.pc
 dbus-glib-1-uninstalled.pc
