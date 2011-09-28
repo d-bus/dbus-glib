@@ -31,15 +31,6 @@
     <method name="ThrowError">
     </method>
 
-    <method name="ThrowNotSupported">
-    </method>
-    
-    <method name="ThrowErrorMultiWord">
-    </method>
-
-    <method name="ThrowErrorUnderScore">
-    </method>
-
     <method name="ThrowUnregisteredError">
     </method>
 

@@ -5,9 +5,6 @@
 #include "my-object.h"
 #include "my-object-marshal.h"
 
-static gboolean my_object_throw_error_under_score (MyObject *obj,
-    GError **error);
-
 #include "test-service-glib-glue.h"
 
 void
@@ -309,39 +306,6 @@ my_object_throw_error (MyObject *obj, GError **error)
 {
   g_set_error_literal (error, obj->saved_error->domain,
       obj->saved_error->code, obj->saved_error->message);
-  return FALSE;
-}
-
-gboolean
-my_object_throw_not_supported (MyObject *obj, GError **error)
-{
-  g_set_error (error,
-	       DBUS_GERROR,
-	       DBUS_GERROR_NOT_SUPPORTED,
-	       "%s",
-	       "this method always loses");
-  return FALSE;
-}
-
-gboolean
-my_object_throw_error_multi_word (MyObject *obj, GError **error)
-{
-  g_set_error (error,
-	       MY_OBJECT_ERROR,
-	       MY_OBJECT_ERROR_MULTI_WORD,
-	       "%s",
-	       "this method's error has a hyphen");    
-  return FALSE;
-}
-
-static gboolean
-my_object_throw_error_under_score (MyObject *obj, GError **error)
-{
-  g_set_error (error,
-	       MY_OBJECT_ERROR,
-	       MY_OBJECT_ERROR_UNDER_SCORE,
-	       "%s",
-	       "this method's error has an underscore");
   return FALSE;
 }
 
