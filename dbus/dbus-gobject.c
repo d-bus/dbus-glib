@@ -1491,7 +1491,8 @@ gerror_domaincode_to_dbus_error_name (const DBusGObjectInfo *object_info,
 	  g_type_class_unref (klass);
 
 	  domain_str = info->default_iface;
-	  code_str = value->value_nick;
+	  if (value)
+	    code_str = value->value_nick;
 	}
     }
 
