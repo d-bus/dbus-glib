@@ -323,6 +323,8 @@ test_base_class_get_all (DBusGConnection *connection,
   GError *error = NULL;
   GHashTable *hash = NULL;
 
+  /* g_test_bug (19145); */
+
   g_assert (expected_string_value != NULL);
   g_assert (object_path != NULL);
 
@@ -411,6 +413,8 @@ test_subclass_get_all (DBusGConnection *connection,
   DBusGProxy *proxy;
   GError *error = NULL;
   GHashTable *hash = NULL;
+
+  /* g_test_bug (19145); */
 
   g_assert (object_path != NULL);
 
