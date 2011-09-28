@@ -248,30 +248,6 @@ test_unregistered (Fixture *f,
 }
 
 static void
-test_nonsensical (Fixture *f,
-    gconstpointer context)
-{
-  /* This throws an error with domain 0 and code 0, which makes no sense.
-   * It's programmer error, really: g_error_new() would critical if given
-   * the same domain and code. See GNOME#660371.
-   *
-   * This was added for fd.o #27799, but there's a difference between
-   * "this is an error domain, but not one registered with dbus-glib" and
-   * "this isn't even an error domain". */
-  g_test_bug ("27799");
-
-  if (!org_freedesktop_DBus_GLib_Tests_MyObject_throw_unregistered_error_async (
-        f->proxy, throw_error_cb, f))
-    g_error ("Failed to start async ThrowUnregisteredError call");
-
-  while (f->error == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_error (f->error, DBUS_GERROR, DBUS_GERROR_REMOTE_EXCEPTION);
-  assert_contains (f->error->message, "this method always loses more");
-}
-
-static void
 teardown (Fixture *f,
     gconstpointer context G_GNUC_UNUSED)
 {
@@ -314,8 +290,6 @@ main (int argc,
       teardown);
   g_test_add ("/error-mapping/multi-word", Fixture, NULL, setup,
       test_multi_word, teardown);
-  g_test_add ("/error-mapping/nonsensical", Fixture, NULL, setup,
-      test_nonsensical, teardown);
   g_test_add ("/error-mapping/simple", Fixture, NULL, setup, test_simple,
       teardown);
   g_test_add ("/error-mapping/underscore", Fixture, NULL, setup,
