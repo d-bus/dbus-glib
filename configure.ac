@@ -1,7 +1,7 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ(2.52)
 
-AC_INIT([dbus-glib], [0.97],
+AC_INIT([dbus-glib], [0.98],
   [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus])
 
 AC_CANONICAL_HOST
@@ -29,7 +29,7 @@ LT_CURRENT=4
 
 ## increment any time the source changes; set to
 ##  0 if you increment CURRENT
-LT_REVISION=1
+LT_REVISION=2
 
 ## increment if any interfaces have been added; set to 0
 ## if any interfaces have been changed or removed. removal has
