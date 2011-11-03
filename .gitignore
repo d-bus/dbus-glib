@@ -191,6 +191,7 @@ missing
 stamp-h1
 test/Makefile
 test/Makefile.in
+/test/test-errors
 test/core/Makefile
 test/core/Makefile.in
 test/core/my-object-marshal.c

@@ -5,15 +5,27 @@ INCLUDES = \
 	-I$(top_srcdir)				\
 	-I$(top_builddir)			\
 	-I$(top_builddir)/dbus			\
-	$(DBUS_CFLAGS)
+	$(DBUS_CFLAGS) \
+	$(DBUS_GLIB_CFLAGS) \
+	$(NULL)
+
+LDADD = \
+	$(top_builddir)/dbus/libdbus-glib-1.la \
+	$(DBUS_GLIB_LIBS) \
+	$(NULL)
 
 if DBUS_BUILD_TESTS
-TEST_BINARIES=test-service
-else
-TEST_BINARIES=
+test_programs = \
+	test-errors \
+	$(NULL)
+
+# not actually tests, but used by tests
+test_related_programs = \
+	test-service \
+	$(NULL)
 endif
 
-noinst_PROGRAMS= $(TEST_BINARIES)
+test_errors_SOURCES = errors.c
 
 test_service_SOURCES=				\
 	test-service.c
@@ -23,4 +35,17 @@ test_service_LDADD=$(DBUS_LIBS)
 EXTRA_DIST = data/nested-introspect.xml test-compile-nested.sh
 
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir) srcdir=$(srcdir)
-TESTS = test-compile-nested.sh
+
+test_scripts = \
+	test-compile-nested.sh \
+	$(NULL)
+
+TESTS = \
+	$(test_programs) \
+	$(test_scripts) \
+	$(NULL)
+
+noinst_PROGRAMS = \
+	$(test_programs) \
+	$(test_related_programs) \
+	$(NULL)

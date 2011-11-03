@@ -367,32 +367,3 @@ dbus_g_message_get_message (DBusGMessage *gmessage)
 {
   return DBUS_MESSAGE_FROM_G_MESSAGE (gmessage);
 }
-
-#ifdef DBUS_BUILD_TESTS
-
-/*
- * Unit test for general glib stuff
- * Returns: %TRUE on success.
- */
-gboolean
-_dbus_glib_test (const char *test_data_dir)
-{
-  DBusError err;
-  GError *gerror = NULL;
-
-  dbus_error_init (&err);
-  dbus_set_error_const (&err, DBUS_ERROR_NO_MEMORY, "Out of memory!");
-
-  dbus_set_g_error (&gerror, &err);
-  g_assert (gerror != NULL);
-  g_assert (gerror->domain == DBUS_GERROR);
-  g_assert (gerror->code == DBUS_GERROR_NO_MEMORY);
-  g_assert (!strcmp (gerror->message, "Out of memory!"));
-  
-  dbus_error_init (&err);
-  g_clear_error (&gerror);
-
-  return TRUE;
-}
-
-#endif /* DBUS_BUILD_TESTS */
