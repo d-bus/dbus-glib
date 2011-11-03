@@ -63,10 +63,6 @@ dbus_glib_internal_do_not_use_run_tests (const char *test_data_dir)
   if (!_dbus_gvalue_test (test_data_dir))
     die ("gvalue utils");
 
-  printf ("%s: running mainloop integration tests\n", "dbus-glib-test");
-  if (!_dbus_gmain_test (test_data_dir))
-    die ("gmain");
-
   printf ("%s: running GObject tests\n", "dbus-glib-test");
   if (!_dbus_gobject_test (test_data_dir))
     die ("gobject");

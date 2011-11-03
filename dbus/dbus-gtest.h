@@ -26,7 +26,6 @@
 
 #include <dbus/dbus-glib.h>
 
-gboolean _dbus_gmain_test   (const char *test_data_dir);
 gboolean _dbus_gobject_test (const char *test_data_dir);
 gboolean _dbus_gutils_test  (const char *test_data_dir);
 gboolean _dbus_gvalue_test  (const char *test_data_dir);
