@@ -924,7 +924,7 @@ dbus_g_type_get_structv (const char   *container,
  * @first_type: #GType for the struct's first member
  * @...: more GTypes for the struct's members, terminated by G_TYPE_INVALID
  *
- * Varags methsod to get a #GType for a particular struct instance,
+ * Varags method to get a #GType for a particular struct instance,
  * creating the type if not already created.
  *
  * Returns: the #GType of that instance
