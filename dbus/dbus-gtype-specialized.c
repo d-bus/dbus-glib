@@ -1482,7 +1482,7 @@ dbus_g_type_struct_set_member (GValue       *value,
  * @value: a #GValue containing a struct instance
  * @member: struct member to get
  * @...: location in which to return the value of this member,
- *       followed optionally by more member/return locations pairs, followed by
+ *       followed optionally by more member/return locations pairs, followed
  *       by %G_MAXUINT
  *
  * Collects the selected values of this struct into the return locations
