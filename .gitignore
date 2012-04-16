@@ -200,6 +200,7 @@ test/core/peer-client
 test/core/peer-server
 test/core/test-dbus-glib
 /test/core/test-error-mapping
+/test/core/test-peer-on-bus
 test/core/test-profile
 test/core/test-proxy-peer
 test/core/test-service-glib

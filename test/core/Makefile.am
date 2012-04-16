@@ -57,6 +57,7 @@ noinst_PROGRAMS = \
 	peer-client \
 	test-types \
 	test-30574 \
+	test-peer-on-bus \
 	test-proxy-peer \
 	test-registrations \
 	test-variant-recursion \
@@ -141,6 +142,8 @@ test_types_SOURCES = \
 
 test_gvariant_SOURCES = \
 	test-gvariant.c
+
+test_peer_on_bus_SOURCES = peer-on-bus.c
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \

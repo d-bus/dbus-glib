@@ -676,7 +676,7 @@ unassociate_proxies (gpointer key, gpointer val, gpointer user_data)
 
       manager = priv->manager;
 
-      if (!strcmp (priv->name, name))
+      if (priv->name != NULL && !strcmp (priv->name, name))
 	{
 	  if (!priv->for_owner)
 	    {
@@ -1139,7 +1139,8 @@ dbus_g_proxy_manager_unregister (DBusGProxyManager *manager,
       manager->proxy_lists = NULL;
     }
 
-  if (g_hash_table_size (manager->owner_match_rules) == 0)
+  if (manager->owner_match_rules != NULL &&
+      g_hash_table_size (manager->owner_match_rules) == 0)
     {
       g_hash_table_destroy (manager->owner_match_rules);
       manager->owner_match_rules = NULL;
