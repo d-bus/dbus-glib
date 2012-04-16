@@ -8,7 +8,9 @@ INCLUDES = \
 
 LDADD = $(DBUS_GLIB_LIBS) \
 	$(top_builddir)/dbus/libdbus-glib-1.la \
-	$(top_builddir)/dbus/libdbus-gtool.la
+	$(top_builddir)/dbus/libdbus-gtool.la \
+	$(top_builddir)/test/lib/libtest.la \
+	$(NULL)
 
 ## note that TESTS has special meaning (stuff to use in make check)
 ## so if adding tests not to be run in make check, don't add them to 

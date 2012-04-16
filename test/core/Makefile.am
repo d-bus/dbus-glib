@@ -11,7 +11,9 @@ LDADD = \
 	$(DBUS_GLIB_THREADS_LIBS) \
 	$(DBUS_GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_builddir)/dbus/libdbus-glib-1.la
+	$(top_builddir)/dbus/libdbus-glib-1.la \
+	$(top_builddir)/test/lib/libtest.la \
+	$(NULL)
 
 tool_ldadd = \
 	$(LDADD) \
