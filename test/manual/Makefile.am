@@ -14,8 +14,13 @@ LDADD = \
 	$(NULL)
 
 noinst_PROGRAMS = \
+	$(NULL)
+
+if DBUS_BUILD_TESTS
+noinst_PROGRAMS += \
 	test-invalid-usage \
 	$(NULL)
+endif
 
 # This "test" exercises invalid usage. It is deliberately not run in
 # TESTS, because it's (by design) full of bugs.
