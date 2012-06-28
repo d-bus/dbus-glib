@@ -859,10 +859,12 @@ my_object_async_throw_error (MyObject *obj, DBusGMethodInvocation *context)
   g_idle_add ((GSourceFunc) do_async_error,  data);
 }
 
-void
-my_object_unsafe_disable_legacy_property_access (MyObject *obj)
+gboolean
+my_object_unsafe_disable_legacy_property_access (MyObject *obj,
+    GError **error)
 {
   dbus_glib_global_set_disable_legacy_property_access ();
+  return TRUE;
 }
 
 extern GMainLoop *loop;
