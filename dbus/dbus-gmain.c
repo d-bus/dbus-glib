@@ -705,6 +705,49 @@ dbus_g_connection_open (const gchar  *address,
 }
 
 /**
+ * dbus_g_connection_open_private:
+ * @address: address of the connection to open
+ * @context: the #GMainContext or %NULL for default context
+ * @error: address where an error can be returned.
+ *
+ * Returns a private connection to the given address; this
+ * connection does not talk to a bus daemon and thus the caller
+ * must set up any authentication by itself.  If the address
+ * refers to a message bus, the caller must call dbus_bus_register().
+ *
+ * (Internally, calls dbus_connection_open_private() then calls
+ * dbus_connection_setup_with_g_main() on the result.)
+ *
+ * Returns: (transfer full): a #DBusGConnection
+ */
+DBusGConnection *
+dbus_g_connection_open_private (const gchar  *address,
+                                GMainContext *context,
+                                GError      **error)
+{
+  DBusConnection *connection;
+  DBusError derror;
+
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+  _dbus_g_value_types_init ();
+
+  dbus_error_init (&derror);
+
+  connection = dbus_connection_open_private (address, &derror);
+  if (connection == NULL)
+    {
+      dbus_set_g_error (error, &derror);
+      dbus_error_free (&derror);
+      return NULL;
+    }
+
+  dbus_connection_setup_with_g_main (connection, context);
+
+  return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
+}
+
+/**
  * dbus_g_bus_get:
  * @type: bus type
  * @error: address where an error can be returned.

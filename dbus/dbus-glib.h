@@ -103,6 +103,9 @@ void             dbus_g_thread_init (void);
 
 DBusGConnection* dbus_g_connection_open (const gchar  *address,
                                          GError      **error);
+DBusGConnection* dbus_g_connection_open_private (const gchar  *address,
+                                                 GMainContext *context,
+                                                 GError      **error);
 DBusGConnection* dbus_g_bus_get         (DBusBusType   type,
                                          GError      **error);
 DBusGConnection* dbus_g_bus_get_private (DBusBusType   type,
