@@ -329,6 +329,8 @@ void              dbus_g_method_return               (DBusGMethodInvocation *con
 
 void              dbus_g_method_return_error         (DBusGMethodInvocation *context, const GError *error);
 
+DBusGConnection * dbus_g_method_invocation_get_g_connection (DBusGMethodInvocation *context);
+
 /* Probably possible to replace this with a closure */
 typedef struct {
   GCallback cb;

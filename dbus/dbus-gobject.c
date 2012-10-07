@@ -3276,6 +3276,22 @@ out:
   g_free (context);
 }
 
+/**
+ * dbus_g_method_invocation_get_g_connection:
+ * @context: the method context
+ *
+ * <!-- Returns: says it all -->
+ *
+ * Returns: (transfer none): the @DBusGConnection from which the method was called.
+ */
+DBusGConnection *
+dbus_g_method_invocation_get_g_connection (DBusGMethodInvocation *context)
+{
+  g_return_val_if_fail (context != NULL, NULL);
+
+  return context->connection;
+}
+
 const char *
 _dbus_gobject_get_path (GObject *obj)
 {
