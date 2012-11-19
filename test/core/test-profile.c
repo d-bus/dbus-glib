@@ -206,6 +206,8 @@ no_bus_thread_func (void *data)
       exit (1);
     }
 
+  dbus_connection_set_exit_on_disconnect (connection, FALSE);
+
   context = g_main_context_new ();
 
   cd.iterations = 1;
@@ -376,6 +378,8 @@ with_bus_thread_func (void *data)
       exit (1);
     }
 
+  dbus_connection_set_exit_on_disconnect (connection, FALSE);
+
   if (!dbus_bus_register (connection, &error))
     {
       g_printerr ("could not register with bus: %s\n", error.message);
@@ -530,6 +534,8 @@ with_bus_init_server (ServerData       *sd)
                                                 g_free, NULL);
   
   connection = dbus_g_connection_get_connection (gconnection);
+
+  dbus_connection_set_exit_on_disconnect (connection, FALSE);
 
   dbus_bus_request_name (connection,
                          ECHO_SERVICE,
