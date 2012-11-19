@@ -836,14 +836,6 @@ plain_sockets_init_server (ServerData *sd)
   _DBUS_ZERO (addr);
   addr.sun_family = AF_UNIX;
   
-#ifdef HAVE_ABSTRACT_SOCKETS
-  /* remember that abstract names aren't nul-terminated so we rely
-   * on sun_path being filled in with zeroes above.
-   */
-  addr.sun_path[0] = '\0'; /* this is what says "use abstract" */
-  strncpy (&addr.sun_path[1], path, _DBUS_MAX_SUN_PATH_LENGTH - 2);
-  /* _dbus_verbose_bytes (addr.sun_path, sizeof (addr.sun_path)); */
-#else /* HAVE_ABSTRACT_SOCKETS */
   {
     struct stat sb;
     
@@ -853,7 +845,6 @@ plain_sockets_init_server (ServerData *sd)
   }
 
   strncpy (addr.sun_path, path, _DBUS_MAX_SUN_PATH_LENGTH - 1);
-#endif /* ! HAVE_ABSTRACT_SOCKETS */
   
   if (bind (server->listen_fd, (struct sockaddr*) &addr, sizeof (addr)) < 0)
     {
@@ -963,17 +954,8 @@ plain_sockets_thread_func (void *data)
   _DBUS_ZERO (addr);
   addr.sun_family = AF_UNIX;
 
-#ifdef HAVE_ABSTRACT_SOCKETS
-  /* remember that abstract names aren't nul-terminated so we rely
-   * on sun_path being filled in with zeroes above.
-   */
-  addr.sun_path[0] = '\0'; /* this is what says "use abstract" */
-  strncpy (&addr.sun_path[1], plain_sockets_address, _DBUS_MAX_SUN_PATH_LENGTH - 2);
-  /* _dbus_verbose_bytes (addr.sun_path, sizeof (addr.sun_path)); */
-#else /* HAVE_ABSTRACT_SOCKETS */
   strncpy (addr.sun_path, plain_sockets_address, _DBUS_MAX_SUN_PATH_LENGTH - 1);
-#endif /* ! HAVE_ABSTRACT_SOCKETS */
-  
+
   if (connect (fd, (struct sockaddr*) &addr, sizeof (addr)) < 0)
     {      
       g_printerr ("Failed to connect to socket %s: %s",

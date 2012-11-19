@@ -16,7 +16,6 @@ dbus-glib-configure-real:
 	CPPFLAGS="$(CONFIGURE_CPPFLAGS)" \
 	PKG_CONFIG_LIBDIR="$(CONFIGURE_PKG_CONFIG_LIBDIR)" \
 	PKG_CONFIG_TOP_BUILD_DIR=$(PKG_CONFIG_TOP_BUILD_DIR) \
-	ac_cv_have_abstract_sockets=no \
 	ac_cv_lib_expat_XML_ParserCreate_MM=yes \
 	$(DBUS_GLIB_TOP)/$(CONFIGURE) --host=arm-linux-androideabi \
 		--disable-nls --disable-gtk-doc && \
