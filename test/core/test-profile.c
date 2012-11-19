@@ -1084,6 +1084,10 @@ print_result (const ProfileRunVTable *vtable,
 int
 main (int argc, char *argv[])
 {
+#if (!GLIB_CHECK_VERSION (2, 35, 1))
+  g_type_init ();
+#endif
+
 #ifndef TEST_PROFILE_DISABLED
   g_thread_init (NULL);
   dbus_g_thread_init ();
