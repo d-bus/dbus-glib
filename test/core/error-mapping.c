@@ -115,6 +115,13 @@ throw_error_cb (DBusGProxy *proxy,
     f->error_name = g_strdup (dbus_g_error_get_name (error));
   else
     f->error_name = NULL;
+
+  /* On error, this callback is expected to free it, which is pretty
+   * astonishing, but is how it's always been. In principle, the generated
+   * code ought to document this, or something.
+   * https://bugs.freedesktop.org/show_bug.cgi?id=29195
+   */
+  g_error_free (error);
 }
 
 static void
