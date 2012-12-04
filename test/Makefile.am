@@ -52,3 +52,7 @@ noinst_PROGRAMS = \
 	$(test_programs) \
 	$(test_related_programs) \
 	$(NULL)
+
+check-valgrind: all
+	$(MAKE) -C core check-valgrind
+	$(MAKE) -C interfaces check-valgrind

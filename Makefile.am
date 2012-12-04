@@ -50,4 +50,7 @@ maintainer-upload-release:
 	rsync -rvzPp --chmod=Dg+s,ug+rwX,o=rX doc/reference/html/ \
 	dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/doc/@PACKAGE@/
 
+check-valgrind: all
+	$(MAKE) -C test check-valgrind
+
 include tools/lcov.am

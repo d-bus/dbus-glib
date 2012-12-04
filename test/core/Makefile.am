@@ -30,6 +30,22 @@ else
 TESTS=
 endif
 
+VALGRIND_ENV = G_DEBUG=gc-friendly G_SLICE=always-malloc
+VALGRIND = valgrind
+VALGRIND_ARGS = \
+	--gen-suppressions=all \
+	--leak-check=full \
+	--leak-resolution=high \
+	--num-callers=20 \
+	--suppressions=$(abs_top_srcdir)/tools/dbus-glib.supp \
+	--suppressions=$(abs_top_srcdir)/tools/dbus-glib-tests.supp \
+	--verbose \
+	$(NULL)
+
+check-valgrind: all
+	$(MAKE) check-TESTS \
+	DEBUG="env $(VALGRIND_ENV) $(VALGRIND) $(VALGRIND_ARGS)"
+
 EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.list test-service-glib-subclass.xml
 
 if DBUS_BUILD_TESTS
