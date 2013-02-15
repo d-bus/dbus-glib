@@ -59,6 +59,7 @@ noinst_PROGRAMS = \
 	test-30574 \
 	test-private \
 	test-peer-on-bus \
+	test-proxy-noc \
 	test-proxy-peer \
 	test-registrations \
 	test-variant-recursion \
@@ -72,6 +73,9 @@ test_private_SOURCES = \
 	my-object.h \
 	my-object-marshal.c \
 	private.c
+
+test_proxy_noc_SOURCES = \
+	proxy-noc.c
 
 test_proxy_peer_SOURCES = \
 	my-object-marshal.c \
