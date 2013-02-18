@@ -10,13 +10,13 @@ please do as small commits to your local git tree, so there is a good
 history of your changes.
 
 When you consider changes ready for merging to mainline, use 
-"git-format-patch" or otherwise generate diffs.  Post those diffs
+"git-format-patch" or otherwise generate unified diffs.  Post those diffs
 to a new bug at http://bugs.freedesktop.org, project DBus, component GLib.
 
 For nontrivial changes *please* try to extend the test suite to cover it.  The
-test infrastructure is in test/core/, and currently there are a lot of tests
-in the single file test/core/test-dbus-glib.c.  Extending this file is
-suggested (in the future we would like to break this file up).
+test infrastructure is in test/core/. If possible, use a GTester-style test
+like registrations.c; or if necessary, add things to the giant catch-all
+test, test-dbus-glib.c.
 
 Run "make check" to run the test suite.
 
@@ -54,6 +54,7 @@ To make a release (please replace use of 0.76 with the new version)
 * make distcheck
 * edit configure.ac, change version to even (e.g. 0.75 -> 0.76)
 * also in configure.ac, update LT_CURRENT, LT_REVISION and LT_AGE
+* edit NEWS, summarize notable changes since the last release
 * ./autogen.sh
 * make
 * make distcheck
@@ -64,6 +65,8 @@ To make a release (please replace use of 0.76 with the new version)
 * edit configure.ac, change version to odd (e.g. 0.76 -> 0.77)
 * git commit -m "Bump version for development"
 * Update the wiki: http://www.freedesktop.org/wiki/Software/DBusBindings
-* Announce the release on the mailing list, summarizing notable changes.
+* Announce the release on the mailing list, quoting the notable changes
+  from NEWS.
 
-NEWS is unmaintained.
+NEWS is now maintained again (Simon finds it easier this way, and he
+does most of the releases).
