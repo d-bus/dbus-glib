@@ -12,6 +12,7 @@ INCLUDES = \
 LDADD = \
 	$(top_builddir)/dbus/libdbus-glib-1.la \
 	$(DBUS_GLIB_LIBS) \
+	$(DBUS_LIBS) \
 	$(NULL)
 
 if DBUS_BUILD_TESTS
