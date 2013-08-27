@@ -63,7 +63,12 @@ libdbus_gtool_la_SOURCES = $(DBUS_GLIB_INTERNALS) \
 	dbus-gparser.c				\
 	dbus-gparser.h
 
-libdbus_gtool_la_LIBADD = $(DBUS_LIBS) -lexpat
+libdbus_gtool_la_LIBADD = \
+	-lexpat \
+	$(DBUS_LIBS) \
+	$(DBUS_GLIB_LIBS) \
+	libdbus-glib-1.la \
+	$(NULL)
 
 bin_PROGRAMS=dbus-binding-tool
 
