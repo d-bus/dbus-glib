@@ -1694,7 +1694,10 @@ dbus_g_value_build_g_variant (const GValue *value)
   else if (type == G_TYPE_DOUBLE)
     return g_variant_new_double (g_value_get_double (value));
   else if (type == G_TYPE_STRING)
-    return g_variant_new_string (g_value_get_string (value));
+    {
+      const gchar *str = g_value_get_string (value);
+      return g_variant_new_string ((str != NULL) ? str : "");
+    }
   else if (type == G_TYPE_STRV)
     {
       const gchar * const *strv = g_value_get_boxed (value);
