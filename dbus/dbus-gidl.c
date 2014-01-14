@@ -26,6 +26,8 @@
 
 #include "dbus-gidl.h"
 
+#include <gio/gio.h>
+
 struct BaseInfo
 {
   unsigned int refcount : 28;
@@ -342,6 +344,8 @@ interface_info_new (const char *name)
 {
   InterfaceInfo *info;
 
+  g_return_val_if_fail (g_dbus_is_interface_name (name), NULL);
+
   info = g_new0 (InterfaceInfo, 1);
   info->base.refcount = 1;
   info->base.name = g_strdup (name);
@@ -467,6 +471,8 @@ method_info_new (const char *name)
 {
   MethodInfo *info;
 
+  g_return_val_if_fail (g_dbus_is_member_name (name), NULL);
+
   info = g_new0 (MethodInfo, 1);
   info->base.refcount = 1;
   info->base.name = g_strdup (name);
@@ -573,6 +579,8 @@ signal_info_new (const char *name)
 {
   SignalInfo *info;
 
+  g_return_val_if_fail (g_dbus_is_member_name (name), NULL);
+
   info = g_new0 (SignalInfo, 1);
   info->base.refcount = 1;
   info->base.name = g_strdup (name);
@@ -636,6 +644,9 @@ property_info_new (const char          *name,
                    PropertyAccessFlags  access)
 {
   PropertyInfo *info;
+
+  g_return_val_if_fail (g_utf8_validate (name, -1, NULL), NULL);
+  g_return_val_if_fail (g_variant_is_signature (type), NULL);
 
   info = g_new0 (PropertyInfo, 1);
   info->base.refcount = 1;

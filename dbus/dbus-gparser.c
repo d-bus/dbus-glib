@@ -30,6 +30,8 @@
 #include "dbus/dbus-signature.h"
 #include <string.h>
 
+#include <gio/gio.h>
+
 #define ELEMENT_IS(name) (strcmp (element_name, (name)) == 0)
 
 typedef struct
@@ -352,6 +354,14 @@ parse_interface (Parser      *parser,
       return FALSE;
     }
 
+  if (!g_dbus_is_interface_name (name))
+    {
+      g_set_error (error, G_MARKUP_ERROR,
+                   G_MARKUP_ERROR_PARSE,
+                   "\"%s\" is not a valid D-Bus interface name", name);
+      return FALSE;
+    }
+
   top = parser->node_stack->data;
   
   iface = interface_info_new (name);
@@ -404,6 +414,14 @@ parse_method (Parser      *parser,
       return FALSE;
     }
 
+  if (!g_dbus_is_member_name (name))
+    {
+      g_set_error (error, G_MARKUP_ERROR,
+                   G_MARKUP_ERROR_PARSE,
+                   "\"%s\" is not a valid D-Bus member name", name);
+      return FALSE;
+    }
+
   method = method_info_new (name);
   interface_info_add_method (parser->interface, method);
   method_info_unref (method);
@@ -451,6 +469,14 @@ parse_signal (Parser      *parser,
                    G_MARKUP_ERROR_PARSE,
                    "\"%s\" attribute required on <%s> element ",
                    "name", element_name);
+      return FALSE;
+    }
+
+  if (!g_dbus_is_member_name (name))
+    {
+      g_set_error (error, G_MARKUP_ERROR,
+                   G_MARKUP_ERROR_PARSE,
+                   "\"%s\" is not a valid D-Bus member name", name);
       return FALSE;
     }
 
@@ -562,7 +588,15 @@ parse_property (Parser      *parser,
                    access, element_name);
       return FALSE;
     }
-  
+
+  if (!g_utf8_validate (name, -1, NULL))
+    {
+      g_set_error (error, G_MARKUP_ERROR,
+                   G_MARKUP_ERROR_PARSE,
+                   "\"%s\" is not UTF-8", name);
+      return FALSE;
+    }
+
   property = property_info_new (name, type, access_flags);
   interface_info_add_property (parser->interface, property);
   property_info_unref (property);
