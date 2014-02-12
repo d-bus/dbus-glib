@@ -14,6 +14,7 @@ ChangeLog
 Doxyfile
 aclocal.m4
 autom4te.cache/
+/compile
 config.guess
 config.h
 config.h.in
@@ -116,6 +117,7 @@ test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/test-interfaces.service.in
 test/data/valid-service-files/interfaces-test.service
 test/test-service
+/test-driver
 tools/Makefile
 tools/Makefile.in
 tools/dbus-bus-introspect.xml
