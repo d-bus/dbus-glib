@@ -1,7 +1,10 @@
 dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 
-dbus-glib 0.102 (UNRELEASED)
+dbus-glib 0.102 (2014-02-12)
 ============================
+
+The “I've come to the conclusion that Debian should choose Russ Allbery
+to be its new init system” release. [1]
 
 Enhancements:
 
@@ -9,16 +12,24 @@ Enhancements:
 
 • Add dbus_g_connection_open_private (fd.o #55730, Dan Williams)
 
-• Better regression tests (fd.o #23633, fd.o #40711, fd.o #51511;
-  Simon McVittie, Dan Williams)
+• Better regression tests (fd.o #23633, fd.o #40711, fd.o #41129, fd.o #51511,
+  fd.o #68603; Simon McVittie, Dan Williams)
 
 • Get rid of more dead code (fd.o #40711, Simon McVittie)
 
+• dbus-binding-tool: check validity of names (fd.o #7909, Simon McVittie)
+
 Fixes:
+
+• dbus_g_value_build_g_variant: treat GValues containing (G_TYPE_STRING, NULL)
+  or (G_TYPE_STRV, NULL) as empty string or empty array instead of asserting
+  (fd.o #71811, Xavier Claessens)
 
 • Upload documentation correctly (Simon McVittie)
 
 • Fix under-linking (fd.o #68601, Simon McVittie)
+
+[1] credit: https://twitter.com/keybuk/status/433058371290157056
 
 dbus-glib 0.100.2 (2013-02-25)
 ==============================
