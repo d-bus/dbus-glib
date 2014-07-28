@@ -142,14 +142,16 @@ _dbus_gtype_from_signature_iter (DBusSignatureIter *iter, gboolean is_client)
   int current_type;
 
   current_type = dbus_signature_iter_get_current_type (iter);
-  /* TODO: handle type 0? */
+
   if (dbus_typecode_maps_to_basic (current_type))
     return _dbus_gtype_from_basic_typecode (current_type);
   else if (current_type == DBUS_TYPE_OBJECT_PATH)
     return DBUS_TYPE_G_OBJECT_PATH;
   else if (current_type == DBUS_TYPE_SIGNATURE)
     return DBUS_TYPE_G_SIGNATURE;
-  else
+  else if (current_type == DBUS_TYPE_VARIANT ||
+           current_type == DBUS_TYPE_ARRAY ||
+           current_type == DBUS_TYPE_STRUCT)
     {
       DBusSignatureIter subiter;
 
@@ -177,6 +179,11 @@ _dbus_gtype_from_signature_iter (DBusSignatureIter *iter, gboolean is_client)
 	  g_assert_not_reached ();
 	  return G_TYPE_INVALID;
 	}
+    }
+  else
+    {
+      /* dbus-glib does not handle DBUS_TYPE_UNIX_FD or DBUS_TYPE_MAYBE */
+      return G_TYPE_INVALID;
     }
 }
 
