@@ -57,6 +57,16 @@ static gboolean proxy_destroy_and_nameowner_complete = FALSE;
 static DBusGProxy *test_terminate_proxy1 = NULL;
 static DBusGProxy *test_terminate_proxy2 = NULL;
 
+static void
+cancel_exit_timeout (void)
+{
+  if (exit_timeout != 0)
+    {
+      g_source_remove (exit_timeout);
+      exit_timeout = 0;
+    }
+}
+
 #define lose(...) g_error (__VA_ARGS__)
 
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
@@ -73,6 +83,7 @@ timed_exit (gpointer loop)
 {
   g_print ("timed exit!\n");
   g_main_loop_quit (loop);
+  /* will repeat, so do not clear exit_timeout */
   return TRUE;
 }
 
@@ -82,7 +93,7 @@ proxy_destroyed_cb (DBusGProxy *proxy, gpointer user_data)
   proxy_destroyed = TRUE;
   if (proxy_destroy_and_nameowner && !proxy_destroy_and_nameowner_complete && await_terminating_service == NULL)
     {
-      g_source_remove (exit_timeout);
+      cancel_exit_timeout ();
       g_main_loop_quit (loop);
       proxy_destroy_and_nameowner_complete = TRUE;
     }
@@ -99,7 +110,7 @@ test_terminate_proxy1_destroyed_cb (DBusGProxy *proxy, gpointer user_data)
       test_terminate_proxy1 = NULL;
       g_object_unref(test_terminate_proxy2);
       test_terminate_proxy2 = NULL;
-      g_source_remove (exit_timeout);
+      cancel_exit_timeout ();
       g_main_loop_quit (loop);
       proxy_destroy_and_nameowner_complete = TRUE;
     }
@@ -123,13 +134,13 @@ name_owner_changed (DBusGProxy *proxy,
       await_terminating_service = NULL;
       if (proxy_destroy_and_nameowner && !proxy_destroy_and_nameowner_complete && proxy_destroyed)
 	{
-	  g_source_remove (exit_timeout);
+	  cancel_exit_timeout ();
 	  g_main_loop_quit (loop);
 	  proxy_destroy_and_nameowner_complete = TRUE;
 	} 
       else if (!proxy_destroy_and_nameowner)
 	{
-	  g_source_remove (exit_timeout);
+	  cancel_exit_timeout ();
 	  g_main_loop_quit (loop);
 	}
     }
@@ -145,7 +156,7 @@ foo_signal_handler (DBusGProxy  *proxy,
   g_print ("Got Foo signal\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -159,7 +170,7 @@ frobnicate_signal_handler (DBusGProxy  *proxy,
   g_print ("Got Frobnicate signal\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -184,7 +195,7 @@ frobnicate_signal_handler_compat (DBusGProxy  *proxy,
   g_print ("Got Frobnicate signal (compat)\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -205,7 +216,7 @@ sig0_signal_handler (DBusGProxy  *proxy,
   g_print ("Got Sig0 signal\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -225,7 +236,7 @@ sig1_signal_handler (DBusGProxy  *proxy,
   g_print ("Got Sig1 signal\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -245,7 +256,7 @@ sig2_signal_handler (DBusGProxy  *proxy,
   g_print ("Got Sig2 signal\n");
 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static DBusGProxyCall *echo_call;
@@ -274,7 +285,7 @@ echo_received_cb (DBusGProxy *proxy,
   g_print ("Async echo gave \"%s\"\n", echo_data); 
   g_free (echo_data);
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -298,7 +309,7 @@ increment_received_cb (DBusGProxy *proxy,
   
   g_print ("Async increment gave \"%d\"\n", val); 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 static void
@@ -314,7 +325,7 @@ increment_async_cb (DBusGProxy *proxy, guint val, GError *error, gpointer data)
 
   g_print ("(wrapped async) increment gave \"%d\"\n", val); 
   g_main_loop_quit (loop);
-  g_source_remove (exit_timeout);
+  cancel_exit_timeout ();
 }
 
 #define DBUS_TYPE_G_MAP_OF_VARIANT (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
@@ -776,6 +787,7 @@ main (int argc, char **argv)
     lose ("Failed to begin Increment call");
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -873,6 +885,7 @@ main (int argc, char **argv)
   if (!org_freedesktop_DBus_GLib_Tests_MyObject_increment_async (proxy, 42, increment_async_cb, NULL))
     lose_gerror ("Failed to complete (wrapped) Increment call", error);
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1666,6 +1679,7 @@ main (int argc, char **argv)
 
   
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1678,6 +1692,7 @@ main (int argc, char **argv)
     lose_gerror ("Failed to complete EmitFrobnicate call", error);
   
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1718,8 +1733,10 @@ main (int argc, char **argv)
   dbus_g_proxy_call_no_reply (proxy, "EmitSignals", G_TYPE_INVALID);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1732,6 +1749,7 @@ main (int argc, char **argv)
   dbus_g_proxy_call_no_reply (proxy, "EmitSignal2", G_TYPE_INVALID);
   dbus_g_connection_flush (connection);
 
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1743,12 +1761,16 @@ main (int argc, char **argv)
   dbus_g_proxy_call_no_reply (proxy, "EmitSignals", G_TYPE_INVALID);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1772,6 +1794,7 @@ main (int argc, char **argv)
 		    NULL);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1847,6 +1870,7 @@ main (int argc, char **argv)
   n_times_frobnicate_received = 0;
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1858,6 +1882,7 @@ main (int argc, char **argv)
   await_terminating_service = "org.freedesktop.DBus.GLib.TestService";
   dbus_g_proxy_call_no_reply (proxy, "Terminate", G_TYPE_INVALID);
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
   if (await_terminating_service != NULL)
@@ -1877,6 +1902,7 @@ main (int argc, char **argv)
     g_usleep (8 * G_USEC_PER_SEC);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -1905,6 +1931,7 @@ main (int argc, char **argv)
     lose_gerror ("Failed to complete EmitFrobnicate call", error);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
@@ -2344,6 +2371,7 @@ main (int argc, char **argv)
 		    NULL);
 
   dbus_g_connection_flush (connection);
+  cancel_exit_timeout ();
   exit_timeout = g_timeout_add (5000, timed_exit, loop);
   g_main_loop_run (loop);
 
