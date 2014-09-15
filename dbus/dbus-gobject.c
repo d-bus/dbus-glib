@@ -1623,6 +1623,48 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
             case DBUS_GERROR_FILE_NOT_FOUND:
               name = DBUS_ERROR_FILE_NOT_FOUND;
               break;
+            case DBUS_GERROR_FILE_EXISTS:
+              name = DBUS_ERROR_FILE_EXISTS;
+              break;
+            case DBUS_GERROR_UNKNOWN_METHOD:
+              name = DBUS_ERROR_UNKNOWN_METHOD;
+              break;
+            case DBUS_GERROR_TIMED_OUT:
+              name = DBUS_ERROR_TIMED_OUT;
+              break;
+            case DBUS_GERROR_MATCH_RULE_NOT_FOUND:
+              name = DBUS_ERROR_MATCH_RULE_NOT_FOUND;
+              break;
+            case DBUS_GERROR_MATCH_RULE_INVALID:
+              name = DBUS_ERROR_MATCH_RULE_INVALID;
+              break;
+            case DBUS_GERROR_SPAWN_EXEC_FAILED:
+              name = DBUS_ERROR_SPAWN_EXEC_FAILED;
+              break;
+            case DBUS_GERROR_SPAWN_FORK_FAILED:
+              name = DBUS_ERROR_SPAWN_FORK_FAILED;
+              break;
+            case DBUS_GERROR_SPAWN_CHILD_EXITED:
+              name = DBUS_ERROR_SPAWN_CHILD_EXITED;
+              break;
+            case DBUS_GERROR_SPAWN_CHILD_SIGNALED:
+              name = DBUS_ERROR_SPAWN_CHILD_SIGNALED;
+              break;
+            case DBUS_GERROR_SPAWN_FAILED:
+              name = DBUS_ERROR_SPAWN_FAILED;
+              break;
+            case DBUS_GERROR_UNIX_PROCESS_ID_UNKNOWN:
+              name = DBUS_ERROR_UNIX_PROCESS_ID_UNKNOWN;
+              break;
+            case DBUS_GERROR_INVALID_SIGNATURE:
+              name = DBUS_ERROR_INVALID_SIGNATURE;
+              break;
+            case DBUS_GERROR_INVALID_FILE_CONTENT:
+              name = DBUS_ERROR_INVALID_FILE_CONTENT;
+              break;
+            case DBUS_GERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN:
+              name = DBUS_ERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN;
+              break;
             case DBUS_GERROR_REMOTE_EXCEPTION:
               name = dbus_g_error_get_name ((GError*) error);
               break;
