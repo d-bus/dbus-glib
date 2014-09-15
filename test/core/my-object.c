@@ -659,6 +659,9 @@ gboolean
 my_object_echo_variant (MyObject *obj, GValue *variant, GValue *ret, GError **error)
 {
     GType t;
+
+    obj->echo_variant_called++;
+
     t = G_VALUE_TYPE(variant);
     g_value_init (ret, t);
     g_value_copy (variant, ret);

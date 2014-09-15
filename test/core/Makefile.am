@@ -71,6 +71,7 @@ noinst_PROGRAMS = \
 	test-proxy-noc \
 	test-proxy-peer \
 	test-registrations \
+	test-unsupported-type \
 	test-variant-recursion \
 	test-gvariant \
 	test-shared-bus \
@@ -161,6 +162,12 @@ test_gvariant_SOURCES = \
 test_peer_on_bus_SOURCES = peer-on-bus.c
 
 test_shared_bus_SOURCES = shared-bus.c
+
+test_unsupported_type_SOURCES = \
+	my-object.c \
+	my-object.h \
+	unsupported-type.c \
+	$(NULL)
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \

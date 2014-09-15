@@ -18,6 +18,7 @@ struct MyObject
   guint val;
   gdouble super_studly;
   gboolean should_be_hidden;
+  gsize echo_variant_called;
 };
 
 struct MyObjectClass
