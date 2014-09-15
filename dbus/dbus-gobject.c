@@ -1788,7 +1788,7 @@ invoke_object_method (GObject         *object,
       {
 	g_free (in_signature); 
 	g_array_free (types_array, TRUE);
-        reply = error_or_die (message, "org.freedesktop.DBus.GLib.ErrorError", error->message);
+        reply = gerror_to_dbus_error_message (object_info, message, error);
         connection_send_or_die (connection, reply);
 	dbus_message_unref (reply);
 	g_error_free (error);

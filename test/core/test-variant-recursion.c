@@ -92,8 +92,7 @@ main (int argc, char **argv)
   /* More than the current internal limit (16) */
   if (make_recursive_stringify_call (50, proxy, &error))
     g_error ("Unexpected success code from 50 recursive variant call: %s", error->message);
-  if (error->code != DBUS_GERROR_REMOTE_EXCEPTION)
-    g_error ("Error code was not remote exception: %s", error->message);
+  g_assert_error (error, DBUS_GERROR, DBUS_GERROR_NO_MEMORY);
   g_printerr ("Got expected error %d: \"%s\" from recursive variant call\n", error->code, error->message);
   g_clear_error (&error);
 

@@ -197,15 +197,9 @@ test_call (Fixture *f,
   dbus_pending_call_unref (pc);
 
   /* it didn't work */
-#if 0
   /* this is what it should be */
   g_assert_cmpstr (dbus_message_get_error_name (reply), ==,
       DBUS_ERROR_INVALID_SIGNATURE);
-#else
-  /* this is what it is right now */
-  g_assert_cmpstr (dbus_message_get_error_name (reply), ==,
-      "org.freedesktop.DBus.GLib.ErrorError");
-#endif
   /* it didn't call the into the user-supplied C code */
   g_assert_cmpuint (MY_OBJECT (f->object)->echo_variant_called, ==, 0);
 
