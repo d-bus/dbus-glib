@@ -1229,6 +1229,10 @@ lookup_property_name (GObject    *object,
  * would then use #g_object_class_override_property() to implement both
  * "a-bork" and "b-bork" and D-Bus requests for "Bork" on either D-Bus interface
  * will not conflict.
+ *
+ * Deprecated: New code should use GDBus instead. There is no
+ *  equivalent for this function, because GDBus does not conflate
+ *  GObject and D-Bus property names in the same way.
  */
 void
 dbus_g_object_type_register_shadow_property (GType      iface_type,
@@ -1656,6 +1660,9 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
  *
  * The context of an asynchronous method call.  See dbus_g_method_return() and
  * dbus_g_method_return_error().
+ *
+ * Deprecated: New code should use GDBus instead. The closest
+ *  equivalent is #GDBusMethodInvocation.
  */
 struct _DBusGMethodInvocation {
   DBusGConnection *connection; /**< The connection */
@@ -2547,6 +2554,10 @@ dbus_error_to_gerror_code (const char *derr)
  * |[const char *msg = error->message;
  * size_t len = strlen(msg);
  * const char *error_name = msg+len+1;]|
+ *
+ * Deprecated: New code should use GDBus instead. GDBus' error encoding
+ *  is much simpler and more reliable, and the closest equivalent
+ *  is g_dbus_error_new_for_dbus_error().
  */
 void
 dbus_set_g_error (GError    **gerror,
@@ -2609,6 +2620,9 @@ dbus_g_error_info_free (gpointer p)
  * for the entire process.
  *
  * Since: 0.88
+ *
+ * Deprecated: New code should use GDBus instead. There is no
+ *  equivalent for this function.
  */
 void
 dbus_glib_global_set_disable_legacy_property_access (void)
@@ -2630,6 +2644,9 @@ dbus_glib_global_set_disable_legacy_property_access (void)
  * Once introspection information has been installed, instances of the
  * object registered with dbus_g_connection_register_g_object() can have
  * their methods invoked remotely.
+ *
+ * Deprecated: New code should use GDBus instead. There is no direct
+ *  equivalent for this function.
  */
 void
 dbus_g_object_type_install_info (GType                  object_type,
@@ -2673,6 +2690,9 @@ dbus_g_object_type_install_info (GType                  object_type,
  * <code>dbus_g_error_domain_register (MY_ERROR, NULL, MY_TYPE_ERROR)</code>
  * instead, then the D-Bus error string would be
  * <code>com.example.MyObject.NotHappy</code>.)
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_error_register_error_domain().
  */
 void
 dbus_g_error_domain_register (GQuark                domain,
@@ -2741,6 +2761,9 @@ object_export_object_died (gpointer user_data, GObject *dead)
  * Removes @object from any object paths at which it is exported on
  * @connection. Properties, methods, and signals
  * of the object can no longer be accessed remotely.
+ *
+ * Deprecated: New code should use GDBus instead.
+ *  The closest equivalent is g_dbus_connection_unregister_object().
  */
 void
 dbus_g_connection_unregister_g_object (DBusGConnection *connection,
@@ -2791,6 +2814,11 @@ dbus_g_connection_unregister_g_object (DBusGConnection *connection,
  *
  * Note: If an object is registered multiple times, the first registration
  * takes priority for cases such as turning an object into an object path.
+ *
+ * Deprecated: New code should use GDBus instead.
+ *  The closest equivalent is g_dbus_connection_register_object(),
+ *  but #GDBusObjectManagerServer and #GDBusObjectSkeleton provide
+ *  a higher-level API.
  */
 void
 dbus_g_connection_register_g_object (DBusGConnection       *connection,
@@ -2876,6 +2904,9 @@ dbus_g_connection_register_g_object (DBusGConnection       *connection,
  * FIXME 
  *
  * Returns: the object at path @at_path
+ *
+ * Deprecated: New code should use GDBus instead. There is no direct
+ *  equivalent for this function.
  */
 GObject *
 dbus_g_connection_lookup_g_object (DBusGConnection       *connection,
@@ -3049,6 +3080,8 @@ _dbus_gobject_lookup_marshaller (GType        rettype,
  * followed by %G_TYPE_INVALID.
  *
  * This function will not be needed once GLib includes libffi.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_object_register_marshaller (GClosureMarshal  marshaller,
@@ -3082,6 +3115,8 @@ dbus_g_object_register_marshaller (GClosureMarshal  marshaller,
  *
  * Register a #GClosureMarshal to be used for signal invocations.
  * @see_also dbus_g_object_register_marshaller()
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
@@ -3122,6 +3157,9 @@ dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
  *
  * Returns: the unique name of the sender. It
  * is up to the caller to free the returned string.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_get_sender().
  */
 gchar *
 dbus_g_method_get_sender (DBusGMethodInvocation *context)
@@ -3143,6 +3181,9 @@ dbus_g_method_get_sender (DBusGMethodInvocation *context)
  * of the correct type due to glib binding limitations
  *
  * Returns: a #DBusMessage with the reply
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_return_value().
  */
 DBusMessage *
 dbus_g_method_get_reply (DBusGMethodInvocation *context)
@@ -3161,6 +3202,9 @@ dbus_g_method_get_reply (DBusGMethodInvocation *context)
  *
  * Used as a sidedoor when you can't generate dbus values
  * of the correct type due to glib binding limitations
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_return_value().
  */
 void
 dbus_g_method_send_reply (DBusGMethodInvocation *context, DBusMessage *reply)
@@ -3186,6 +3230,9 @@ dbus_g_method_send_reply (DBusGMethodInvocation *context, DBusMessage *reply)
  *
  * Send a return message for a given method invocation, with arguments.
  * This function also frees the sending context.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_return_value().
  */
 void
 dbus_g_method_return (DBusGMethodInvocation *context, ...)
@@ -3254,6 +3301,9 @@ out:
  *
  * Send a error message for a given method invocation.
  * This function also frees the sending context.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_return_gerror().
  */
 void
 dbus_g_method_return_error (DBusGMethodInvocation *context, const GError *error)
@@ -3285,6 +3335,9 @@ out:
  * <!-- Returns: says it all -->
  *
  * Returns: (transfer none): the @DBusGConnection from which the method was called.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_method_invocation_get_connection().
  */
 DBusGConnection *
 dbus_g_method_invocation_get_g_connection (DBusGMethodInvocation *context)

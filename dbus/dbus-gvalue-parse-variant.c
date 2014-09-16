@@ -536,6 +536,8 @@ dbus_g_value_parse_variant_by_type (GVariant *variant,
  *
  * It is an error if @variant contains any #GVariant extensions not supported
  * by dbus-glib, including handles (file descriptor passing) and 'maybe' types.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_value_parse_g_variant (GVariant *variant,

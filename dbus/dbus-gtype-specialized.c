@@ -71,6 +71,9 @@
  * This documentation needs splitting into two pages, one for defining new
  * containers and using existing containers. I expect most users to only do
  * the latter. I also need to add some examples.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is #GVariant, which is much better-designed.
  */
 
 /**
@@ -78,6 +81,9 @@
  *
  * Expands to a function call returning the #GType of a #GArray of #gboolean
  * (corresponding to the D-Bus signature "ab").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("ab")`.
  */
 
 /**
@@ -85,6 +91,9 @@
  *
  * Expands to a function call returning the #GType of a #GArray of #gint
  * (corresponding to the D-Bus signature "ai").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("ai")`.
  */
 
 /**
@@ -92,6 +101,9 @@
  *
  * Expands to a function call returning the #GType of a #GArray of #guint
  * (corresponding to the D-Bus signature "au").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("au")`.
  */
 
 /**
@@ -99,6 +111,9 @@
  *
  * Expands to a function call returning the #GType of a #GArray of #gint64
  * (corresponding to the D-Bus signature "ax").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("ax")`.
  */
 
 /**
@@ -106,6 +121,9 @@
  *
  * Expands to a function call returning the #GType of a #GArray of #guint64
  * (corresponding to the D-Bus signature "at").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("at")`.
  */
 
 /**
@@ -116,6 +134,9 @@
  *
  * Note that this is not the same thing as a #GByteArray! dbus-glib does not
  * know about the #GByteArray type.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is %G_VARIANT_TYPE_BYTESTRING.
  */
 
 /**
@@ -128,6 +149,9 @@
  * paths), but the conventional type for such arrays is
  * <literal>(dbus_g_type_get_collection ("GPtrArray",
  * DBUS_TYPE_G_OBJECT_PATH))</literal>.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is %G_VARIANT_TYPE_OBJECT_PATH_ARRAY.
  */
 
 /**
@@ -136,6 +160,9 @@
  * Expands to a function call returning the #GType of a #GHashTable where the
  * keys are strings and the values are also strings (corresponding to the
  * D-Bus signature "a{ss}").
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is `G_VARIANT_TYPE ("a{ss}")`.
  */
 
 /**
@@ -152,6 +179,8 @@
  *
  * There are additional members, which are reserved for future expansion and
  * must be %NULL.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -161,6 +190,8 @@
  * <!-- -->
  *
  * Returns: a new instance of @type
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -171,6 +202,8 @@
  * Frees @val according to @type. This is analogous to #GBoxedFreeFunc, but
  * can use information from @type (for instance to free the contents of a
  * container before freeing the actual container).
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -183,6 +216,8 @@
  * collection).
  *
  * Returns: a deep copy of @src
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -196,6 +231,8 @@
  * @type, containing @instance.
  *
  * Returns: %TRUE on success
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -206,6 +243,8 @@
  *
  * A library-user-supplied function, called for each element in the
  * collection when dbus_g_type_collection_value_iterate() is called.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -217,6 +256,8 @@
  *
  * Implements dbus_g_type_collection_value_iterate() for a #GValue with
  * type @type, containing @instance.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -227,6 +268,8 @@
  * Implements dbus_g_type_specialized_collection_append().
  *
  * This function should use the @val and @specialization_type members of @ctx.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -236,6 +279,8 @@
  * Implements dbus_g_type_specialized_collection_end_append().
  *
  * This function should use the @val and @specialization_type members of @ctx.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -251,6 +296,8 @@
  * A table of methods used to implement specialized collection behaviour
  * on user-defined types. At least @iterator and @append_func must be
  * implemented.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -262,6 +309,8 @@
  *
  * A library-user-supplied function, called for each key/value pair in the
  * collection when dbus_g_type_map_value_iterate() is called.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -273,6 +322,8 @@
  *
  * Implements dbus_g_type_map_value_iterate() for a #GValue with
  * type @type, containing @instance.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -285,6 +336,8 @@
  *
  * This function should use the @val and @specialization_type members of @ctx,
  * and replace any existing value with key equal to @key.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -295,6 +348,8 @@
  *
  * A table of methods used to implement specialized collection behaviour
  * on user-defined types. Both methods must be implemented.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -309,6 +364,8 @@
  * containing @instance.
  *
  * Returns: %TRUE on success
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -323,6 +380,8 @@
  * containing @instance.
  *
  * Returns: %TRUE on success
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -333,6 +392,8 @@
  *
  * A table of methods used to implement specialized collection behaviour
  * on user-defined types. Both methods must be implemented.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 typedef enum {
@@ -384,6 +445,8 @@ specialized_init (gpointer arg G_GNUC_UNUSED)
  * In older versions of dbus-glib, it was necessary to do this before
  * instantiating or registering any specialized type. It is now done
  * automatically whenever necessary.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_specialized_init (void)
@@ -564,6 +627,8 @@ register_container (const char                         *name,
  * @flags: As yet unused.
  *
  * Defines a new collection container.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_register_collection (const char                                   *name,
@@ -595,6 +660,8 @@ _dbus_g_type_register_collection (const char                                   *
  * @flags: As yet unused.
  *
  * Defines a new map container.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_register_map (const char                            *name,
@@ -624,6 +691,8 @@ _dbus_g_type_register_map (const char                            *name,
  * @flags: As yet unused.
  *
  * Defines a new struct container.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_register_struct (const char                             *name,
@@ -653,6 +722,8 @@ _dbus_g_type_register_struct (const char                             *name,
  * Peek the vtable for a given map specialization
  *
  * Returns: the vtable
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 const DBusGTypeSpecializedMapVtable* dbus_g_type_map_peek_vtable (GType map_type)
 {
@@ -672,6 +743,8 @@ const DBusGTypeSpecializedMapVtable* dbus_g_type_map_peek_vtable (GType map_type
  * Peek the vtable for a given collection specialization
  *
  * Returns: the vtable
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (GType collection_type)
 {
@@ -691,6 +764,8 @@ const DBusGTypeSpecializedCollectionVtable* dbus_g_type_collection_peek_vtable (
  * Peek the vtable for a given struct specialization
  *
  * Returns: the vtable
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 const DBusGTypeSpecializedStructVtable* dbus_g_type_struct_peek_vtable (GType struct_type)
 {
@@ -788,6 +863,8 @@ lookup_or_register_specialized (const char  *container,
  * creating the type if not already created.
  *
  * Returns: the #GType of that instance
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_collection (const char *container,
@@ -806,6 +883,8 @@ dbus_g_type_get_collection (const char *container,
  * creating the type if not already created.
  *
  * Returns: the #GType of that instance
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_map (const char   *container,
@@ -828,6 +907,8 @@ dbus_g_type_get_map (const char   *container,
  * creating the type if not already created.
  *
  * Returns: the #GType of that instance
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_structv (const char   *container,
@@ -847,6 +928,8 @@ dbus_g_type_get_structv (const char   *container,
  * creating the type if not already created.
  *
  * Returns: the #GType of that instance
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_struct (const char *container,
@@ -883,6 +966,8 @@ dbus_g_type_get_struct (const char *container,
  * Tests if a given GType is a collection.
  *
  * Returns: true if the given GType is a collection
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_is_collection (GType gtype)
@@ -902,6 +987,8 @@ dbus_g_type_is_collection (GType gtype)
  * i.e. it was created with dbus_g_type_get_map().
  *
  * Returns: true if the given GType is a map
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_is_map (GType gtype)
@@ -921,6 +1008,8 @@ dbus_g_type_is_map (GType gtype)
  * i.e. it was created with dbus_g_type_get_struct()
  *
  * Returns: true if the given GType is a struct
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_is_struct (GType gtype)
@@ -953,6 +1042,8 @@ get_specialization_index (GType gtype, guint i)
  * It is an error to call this function on a non-collection type.
  *
  * Returns: the element type for a given collection GType.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_collection_specialization (GType gtype)
@@ -969,6 +1060,8 @@ dbus_g_type_get_collection_specialization (GType gtype)
  * It is an error to call this function on a non-map type.
  *
  * Returns: the key type for a given map #GType.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_map_key_specialization (GType gtype)
@@ -985,6 +1078,8 @@ dbus_g_type_get_map_key_specialization (GType gtype)
  * It is an error to call this function on a non-map type.
  *
  * Returns: the value type for a given map GType.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_map_value_specialization (GType gtype)
@@ -1003,6 +1098,8 @@ dbus_g_type_get_map_value_specialization (GType gtype)
  *
  * Returns: the type for a given member of a struct #GType,
  *    or %G_TYPE_INVALID if @member &gt;= dbus_g_type_get_struct_size()
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_type_get_struct_member_type (GType gtype, guint member)
@@ -1019,6 +1116,8 @@ dbus_g_type_get_struct_member_type (GType gtype, guint member)
  * It is an error to call this function on a non-struct type.
  *
  * Returns: the number of members in a given struct #GType.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 guint
 dbus_g_type_get_struct_size (GType gtype)
@@ -1042,6 +1141,8 @@ dbus_g_type_get_struct_size (GType gtype)
  * then this will return a GArray with element_size of sizeof(int)
  *
  * Returns: a pointer to a newly constructed instance of the given type.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gpointer
 dbus_g_type_specialized_construct (GType gtype)
@@ -1081,6 +1182,8 @@ dbus_g_type_specialized_construct (GType gtype)
  * can be used with this function; user-defined types might also work.
  *
  * Returns: %TRUE on success
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_collection_get_fixed (GValue   *value,
@@ -1119,6 +1222,8 @@ dbus_g_type_collection_get_fixed (GValue   *value,
  * The function is passed a #GValue containing the element and the given 
  * @user_data parameter. The collection may not be modified while iterating over 
  * it.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_collection_value_iterate (const GValue                           *value,
@@ -1150,6 +1255,8 @@ dbus_g_type_collection_value_iterate (const GValue                           *va
  * @specialization_type: the #GType of the array's elements
  *
  * A context for appending. There are more fields, which are private.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 typedef struct {
@@ -1170,6 +1277,8 @@ G_STATIC_ASSERT (sizeof (DBusGTypeSpecializedAppendContextReal) ==
  *
  * Create a new context for adding elements to a collection or key/value pairs 
  * to a map. You generally don't need or want to use this..
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_specialized_init_append (GValue *value, DBusGTypeSpecializedAppendContext *ctx)
@@ -1198,6 +1307,8 @@ dbus_g_type_specialized_init_append (GValue *value, DBusGTypeSpecializedAppendCo
  * @elt: a #GValue containing an element to append to the collection
  *
  * Appends a given element to the end of a collection.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_specialized_collection_append (DBusGTypeSpecializedAppendContext *ctx,
@@ -1216,6 +1327,8 @@ dbus_g_type_specialized_collection_append (DBusGTypeSpecializedAppendContext *ct
  *    for a #GValue containing a collection
  *
  * Finish appending elements to a given collection
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext *ctx)
@@ -1236,6 +1349,8 @@ dbus_g_type_specialized_collection_end_append (DBusGTypeSpecializedAppendContext
  * @val: a GValue containing a value, whose contents will be stolen by @ctx
  *
  * Inserts the given key/value pair into the map instance.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_specialized_map_append (DBusGTypeSpecializedAppendContext *ctx,
@@ -1260,6 +1375,8 @@ dbus_g_type_specialized_map_append (DBusGTypeSpecializedAppendContext *ctx,
  * The function is passed two GValues containing the key/value pair and the given 
  * @user_data parameter. The map may not be modified while iterating over 
  * it.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_type_map_value_iterate (const GValue                           *value,
@@ -1296,6 +1413,8 @@ dbus_g_type_map_value_iterate (const GValue                           *value,
  * @dbus_g_type_get_struct_member_type
  *
  * Returns: %TRUE if successful
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_struct_get_member (const GValue *value,
@@ -1331,6 +1450,8 @@ dbus_g_type_struct_get_member (const GValue *value,
  * the existing type of @member member of the struct.
  *
  * Returns: %TRUE if successful
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 gboolean
 dbus_g_type_struct_set_member (GValue       *value,
@@ -1368,6 +1489,8 @@ dbus_g_type_struct_set_member (GValue       *value,
  * provided.
  *
  * Returns: %FALSE on failure
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 gboolean
@@ -1424,6 +1547,8 @@ error:
  * Sets the selected members of the struct in @value.
  *
  * Returns: %FALSE on failure
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 gboolean
@@ -1588,6 +1713,8 @@ dbus_g_value_type_build_g_variant_type (GType type)
  * (including as a child type).
  *
  * Returns: a new #GVariant containing @value with a floating reference
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GVariant *
 dbus_g_value_build_g_variant (const GValue *value)

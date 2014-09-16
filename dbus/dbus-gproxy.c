@@ -1829,6 +1829,9 @@ dbus_g_proxy_emit_remote_signal (DBusGProxy  *proxy,
  * Called when a reply to the call represented by @call_id arrives.
  * Use dbus_g_proxy_end_call() to see whether @call_id succeeded or
  * failed, and get the arguments returned (if any) on success.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is the standard #GAsyncReadyCallback mechanism.
  */
 
 typedef struct
@@ -1951,12 +1954,19 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  * DBusGProxy:
  *
  * A #GObject representing a remote object in a D-Bus service.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is #GDBusProxy.
  */
 
 /**
  * DBusGProxyCall:
  *
  * An opaque pointer representing an asynchronous call in progress.
+ *
+ * Deprecated: New code should use GDBus instead. There is no direct
+ *  equivalent in GDBus, but the standard #GCancellable mechanism is
+ *  analogous.
  */
 
 /*
@@ -2039,6 +2049,9 @@ dbus_g_proxy_new (DBusGConnection *connection,
  * still be alive.
  *
  * Returns: new proxy object
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_new_sync().
  */
 DBusGProxy*
 dbus_g_proxy_new_for_name (DBusGConnection *connection,
@@ -2078,6 +2091,10 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
  * of that owner rather than the generic name.
  * 
  * Returns: new proxy object, or %NULL on error
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_new_sync() with the name owner's unique name
+ *  passed as @name.
  */
 DBusGProxy*
 dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
@@ -2112,6 +2129,9 @@ dbus_g_proxy_new_for_name_owner (DBusGConnection          *connection,
  * the specified interface and path.  Either or both may be NULL.
  *
  * Returns: new proxy object
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_new_sync().
  */
 DBusGProxy*
 dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
@@ -2150,6 +2170,9 @@ dbus_g_proxy_new_from_proxy (DBusGProxy        *proxy,
  * applications.
  *
  * Returns: new proxy object
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_new_sync().
  */
 DBusGProxy*
 dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
@@ -2182,6 +2205,10 @@ dbus_g_proxy_new_for_peer (DBusGConnection          *connection,
  * the #DBusGProxy::destroy signal.
  *
  * Returns: the bus name the proxy sends messages to
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_get_name() or g_dbus_proxy_get_name_owner(),
+ *  depending how the proxy was created.
  */
 const char*
 dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
@@ -2206,6 +2233,9 @@ dbus_g_proxy_get_bus_name (DBusGProxy        *proxy)
  * the #DBusGProxy::destroy signal.
  *
  * Returns: an object interface 
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_get_interface_name().
  */
 const char*
 dbus_g_proxy_get_interface (DBusGProxy        *proxy)
@@ -2229,6 +2259,9 @@ dbus_g_proxy_get_interface (DBusGProxy        *proxy)
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead. There is no
+ *  direct equivalent for this function: construct a new proxy instead.
  */
 void
 dbus_g_proxy_set_interface (DBusGProxy        *proxy,
@@ -2259,6 +2292,9 @@ dbus_g_proxy_set_interface (DBusGProxy        *proxy,
  * the #DBusGProxy::destroy signal.
  *
  * Returns: an object path
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_get_object_path().
  */
 const char*
 dbus_g_proxy_get_path (DBusGProxy        *proxy)
@@ -2574,6 +2610,9 @@ dbus_g_proxy_end_call_internal (DBusGProxy        *proxy,
  * since you should be able to do a call with large arguments.
  * 
  * Returns: call identifier.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call().
  */
 DBusGProxyCall *
 dbus_g_proxy_begin_call (DBusGProxy          *proxy,
@@ -2638,6 +2677,9 @@ dbus_g_proxy_begin_call (DBusGProxy          *proxy,
  * since you should be able to do a call with large arguments.
  *
  * Returns: call identifier.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call().
  */
 DBusGProxyCall *
 dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
@@ -2699,6 +2741,9 @@ dbus_g_proxy_begin_call_with_timeout (DBusGProxy          *proxy,
  * The list should be terminated with G_TYPE_INVALID.
  *
  * Returns: %TRUE on success
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call_finish().
  */
 gboolean
 dbus_g_proxy_end_call (DBusGProxy          *proxy,
@@ -2742,6 +2787,9 @@ dbus_g_proxy_end_call (DBusGProxy          *proxy,
  * the #DBusGProxy::destroy signal.
  *
  * Returns: %TRUE if the method succeeds, %FALSE if it fails
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call_sync().
  */
 gboolean
 dbus_g_proxy_call (DBusGProxy        *proxy,
@@ -2802,6 +2850,9 @@ dbus_g_proxy_call (DBusGProxy        *proxy,
  * the #DBusGProxy::destroy signal.
  *
  * Returns: %TRUE if the method succeeds, %FALSE if it fails
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call_sync().
  */
 gboolean
 dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
@@ -2859,6 +2910,9 @@ dbus_g_proxy_call_with_timeout (DBusGProxy        *proxy,
  *
  * TODO: this particular function shouldn't die on out of memory,
  * since you should be able to do a call with large arguments.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_proxy_call() with @callback = %NULL.
  */
 void
 dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
@@ -2915,6 +2969,9 @@ dbus_g_proxy_call_no_reply (DBusGProxy               *proxy,
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_cancellable_cancel().
  */
 void
 dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
@@ -2966,6 +3023,9 @@ dbus_g_proxy_cancel_call (DBusGProxy        *proxy,
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_connection_send_message().
  */
 void
 dbus_g_proxy_send (DBusGProxy          *proxy,
@@ -3021,6 +3081,8 @@ array_free_all (gpointer array)
  *
  * It is also an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
@@ -3085,6 +3147,9 @@ dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_connection_signal_subscribe().
  */
 void
 dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
@@ -3139,6 +3204,9 @@ dbus_g_proxy_connect_signal (DBusGProxy             *proxy,
  *
  * It is an error to call this method on a proxy that has emitted
  * the #DBusGProxy::destroy signal.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_connection_signal_unsubscribe().
  */
 void
 dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
@@ -3201,6 +3269,8 @@ dbus_g_proxy_disconnect_signal (DBusGProxy             *proxy,
  * the #DBusGProxy::destroy signal.
  *
  * Since: 0.75
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 void
 dbus_g_proxy_set_default_timeout (DBusGProxy        *proxy,

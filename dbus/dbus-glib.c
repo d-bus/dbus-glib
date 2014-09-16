@@ -44,6 +44,9 @@
  *
  * A #DBusGConnection is a boxed type abstracting a DBusConnection from
  * libdbus.
+ *
+ * Deprecated: New code should use #GDBusConnection from the GIO library,
+ *  which is not based on libdbus or dbus-glib.
  */
 
 /**
@@ -51,6 +54,9 @@
  * @connection: the #DBusGConnection to flush
  *
  * Blocks until outgoing calls and signal emissions have been sent.
+ *
+ * Deprecated: The closest equivalent in GDBus is
+ *  #g_dbus_connection_flush_sync().
  */
 void
 dbus_g_connection_flush (DBusGConnection *connection)
@@ -65,6 +71,8 @@ dbus_g_connection_flush (DBusGConnection *connection)
  * Increment refcount on a #DBusGConnection
  * 
  * Returns: the connection that was ref'd
+ *
+ * Deprecated: New code should use #GDBusConnection instead.
  */
 DBusGConnection*
 dbus_g_connection_ref (DBusGConnection *connection)
@@ -82,6 +90,8 @@ dbus_g_connection_ref (DBusGConnection *connection)
  * @connection: the connection to unref
  * 
  * Decrement refcount on a #DBusGConnection
+ *
+ * Deprecated: New code should use #GDBusConnection instead.
  */
 void
 dbus_g_connection_unref (DBusGConnection *connection)
@@ -108,6 +118,8 @@ dbus_g_connection_unref (DBusGConnection *connection)
  *
  * A #DBusGMessage is a boxed type abstracting a DBusMessage from
  * libdbus.
+ *
+ * Deprecated: New code should use #GDBusMessage instead.
  */
 
 /**
@@ -117,6 +129,8 @@ dbus_g_connection_unref (DBusGConnection *connection)
  * Increment refcount on a #DBusGMessage
  * 
  * Returns: the message that was ref'd
+ *
+ * Deprecated: New code should use #GDBusMessage instead.
  */
 DBusGMessage*
 dbus_g_message_ref (DBusGMessage *message)
@@ -133,6 +147,8 @@ dbus_g_message_ref (DBusGMessage *message)
  * @message: the message to unref
  * 
  * Decrement refcount on a #DBusGMessage
+ *
+ * Deprecated: New code should use #GDBusMessage instead.
  */
 void
 dbus_g_message_unref (DBusGMessage *message)
@@ -159,6 +175,8 @@ dbus_g_message_unref (DBusGMessage *message)
  * A #GError enumeration for the domain %DBUS_GERROR. The values' meanings
  * can be found by looking at the comments for the corresponding constants
  * in dbus-protocol.h.
+ *
+ * Deprecated: New code should use GDBus and its #GDBusError enum instead.
  */
 
 /**
@@ -166,6 +184,8 @@ dbus_g_message_unref (DBusGMessage *message)
  *
  * Expands to a function call returning the error domain quark for #DBusGError,
  * for use with #GError.
+ *
+ * Deprecated: New code should use GDBus and its #GDBusError enum instead.
  */
 GQuark
 dbus_g_error_quark (void)
@@ -190,6 +210,9 @@ dbus_g_error_quark (void)
  * %DBUS_GERROR_REMOTE_EXCEPTION).
  *
  * Returns: %TRUE if and only if the remote error has the given name
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_error_get_remote_error().
  */
 gboolean
 dbus_g_error_has_name (GError *error, const char *name)
@@ -213,6 +236,9 @@ dbus_g_error_has_name (GError *error, const char *name)
  * and the code is %DBUS_GERROR_REMOTE_EXCEPTION.
  *
  * Returns: the D-BUS name for a remote exception.
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is g_dbus_error_get_remote_error().
  */
 const char *
 dbus_g_error_get_name (GError *error)
@@ -232,6 +258,8 @@ dbus_g_error_get_name (GError *error)
  * %DBUS_TYPE_G_CONNECTION, which you should usually use instead.
  *
  * Returns: the GLib type
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_connection_get_g_type (void)
@@ -255,6 +283,8 @@ dbus_connection_get_g_type (void)
  *
  *
  * Returns: the GLib type
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_message_get_g_type (void)
@@ -275,6 +305,8 @@ dbus_message_get_g_type (void)
  * Expands to a function call returning the boxed #GType of a #DBusGConnection.
  *
  * Returns: the GLib type
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_connection_get_g_type (void)
@@ -295,6 +327,8 @@ dbus_g_connection_get_g_type (void)
  * Expands to a function call returning the boxed #GType of a #DBusGConnection.
  *
  * Returns: the GLib type
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 GType
 dbus_g_message_get_g_type (void)
@@ -326,6 +360,8 @@ dbus_g_message_get_g_type (void)
  * The return value does not have its refcount incremented.
  *
  * Returns: #DBusConnection 
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 DBusConnection*
 dbus_g_connection_get_connection (DBusGConnection *gconnection)
@@ -346,6 +382,8 @@ extern dbus_int32_t _dbus_gmain_connection_slot;
  * refcount incremented.
  *
  * Returns: #DBusGConnection 
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 DBusGConnection*
 dbus_connection_get_g_connection (DBusConnection *connection)
@@ -365,6 +403,8 @@ dbus_connection_get_g_connection (DBusConnection *connection)
  * The return value does not have its refcount incremented.
  *
  * Returns: #DBusMessage 
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 DBusMessage*
 dbus_g_message_get_message (DBusGMessage *gmessage)

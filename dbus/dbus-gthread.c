@@ -36,6 +36,9 @@
  * This function may only be called
  * once and must be called prior to calling any
  * other function in the D-BUS API.
+ *
+ * Deprecated: New code should use GDBus instead. GDBus is always
+ *  thread-safe, whereas dbus-glib is never thread-safe.
  */
 void
 dbus_g_thread_init (void)

@@ -365,6 +365,9 @@ _dbus_g_value_types_init (void)
  * %DBUS_TYPE_G_OBJECT_PATH, but did not actually exist as a typedef.
  *
  * Since: 0.FIXME
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is a #GVariant (%G_TYPE_VARIANT) of type %G_VARIANT_TYPE_OBJECT_PATH.
  */
 
 /**
@@ -377,6 +380,9 @@ _dbus_g_value_types_init (void)
  * stored in a #GValue.
  *
  * Returns: a type derived from %G_TYPE_BOXED
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is a #GVariant (%G_TYPE_VARIANT) of type %G_VARIANT_TYPE_OBJECT_PATH.
  */
 GType
 dbus_g_object_path_get_g_type (void)
@@ -400,6 +406,9 @@ dbus_g_object_path_get_g_type (void)
  * %DBUS_TYPE_G_SIGNATURE, but did not actually exist as a typedef.
  *
  * Since: 0.FIXME
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is a #GVariant (%G_TYPE_VARIANT) of type %G_VARIANT_TYPE_SIGNATURE.
  */
 
 /**
@@ -412,6 +421,9 @@ dbus_g_object_path_get_g_type (void)
  * stored in a #GValue.
  *
  * Returns: a type derived from %G_TYPE_BOXED
+ *
+ * Deprecated: New code should use GDBus instead. The closest equivalent
+ *  is a #GVariant (%G_TYPE_VARIANT) of type %G_VARIANT_TYPE_SIGNATURE.
  */
 GType
 dbus_g_signature_get_g_type (void)
