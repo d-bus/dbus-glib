@@ -32,12 +32,6 @@ G_BEGIN_DECLS
 
 const char *       _dbus_gobject_get_path (GObject *obj);
 
-GClosureMarshal    _dbus_gobject_lookup_marshaller (GType        rettype,
-						    guint        n_params,
-						    const GType *param_types);
-  
-						    
-
 G_END_DECLS
 
 #endif

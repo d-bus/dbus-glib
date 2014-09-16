@@ -1703,7 +1703,6 @@ marshal_dbus_message_to_g_marshaller (GClosure     *closure,
    */
 #define MAX_SIGNATURE_ARGS 20
   GValueArray *value_array;
-  GSignalCMarshaller c_marshaller;
   DBusGProxy *proxy;
   DBusMessage *message;
   GArray *gsignature;
@@ -1722,11 +1721,6 @@ marshal_dbus_message_to_g_marshaller (GClosure     *closure,
 
   priv = DBUS_G_PROXY_GET_PRIVATE(proxy);
 
-  c_marshaller = _dbus_gobject_lookup_marshaller (G_TYPE_NONE, gsignature->len,
-						  (GType*) gsignature->data);
-
-  g_return_if_fail (c_marshaller != NULL);
-  
   {
     DBusGValueMarshalCtx context;
     context.recursion_depth = 0;
@@ -1745,9 +1739,9 @@ marshal_dbus_message_to_g_marshaller (GClosure     *closure,
   g_value_init (g_value_array_get_nth (value_array, 0), G_TYPE_FROM_INSTANCE (proxy));
   g_value_set_instance (g_value_array_get_nth (value_array, 0), proxy);
 
-  (* c_marshaller) (closure, return_value, value_array->n_values,
-		    value_array->values, invocation_hint, marshal_data);
-  
+  g_cclosure_marshal_generic (closure, return_value, value_array->n_values,
+      value_array->values, invocation_hint, marshal_data);
+
   g_value_array_free (value_array);
 }
 
@@ -3120,12 +3114,6 @@ dbus_g_proxy_add_signal  (DBusGProxy        *proxy,
     }
   va_end (args);
 
-#ifndef G_DISABLE_CHECKS
-  if (_dbus_gobject_lookup_marshaller (G_TYPE_NONE, gtypesig->len, (const GType*) gtypesig->data) == NULL)
-    g_warning ("No marshaller for signature of signal '%s'", signal_name);
-#endif
-
-  
   g_datalist_id_set_data_full (&priv->signal_signatures,
                                q, gtypesig,
                                array_free_all);

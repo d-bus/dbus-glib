@@ -103,7 +103,6 @@ typedef struct
 static GStaticRWLock globals_lock = G_STATIC_RW_LOCK_INIT;
 /* See comments in check_property_access */
 static gboolean disable_legacy_property_access = FALSE;
-static GHashTable *marshal_table = NULL;
 static GData *error_metadata = NULL;
 
 static char*
@@ -2993,82 +2992,6 @@ funcsig_free (DBusGFuncSignature *sig)
   g_free (sig);
 }
 
-GClosureMarshal
-_dbus_gobject_lookup_marshaller (GType        rettype,
-				 guint        n_params,
-				 const GType *param_types)
-{
-  GClosureMarshal ret;
-  DBusGFuncSignature sig;
-  GType *params;
-  guint i;
-
-  /* Convert to fundamental types */
-  rettype = G_TYPE_FUNDAMENTAL (rettype);
-  params = g_new (GType, n_params);
-  for (i = 0; i < n_params; i++)
-    params[i] = G_TYPE_FUNDAMENTAL (param_types[i]);
-
-  sig.rettype = rettype;
-  sig.n_params = n_params;
-  sig.params = params;
-  
-  g_static_rw_lock_reader_lock (&globals_lock);
-
-  if (marshal_table)
-    ret = g_hash_table_lookup (marshal_table, &sig);
-  else
-    ret = NULL;
-
-  g_static_rw_lock_reader_unlock (&globals_lock);
-
-  if (ret == NULL)
-    {
-      if (rettype == G_TYPE_NONE)
-	{
-	  if (n_params == 0)
-	    ret = g_cclosure_marshal_VOID__VOID;
-	  else if (n_params == 1)
-	    {
-	      switch (params[0])
-		{
-		case G_TYPE_BOOLEAN:
-		  ret = g_cclosure_marshal_VOID__BOOLEAN;
-		  break;
-		case G_TYPE_UCHAR:
-		  ret = g_cclosure_marshal_VOID__UCHAR;
-		  break;
-		case G_TYPE_INT:
-		  ret = g_cclosure_marshal_VOID__INT;
-		  break;
-		case G_TYPE_UINT:
-		  ret = g_cclosure_marshal_VOID__UINT;
-		  break;
-		case G_TYPE_DOUBLE:
-		  ret = g_cclosure_marshal_VOID__DOUBLE;
-		  break;
-		case G_TYPE_STRING:
-		  ret = g_cclosure_marshal_VOID__STRING;
-		  break;
-		case G_TYPE_BOXED:
-		  ret = g_cclosure_marshal_VOID__BOXED;
-		  break;
-		}
-	    }
-	  else if (n_params == 3
-		   && params[0] == G_TYPE_STRING
-		   && params[1] == G_TYPE_STRING
-		   && params[2] == G_TYPE_STRING)
-	    {
-	      ret = _dbus_g_marshal_NONE__STRING_STRING_STRING;
-	    }
-	}
-    }
-
-  g_free (params);
-  return ret;
-}
-
 /**
  * dbus_g_object_register_marshaller:
  * @marshaller: a GClosureMarshal to be used for invocation
@@ -3079,7 +3002,9 @@ _dbus_gobject_lookup_marshaller (GType        rettype,
  * giving its return type and a list of parameter types,
  * followed by %G_TYPE_INVALID.
  *
- * This function will not be needed once GLib includes libffi.
+ * This function is no longer useful, and is only provided
+ * for compatibility with older dbus-glib. The #GClosureMarshal
+ * will not be called.
  *
  * Deprecated: New code should use GDBus instead.
  */
@@ -3088,22 +3013,6 @@ dbus_g_object_register_marshaller (GClosureMarshal  marshaller,
 				   GType            rettype,
 				   ...)
 {
-  va_list args;
-  GArray *types;
-  GType gtype;
-
-  va_start (args, rettype);
-
-  types = g_array_new (TRUE, TRUE, sizeof (GType));
-
-  while ((gtype = va_arg (args, GType)) != G_TYPE_INVALID)
-    g_array_append_val (types, gtype);
-
-  dbus_g_object_register_marshaller_array (marshaller, rettype,
-					   types->len, (GType*) types->data);
-
-  g_array_free (types, TRUE);
-  va_end (args);
 }
 
 /**
@@ -3124,26 +3033,6 @@ dbus_g_object_register_marshaller_array (GClosureMarshal  marshaller,
 					 guint            n_types,
 					 const GType*     types)
 {
-  DBusGFuncSignature *sig;
-  guint i;
-
-  g_static_rw_lock_writer_lock (&globals_lock);
-
-  if (marshal_table == NULL)
-    marshal_table = g_hash_table_new_full (funcsig_hash,
-					   funcsig_equal,
-					   (GDestroyNotify) funcsig_free,
-					   NULL);
-  sig = g_new0 (DBusGFuncSignature, 1);
-  sig->rettype = G_TYPE_FUNDAMENTAL (rettype);
-  sig->n_params = n_types;
-  sig->params = g_new (GType, n_types);
-  for (i = 0; i < n_types; i++)
-    sig->params[i] = G_TYPE_FUNDAMENTAL (types[i]);
-
-  g_hash_table_insert (marshal_table, sig, marshaller);
-
-  g_static_rw_lock_writer_unlock (&globals_lock);
 }
 
 /**
