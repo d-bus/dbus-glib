@@ -50,7 +50,6 @@ EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.
 
 if DBUS_BUILD_TESTS
 
-if HAVE_GLIB_THREADS
 THREAD_APPS=test-thread-server test-thread-client test-profile
 
 test_thread_server_SOURCES=				\
@@ -60,7 +59,6 @@ test_thread_server_SOURCES=				\
 test_thread_client_SOURCES=				\
 	test-thread-client.c				\
 	test-thread.h
-endif
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
@@ -183,13 +181,9 @@ CLEANFILES = \
 else
 ### not building tests
 
-if HAVE_GLIB_THREADS
 noinst_PROGRAMS=test-profile
-endif
 
 endif
 
-if HAVE_GLIB_THREADS
 test_profile_SOURCES=				\
 	test-profile.c
-endif

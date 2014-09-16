@@ -259,15 +259,12 @@ XML_CFLAGS=
 
 #### Set up final flags
 
-PKG_CHECK_MODULES([DBUS], [dbus-1 >= 1.2.16])
+PKG_CHECK_MODULES([DBUS], [dbus-1 >= 1.8])
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
 
 # Glib detection
-PKG_CHECK_MODULES([DBUS_GLIB], [gobject-2.0 >= 2.26, gio-2.0 >= 2.26])
-PKG_CHECK_MODULES(DBUS_GLIB_THREADS, gthread-2.0 >= 2.6, have_glib_threads=yes, have_glib_threads=no)
-
-AM_CONDITIONAL(HAVE_GLIB_THREADS, test x$have_glib_threads = xyes)
+PKG_CHECK_MODULES([DBUS_GLIB], [gobject-2.0 >= 2.32, gio-2.0 >= 2.32, gthread-2.0 >= 2.32])
 
 GLIB_GENMARSHAL=`$PKG_CONFIG --variable=glib_genmarshal glib-2.0`
 AC_SUBST(GLIB_GENMARSHAL)

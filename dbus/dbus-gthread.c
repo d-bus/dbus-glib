@@ -37,14 +37,17 @@
  * once and must be called prior to calling any
  * other function in the D-BUS API.
  *
+ * Equivalent to dbus_threads_init_default(), which does nothing.
+ * dbus-glib requires dbus >= 1.8, which is thread-safe by default.
+ *
+ * Note that dbus-glib's GObject mapping is explicitly *not* thread-safe.
+ *
  * Deprecated: New code should use GDBus instead. GDBus is always
  *  thread-safe, whereas dbus-glib is never thread-safe.
  */
 void
 dbus_g_thread_init (void)
 {
-  if (!g_thread_supported ())
-    g_error ("g_thread_init() must be called before dbus_threads_init()");
-
+  /* keep this pointless method call just in case */
   dbus_threads_init_default ();
 }
