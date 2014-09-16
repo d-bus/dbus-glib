@@ -95,7 +95,7 @@ AC_DEFUN([AC_CC_TRY_FLAG], [
   ac_save_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS $1"
 
-  AC_COMPILE_IFELSE([ ], [ac_cc_flag=yes], [ac_cc_flag=no])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])], [ac_cc_flag=yes], [ac_cc_flag=no])
   CFLAGS="$ac_save_CFLAGS"
 
   if test "x$ac_cc_flag" = "xyes"; then
