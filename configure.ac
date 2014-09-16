@@ -285,7 +285,7 @@ AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 ### gtk-doc Documentation
 GTK_DOC_CHECK(1.4)
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 m4/Makefile
 doc/Makefile
@@ -306,6 +306,7 @@ tools/Makefile
 dbus-glib-1.pc
 dbus-glib-1-uninstalled.pc
 ])
+AC_OUTPUT
 
 dnl ==========================================================================
 echo "
