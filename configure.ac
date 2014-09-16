@@ -208,7 +208,7 @@ else
   fi
 fi
 
-AM_PROG_LIBTOOL
+LT_INIT
 
 changequote(,)dnl
 # compress spaces in flags
