@@ -33,6 +33,7 @@
 
 /**
  * SECTION:dbus-gtype-specialized
+ * @title: Specializable GType System
  * @short_description: Specialized GTypes
  * @stability: Unstable
  *

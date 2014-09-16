@@ -82,5 +82,9 @@
     &dbus-binding-tool;
 
   </chapter>
+  <index id="api-index-full">
+    <title>Index of all symbols</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
 
 </book>

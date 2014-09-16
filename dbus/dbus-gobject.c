@@ -1643,6 +1643,7 @@ gerror_to_dbus_error_message (const DBusGObjectInfo *object_info,
 
 /**
  * SECTION:dbus-gmethod
+ * @title: DBusGMethod
  * @short_description: GMethod Info & Invocation
  * @see_also: #DBusGMessage
  * @stability: Stable
@@ -2585,7 +2586,8 @@ dbus_g_error_info_free (gpointer p)
 
 /**
  * SECTION:dbus-gobject
- * @short_description: Exporting a #GObject remotely
+ * @title: DBus GObject related functions
+ * @short_description: Exporting a GObject remotely
  * @see_also: #GObject
  * @stability: Stable
  *

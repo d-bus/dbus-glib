@@ -26,10 +26,11 @@ dbus_g_connection_get_g_type
 DBusGObjectInfo
 dbus_g_object_type_install_info
 dbus_g_object_type_register_shadow_property
-dbus_g_object_path_get_g_type
 dbus_g_object_register_marshaller
 dbus_g_object_register_marshaller_array
 dbus_glib_global_set_disable_legacy_property_access
+<SUBSECTION Standard>
+dbus_g_object_path_get_g_type
 </SECTION>
 
 <SECTION>

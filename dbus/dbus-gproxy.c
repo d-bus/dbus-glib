@@ -1496,6 +1496,12 @@ dbus_g_proxy_class_init (DBusGProxyClass *klass)
   object_class->dispose = dbus_g_proxy_dispose;
   object_class->constructor = dbus_g_proxy_constructor;
   
+/**
+ * DBusGProxy::destroy:
+ * @dbusgproxy: the object which received the signal.
+ *
+ *
+ */
   signals[DESTROY] =
     g_signal_new ("destroy",
 		  G_OBJECT_CLASS_TYPE (object_class),
@@ -1505,6 +1511,12 @@ dbus_g_proxy_class_init (DBusGProxyClass *klass)
                   g_cclosure_marshal_VOID__VOID,
 		  G_TYPE_NONE, 0);
 
+/*
+ * DBusGProxy::received:
+ * @dbusgproxy: the object which received the signal.
+ *
+ *
+ */
   signals[RECEIVED] =
     g_signal_new ("received",
 		  G_OBJECT_CLASS_TYPE (object_class),
@@ -1926,6 +1938,7 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
 
 /**
  * SECTION:dbus-gproxy
+ * @title: DBusGProxy
  * @short_description: DBus Proxy
  * @see_also: #DBusGProxy
  * @stability: Stable

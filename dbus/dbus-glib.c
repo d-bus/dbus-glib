@@ -31,6 +31,7 @@
 
 /**
  * SECTION:dbus-gconnection
+ * @title: DBusGConnection
  * @short_description: DBus Connection
  * @see_also: #DBusConnection
  * @stability: Stable
@@ -94,6 +95,7 @@ dbus_g_connection_unref (DBusGConnection *connection)
 
 /**
  * SECTION:dbus-gmessage
+ * @title: DBusGMessage
  * @short_description: DBus Message
  * @see_also: #DBusMessage
  * @stability: Stable
@@ -143,6 +145,7 @@ dbus_g_message_unref (DBusGMessage *message)
 
 /**
  * SECTION:dbus-gerror
+ * @title: DBusGError
  * @short_description: DBus GError
  * @see_also: #GError
  * @stability: Stable
@@ -308,6 +311,7 @@ dbus_g_message_get_g_type (void)
 
 /**
  * SECTION:dbus-glib-lowlevel
+ * @title: DBus GLib low level
  * @short_description: DBus lower level functions
  * @stability: Unstable
  *
