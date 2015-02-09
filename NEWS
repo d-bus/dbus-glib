@@ -1,9 +1,43 @@
 dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 
-dbus-glib 0.104 (UNRELEASED)
+dbus-glib 0.104 (2015-02-09)
 ============================
 
-...
+The “smoke and ashes” release.
+
+Deprecations:
+
+• Document the entire library as deprecated (Simon McVittie, Philip Withnall)
+
+Dependencies:
+
+• libdbus 1.8 is required
+• GLib 2.32 is required
+
+Enhancements:
+
+• The libdbus 1.8 dependency means we can now document that
+  dbus_g_thread_init() is idempotent and thread-safe
+  (fd.o #54770, Simon McVittie)
+
+• Use g_cclosure_marshal_generic for all marshalling (fd.o #64214,
+  Simon McVittie)
+
+Fixes:
+
+• Allow timeouts to be migrated from one main context to another
+  without an assertion failure (fd.o #30574, Mike Gorse)
+
+• Don't trip a libdbus fatal warning if a Unix fd or other unsupported type
+  is encountered in a message (fd.o #80557, Alban Crequy)
+
+• Make the tests pass with newer GLib by not removing removed sources
+  (fd.o #83530, Simon McVittie)
+
+• Fix some typos in the documentation (fd.o #45686, Jiří Klimeš)
+
+• Make the Autotools setup less awful (fd.o #58698;
+  Rafał Mużyło, Simon McVittie)
 
 dbus-glib 0.102 (2014-02-12)
 ============================
