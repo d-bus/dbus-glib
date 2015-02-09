@@ -75,7 +75,7 @@ send_test_message (dbus_bool_t switch_after_send)
     char *err = NULL;
     dbus_message_get_args (reply, NULL, DBUS_TYPE_STRING, &err, DBUS_TYPE_INVALID);
     fprintf (stderr, "Got error: %s\n", err);
-    return 1;
+    exit(1);
   }
   if (!dbus_message_get_args (reply, &error, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID))
   {
@@ -90,7 +90,6 @@ int
 main(int argc, const char *argv[])
 {
   DBusError error;
-  DBusMessage *message = NULL, *reply = NULL;
 
   main_context = g_main_context_new ();
   dbus_error_init (&error);
