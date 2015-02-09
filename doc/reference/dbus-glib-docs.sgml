@@ -10,6 +10,17 @@
     <releaseinfo>for version &version;</releaseinfo>
   </bookinfo>
 
+  <warning>
+    <para>dbus-glib is a deprecated API for use of D-Bus from GLib
+      applications. Do not use it in new code.</para>
+
+    <para>Since version 2.26, GLib's accompanying GIO library
+      provides a high-level API for D-Bus, "GDBus", based on an
+      independent reimplementation of the D-Bus protocol. The maintainers
+      of D-Bus recommend that GLib applications should use GDBus
+      instead of dbus-glib.</para>
+  </warning>
+
   <chapter>
     <title>Introduction</title> 
 
@@ -19,14 +30,16 @@
        http://www.freedesktop.org/wiki/Software/dbus</ulink>.
     </para>
 
-    <para>dbus-glib is a deprecated API for use of D-Bus from GLib
-      applications. Do not use it in new code.</para>
+    <warning>
+      <para>dbus-glib is a deprecated API for use of D-Bus from GLib
+        applications. Do not use it in new code.</para>
 
-    <para>Since version 2.26, GLib's accompanying GIO library
-      provides a high-level API for D-Bus, "GDBus", based on an
-      independent reimplementation of the D-Bus protocol. The maintainers
-      of D-Bus recommend that GLib applications should use GDBus
-      instead of dbus-glib.</para>
+      <para>Since version 2.26, GLib's accompanying GIO library
+        provides a high-level API for D-Bus, "GDBus", based on an
+        independent reimplementation of the D-Bus protocol. The maintainers
+        of D-Bus recommend that GLib applications should use GDBus
+        instead of dbus-glib.</para>
+    </warning>
   </chapter>
 
   <chapter>
