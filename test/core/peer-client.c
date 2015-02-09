@@ -77,7 +77,7 @@ main (int argc, char **argv)
   gsize lineoffset;
   GIOChannel *io;
 
-  g_thread_init (NULL); dbus_g_thread_init ();
+  dbus_g_thread_init ();
   g_type_init ();
 
   io = g_io_channel_unix_new (0);

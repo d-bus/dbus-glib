@@ -67,7 +67,6 @@ main (int argc, char *argv[])
   DBusError error;
   int i;
 
-  g_thread_init (NULL);
   dbus_g_thread_init ();
 
   if(argc < 2)

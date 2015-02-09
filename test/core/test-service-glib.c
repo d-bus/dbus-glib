@@ -31,7 +31,7 @@ main (int argc, char **argv)
   guint32 request_name_ret;
 
   g_type_init ();
-  g_thread_init (NULL); dbus_g_thread_init ();
+  dbus_g_thread_init ();
 
   dbus_g_error_domain_register (MY_OBJECT_ERROR,
 				NULL,

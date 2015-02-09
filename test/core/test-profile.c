@@ -1095,7 +1095,6 @@ main (int argc, char *argv[])
 #endif
 
 #ifndef TEST_PROFILE_DISABLED
-  g_thread_init (NULL);
   dbus_g_thread_init ();
 
 #ifndef G_DISABLE_ASSERT

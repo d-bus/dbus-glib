@@ -34,7 +34,7 @@ main (int argc, char **argv)
 
   dbus_error_init (&error);
 
-  g_thread_init (NULL); dbus_g_thread_init ();
+  dbus_g_thread_init ();
   g_type_init ();
 
   loop = g_main_loop_new (NULL, TRUE);
