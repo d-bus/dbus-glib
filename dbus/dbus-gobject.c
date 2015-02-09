@@ -2937,61 +2937,6 @@ typedef struct {
   GType   *params;
 } DBusGFuncSignature;
 
-static guint
-funcsig_hash (gconstpointer key)
-{
-  const DBusGFuncSignature *sig = key;
-  GType *types;
-  guint ret;
-  guint i;
-
-  ret = sig->rettype;
-  types = sig->params;
-
-  for (i = 0; i < sig->n_params; i++)
-    {
-      ret += (int) (*types);
-      types++;
-    }
-      
-  return ret;
-}
-
-static gboolean
-funcsig_equal (gconstpointer aval,
-	       gconstpointer bval)
-{
-  const DBusGFuncSignature *a = aval;
-  const DBusGFuncSignature *b = bval;
-  const GType *atypes;
-  const GType *btypes;
-  guint i;
-
-  if (a->rettype != b->rettype
-      || a->n_params != b->n_params)
-    return FALSE;
-
-  atypes = a->params;
-  btypes = b->params;
-
-  for (i = 0; i < a->n_params; i++)
-    {
-      if (*btypes != *atypes)
-	return FALSE;
-      atypes++;
-      btypes++;
-    }
-      
-  return TRUE;
-}
-
-static void
-funcsig_free (DBusGFuncSignature *sig)
-{
-  g_free (sig->params);
-  g_free (sig);
-}
-
 /**
  * dbus_g_object_register_marshaller:
  * @marshaller: a GClosureMarshal to be used for invocation
