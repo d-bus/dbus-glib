@@ -1491,7 +1491,7 @@ write_async_method_client (GIOChannel *channel, InterfaceInfo *interface, Method
   
 
   /* Write the main wrapper function */
-  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\nDBusGProxyCall*\n");
+  WRITE_OR_LOSE ("static inline DBusGProxyCall*\n");
   if (!write_printf_to_iochannel ("%s_async (DBusGProxy *proxy", channel, error,
                                   method_name))
     goto io_lose;
@@ -1600,7 +1600,7 @@ generate_client_glue (BaseInfo *base, DBusBindingToolCData *data, GError **error
             }
 
 
-          WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\ngboolean\n");
+          WRITE_OR_LOSE ("static inline gboolean\n");
           if (!write_printf_to_iochannel ("%s (DBusGProxy *proxy", channel, error,
                   method_c_name))
             goto io_lose;
@@ -1685,7 +1685,7 @@ dbus_binding_tool_output_glib_client (BaseInfo *info, GIOChannel *channel, gbool
 
   WRITE_OR_LOSE ("#ifndef _DBUS_GLIB_ASYNC_DATA_FREE\n");
   WRITE_OR_LOSE ("#define _DBUS_GLIB_ASYNC_DATA_FREE\n");
-  WRITE_OR_LOSE ("static\n#ifdef G_HAVE_INLINE\ninline\n#endif\nvoid\n");
+  WRITE_OR_LOSE ("static inline void\n");
   WRITE_OR_LOSE ("_dbus_glib_async_data_free (gpointer stuff)\n{\n\tg_slice_free (DBusGAsyncData, stuff);\n}\n");
   WRITE_OR_LOSE ("#endif\n\n");
 
