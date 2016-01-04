@@ -5,10 +5,11 @@ dbus-glib 0.106 (UNRELEASED)
 
 Fixes:
 
-• Stop testing G_HAVE_INLINE, which wasn't meant to be API anyway, and just
-  rely on "static inline" doing the right thing. On pre-C99 compilers,
-  this relies on <glib.h> defining inline to __inline, __inline__ or
-  the empty string if the compiler requires it, which it has done since 2000.
+• Stop testing G_HAVE_INLINE, which ceased to work in GLib 2.47.2 and
+  wasn't meant to be API anyway. Instead, rely on "static inline" doing
+  the right thing. On pre-C99 compilers, this relies on <glib.h> defining
+  inline to __inline, __inline__ or the empty string if the compiler
+  requires it, which it has done since 2000. (fd.o #93513, Colin Watson)
 
 dbus-glib 0.104 (2015-02-09)
 ============================
