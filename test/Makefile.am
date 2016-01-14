@@ -1,5 +1,5 @@
-SUBDIRS = lib . core interfaces manual
-DIST_SUBDIRS = lib core interfaces manual
+SUBDIRS = lib . core interfaces
+DIST_SUBDIRS = lib core interfaces
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)				\

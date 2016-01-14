@@ -72,6 +72,7 @@ noinst_PROGRAMS = \
 	test-error-mapping \
 	test-service-glib \
 	$(THREAD_APPS) \
+	manual/test-invalid-usage \
 	peer-server \
 	peer-client \
 	test-types \
@@ -84,6 +85,14 @@ noinst_PROGRAMS = \
 	test-variant-recursion \
 	test-gvariant \
 	test-shared-bus \
+	$(NULL)
+
+# This "test" exercises invalid usage. It is deliberately not run in
+# TESTS, because it's (by design) full of bugs.
+manual_test_invalid_usage_SOURCES = \
+	manual/invalid-usage.c \
+	my-object.c \
+	my-object.h \
 	$(NULL)
 
 test_30574_SOURCES = \
