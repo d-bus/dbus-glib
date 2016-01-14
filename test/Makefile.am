@@ -1,7 +1,7 @@
 SUBDIRS = lib . core interfaces manual
 DIST_SUBDIRS = lib core interfaces manual
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)				\
 	-I$(top_builddir)			\
 	-I$(top_builddir)/dbus			\

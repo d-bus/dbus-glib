@@ -1,6 +1,6 @@
 SUBDIRS = . examples
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)						\
 	-I$(top_builddir)					\
 	$(DBUS_CFLAGS)						\
@@ -110,7 +110,7 @@ Android.mk: Makefile.am
 	androgenizer -:PROJECT dbus-glib -:SHARED libdbus-glib-1 -:TAGS eng debug \
 	 -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
 	 -:SOURCES $(libdbus_glib_1_la_SOURCES) \
-	 -:CFLAGS $(DEFS) $(CFLAGS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CFLAGS) \
+	 -:CFLAGS $(DEFS) $(CFLAGS) $(DEFAULT_INCLUDES) $(AM_CPPFLAGS) $(AM_CFLAGS) \
 	 -:CPPFLAGS $(CPPFLAGS) $(AM_CPPFLAGS) \
 	 -:LDFLAGS $(libdbus_glib_1_la_LIBADD) $(libdbus_glib_1_la_LDFLAGS) \
 	> $@

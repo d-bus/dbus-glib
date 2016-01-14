@@ -1,4 +1,11 @@
-INCLUDES=-I$(top_srcdir) $(DBUS_CFLAGS) $(DBUS_GLIB_CFLAGS) $(DBUS_X_CFLAGS) $(DBUS_GTK_THREADS_CFLAGS) -DDBUS_COMPILATION
+AM_CPPFLAGS = \
+	-I$(top_srcdir) \
+	$(DBUS_CFLAGS) \
+	$(DBUS_GLIB_CFLAGS) \
+	$(DBUS_X_CFLAGS) \
+	$(DBUS_GTK_THREADS_CFLAGS) \
+	-DDBUS_COMPILATION \
+	$(NULL)
 
 nodist_libdbus_glib_HEADERS = dbus-glib-bindings.h
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
