@@ -1,7 +1,9 @@
 dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 
-dbus-glib 0.106 (UNRELEASED)
+dbus-glib 0.106 (2016-01-14)
 ============================
+
+The “crumbling vestige” release.
 
 Fixes:
 
@@ -10,6 +12,14 @@ Fixes:
   the right thing. On pre-C99 compilers, this relies on <glib.h> defining
   inline to __inline, __inline__ or the empty string if the compiler
   requires it, which it has done since 2000. (fd.o #93513, Colin Watson)
+
+• Stop calling g_mem_profile() in the tests, which no longer does anything
+  and caused the tests to fail by issuing a warning (Simon McVittie)
+
+• Slightly modernize build system, and remove a weird cross-directory
+  dependency which was breaking distcheck (Simon McVittie)
+
+• Stop distributing generated marshallers in the tarball (Simon McVittie)
 
 dbus-glib 0.104 (2015-02-09)
 ============================
