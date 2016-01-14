@@ -1554,8 +1554,6 @@ main (int argc, char **argv)
 
     g_hash_table_destroy (table);
     g_hash_table_destroy (ret_table);
-
-    g_mem_profile ();
   }
 
   for (i=0; i<3; i++)
@@ -1602,8 +1600,6 @@ main (int argc, char **argv)
 
     g_hash_table_destroy (table);
     g_hash_table_destroy (ret_table);
-
-    g_mem_profile ();
   }
 
   for (i=0; i<3; i++)
@@ -1657,8 +1653,6 @@ main (int argc, char **argv)
 
     g_boxed_free (dbus_g_type_get_map ("GHashTable", DBUS_TYPE_G_OBJECT_PATH,
           dbus_g_type_get_collection ("GPtrArray", DBUS_TYPE_G_OBJECT_PATH)), ret_table);
-
-    g_mem_profile ();
   }
 
 
