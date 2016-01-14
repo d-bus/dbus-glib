@@ -46,7 +46,12 @@ check-valgrind: all
 	$(MAKE) check-TESTS \
 	DEBUG="env $(VALGRIND_ENV) $(VALGRIND) $(VALGRIND_ARGS)"
 
-EXTRA_DIST=run-test.sh run-peer-test.sh test-service-glib.xml my-object-marshal.list test-service-glib-subclass.xml
+EXTRA_DIST = \
+	run-peer-test.sh \
+	run-test.sh \
+	test-service-glib-subclass.xml \
+	test-service-glib.xml \
+	$(NULL)
 
 if DBUS_BUILD_TESTS
 
@@ -87,14 +92,12 @@ test_30574_SOURCES = \
 test_private_SOURCES = \
 	my-object.c \
 	my-object.h \
-	my-object-marshal.c \
 	private.c
 
 test_proxy_noc_SOURCES = \
 	proxy-noc.c
 
 test_proxy_peer_SOURCES = \
-	my-object-marshal.c \
 	my-object.c \
 	my-object.h \
 	proxy-peer.c
@@ -104,13 +107,11 @@ test_registrations_SOURCES = \
 	my-object.h \
 	my-object-subclass.c \
 	my-object-subclass.h \
-	my-object-marshal.c \
 	registrations.c
 
 test_dbus_glib_SOURCES=				\
 	my-object.c \
 	my-object.h \
-	my-object-marshal.c \
 	test-dbus-glib.c
 
 test_dbus_glib_LDADD= $(tool_ldadd)
@@ -118,21 +119,23 @@ test_dbus_glib_LDADD= $(tool_ldadd)
 test_error_mapping_SOURCES = \
 	my-object.c \
 	my-object.h \
-	my-object-marshal.c \
 	error-mapping.c
 
 test_variant_recursion_SOURCES=test-variant-recursion.c
 
 test_variant_recursion_LDADD= $(tool_ldadd)
 
-BUILT_SOURCES = test-service-glib-glue.h test-service-glib-subclass-glue.h test-service-glib-bindings.h my-object-marshal.c my-object-marshal.h 
+BUILT_SOURCES = \
+	test-service-glib-bindings.h \
+	test-service-glib-glue.h \
+	test-service-glib-subclass-glue.h \
+	$(NULL)
 
 test_service_glib_SOURCES=				\
 	my-object.c                             \
 	my-object.h                             \
 	my-object-subclass.c                    \
 	my-object-subclass.h                    \
-	my-object-marshal.c                             \
 	test-service-glib.c 
 
 test-service-glib-glue.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
@@ -144,21 +147,11 @@ test-service-glib-subclass-glue.h: test-service-glib-subclass.xml $(top_builddir
 test-service-glib-bindings.h: test-service-glib.xml $(top_builddir)/dbus/dbus-binding-tool$(EXEEXT)
 	$(DEBUG) $(DBUS_BINDING_TOOL) --prefix=my_object --mode=glib-client --output=test-service-glib-bindings.h $(srcdir)/test-service-glib.xml
 
-my-object-marshal.c: Makefile my-object-marshal.list
-	echo "#include <config.h>" > $@.tmp
-	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header --body >> $@.tmp
-	mv $@.tmp $@
-
-my-object-marshal.h: Makefile my-object-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=my_object_marshal $(srcdir)/my-object-marshal.list --header > my-object-marshal.h
-
-
 peer_server_SOURCES = \
 	my-object.c                             \
 	my-object.h                             \
 	my-object-subclass.c                    \
 	my-object-subclass.h                    \
-	my-object-marshal.c                             \
 	peer-server.c
 
 peer_client_SOURCES = \

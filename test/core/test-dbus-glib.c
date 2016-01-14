@@ -1707,8 +1707,6 @@ main (int argc, char **argv)
   if (proxy == NULL)
     lose_gerror ("Failed to create proxy for name owner", error);
 
-  my_object_register_marshallers ();
-
   dbus_g_proxy_add_signal (proxy, "Sig0", G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INVALID);
   dbus_g_proxy_add_signal (proxy, "Sig1", G_TYPE_STRING, G_TYPE_VALUE, G_TYPE_INVALID);
   dbus_g_proxy_add_signal (proxy, "Sig2", DBUS_TYPE_G_STRING_STRING_HASHTABLE, G_TYPE_INVALID);

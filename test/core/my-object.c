@@ -3,19 +3,8 @@
 #include <glib/gi18n.h>
 #include <glib-object.h>
 #include "my-object.h"
-#include "my-object-marshal.h"
 
 #include "test-service-glib-glue.h"
-
-void
-my_object_register_marshallers (void)
-{
-  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_INT_STRING,
-      G_TYPE_NONE, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INVALID);
-
-  dbus_g_object_register_marshaller (my_object_marshal_VOID__STRING_BOXED,
-      G_TYPE_NONE, G_TYPE_STRING, G_TYPE_VALUE, G_TYPE_INVALID);
-}
 
 /* Properties */
 enum
@@ -135,8 +124,6 @@ my_object_class_init (MyObjectClass *mobject_class)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (mobject_class);
 
-  my_object_register_marshallers ();
-
   dbus_g_object_type_install_info (MY_TYPE_OBJECT,
 				   &dbus_glib_my_object_object_info);
 
@@ -198,8 +185,7 @@ my_object_class_init (MyObjectClass *mobject_class)
 		  G_OBJECT_CLASS_TYPE (mobject_class),
                   G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
                   0,
-                  NULL, NULL,
-                  my_object_marshal_VOID__STRING_INT_STRING,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 3, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING);
 
   signals[SIG1] =
@@ -207,8 +193,7 @@ my_object_class_init (MyObjectClass *mobject_class)
 		  G_OBJECT_CLASS_TYPE (mobject_class),
                   G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
                   0,
-                  NULL, NULL,
-                  my_object_marshal_VOID__STRING_BOXED,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_VALUE);
 
   signals[SIG2] =
