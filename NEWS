@@ -3,7 +3,9 @@ dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 dbus-glib 0.108 (UNRELEASED)
 ============================
 
-...
+Fixes:
+
+• Use dbus-run-session instead of dbus-launch for tests.
 
 dbus-glib 0.106 (2016-01-14)
 ============================
