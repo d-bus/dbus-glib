@@ -1,7 +1,9 @@
 dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 
-dbus-glib 0.108 (UNRELEASED)
+dbus-glib 0.108 (2016-09-09)
 ============================
+
+The “toxic chair” release.
 
 Fixes:
 
