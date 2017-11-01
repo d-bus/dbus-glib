@@ -44,7 +44,9 @@ libdbus_glib_HEADERS =                  \
 	dbus-gtype-specialized.h	\
         dbus-gvalue-parse-variant.h	\
 	dbus-glib.h			\
-        dbus-glib-lowlevel.h
+	dbus-glib-lowlevel.h		\
+	dbus-gmain.h			\
+	$(NULL)
 
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 
