@@ -91,13 +91,13 @@ teardown (Fixture *f,
    * in test_lookup() */
   if (f->bus != NULL)
     {
-      test_run_until_disconnected (f->bus, NULL);
+      test_run_until_disconnected (dbus_g_connection_get_connection (f->bus), NULL);
       dbus_g_connection_unref (f->bus);
     }
 
   if (f->bus2 != NULL)
     {
-      test_run_until_disconnected (f->bus2, NULL);
+      test_run_until_disconnected (dbus_g_connection_get_connection (f->bus2), NULL);
       dbus_g_connection_unref (f->bus2);
     }
 

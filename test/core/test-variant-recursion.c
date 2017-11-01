@@ -9,6 +9,7 @@
 #include <glib-object.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include "test/lib/util.h"
 
@@ -98,7 +99,7 @@ main (int argc, char **argv)
 
   g_object_unref (G_OBJECT (proxy));
 
-  test_run_until_disconnected (connection, NULL);
+  test_run_until_disconnected (dbus_g_connection_get_connection (connection), NULL);
   dbus_g_connection_unref (connection);
 
   g_main_loop_unref (loop);

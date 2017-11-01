@@ -104,8 +104,7 @@ main(int argc, const char *argv[])
   send_test_message (FALSE);
   send_test_message (TRUE);
 
-  test_run_until_disconnected (dbus_connection_get_g_connection (bus),
-                               NULL);
+  test_run_until_disconnected (bus, NULL);
   dbus_connection_unref (bus);
 
   dbus_shutdown ();

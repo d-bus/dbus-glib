@@ -66,13 +66,13 @@ teardown (Fixture *f,
 {
   if (f->bus != NULL)
     {
-      test_run_until_disconnected (f->bus, NULL);
+      test_run_until_disconnected (dbus_g_connection_get_connection (f->bus), NULL);
       dbus_g_connection_unref (f->bus);
     }
 
   if (f->bus2 != NULL)
     {
-      test_run_until_disconnected (f->bus2, NULL);
+      test_run_until_disconnected (dbus_g_connection_get_connection (f->bus2), NULL);
       dbus_g_connection_unref (f->bus2);
     }
 
@@ -109,7 +109,7 @@ test_name_owner_changed (Fixture *f,
                     &destroyed);
 
   /* Disconnect bus2, to provoke a NameOwnerChanged signal on bus */
-  test_run_until_disconnected (f->bus2, NULL);
+  test_run_until_disconnected (dbus_g_connection_get_connection (f->bus2), NULL);
   dbus_g_connection_unref (f->bus2);
   f->bus2 = NULL;
 

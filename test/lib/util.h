@@ -23,10 +23,10 @@
 
 #ifndef DBUS_GLIB_TEST_UTIL_H
 
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <dbus/dbus.h>
+#include <glib.h>
 
-void test_run_until_disconnected (DBusGConnection *connection,
+void test_run_until_disconnected (DBusConnection *connection,
                                   GMainContext *context);
 
 #endif

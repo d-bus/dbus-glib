@@ -279,7 +279,7 @@ main (int    argc,
 
   g_object_unref (dp_proxy);
 
-  test_run_until_disconnected (connection, NULL);
+  test_run_until_disconnected (dbus_g_connection_get_connection (connection), NULL);
   dbus_g_connection_unref (connection);
 
   dbus_shutdown ();

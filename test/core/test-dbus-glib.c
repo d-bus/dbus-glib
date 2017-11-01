@@ -28,6 +28,7 @@
 
 /* -*- mode: C; c-file-style: "gnu" -*- */
 #include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2396,13 +2397,13 @@ main (int argc, char **argv)
     
     g_object_unref (G_OBJECT (proxy));
 
-    test_run_until_disconnected (privconn, NULL);
+    test_run_until_disconnected (dbus_g_connection_get_connection (privconn), NULL);
     dbus_g_connection_unref (privconn);
   }
 
   g_object_unref (G_OBJECT (driver));
 
-  test_run_until_disconnected (connection, NULL);
+  test_run_until_disconnected (dbus_g_connection_get_connection (connection), NULL);
   dbus_g_connection_unref (connection);
 
   g_print ("Successfully completed %s\n", argv[0]);

@@ -25,45 +25,20 @@
 
 #include "util.h"
 
-static void
-destroy_cb (DBusGProxy *proxy G_GNUC_UNUSED,
-            gpointer user_data)
-{
-  gboolean *disconnected = user_data;
-
-  *disconnected = TRUE;
-}
-
 void
-test_run_until_disconnected (DBusGConnection *connection,
+test_run_until_disconnected (DBusConnection *connection,
                              GMainContext *context)
 {
-  gboolean disconnected = FALSE;
-  DBusGProxy *proxy;
-
   g_printerr ("Disconnecting... ");
 
-  dbus_connection_set_exit_on_disconnect (dbus_g_connection_get_connection (connection),
-                                          FALSE);
+  dbus_connection_set_exit_on_disconnect (connection, FALSE);
+  dbus_connection_close (connection);
 
-  /* low-level tests might not have called this yet */
-  g_type_init ();
-
-  proxy = dbus_g_proxy_new_for_peer (connection, "/",
-                                     "org.freedesktop.DBus.Peer");
-  g_signal_connect (G_OBJECT (proxy), "destroy", G_CALLBACK (destroy_cb),
-                    &disconnected);
-
-  dbus_connection_close (dbus_g_connection_get_connection (connection));
-
-  while (!disconnected)
+  while (dbus_connection_get_is_connected (connection))
     {
       g_printerr (".");
       g_main_context_iteration (context, TRUE);
     }
-
-  g_signal_handlers_disconnect_by_func (proxy, destroy_cb, &disconnected);
-  g_object_unref (proxy);
 
   g_printerr (" disconnected\n");
 }
