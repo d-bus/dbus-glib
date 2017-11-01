@@ -75,8 +75,15 @@ version_check() {
     for vc_checkprog in $vc_checkprogs; do
 	echo $ECHO_N "  testing $vc_checkprog... "
 	if $vc_checkprog --version < /dev/null > /dev/null 2>&1; then
-	    vc_actual_version=`$vc_checkprog --version | head -n 1 | \
+	    vc_actual_version=`$vc_checkprog --version 2>/dev/null | head -n 1 | \
                                sed 's/^.*[ 	]\([0-9.]*[a-z]*\).*$/\1/'`
+
+	    if [ -z "$vc_actual_version" ]; then
+		# In gtk-doc 1.26, gtkdoc-scan --version prints to stderr
+		vc_actual_version=`$vc_checkprog --version 2>&1 | head -n 1 | \
+                                  sed 's/^.*[ 	]\([0-9.]*[a-z]*\).*$/\1/'`
+	    fi
+
 	    if compare_versions $vc_min_version $vc_actual_version; then
 		echo "found $vc_actual_version"
 		# set variable
