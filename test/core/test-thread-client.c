@@ -1,7 +1,7 @@
 #include <config.h>
 
 #include <glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <dbus/dbus-gmain.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -66,8 +66,6 @@ main (int argc, char *argv[])
   GMainLoop *loop;
   DBusError error;
   int i;
-
-  dbus_g_thread_init ();
 
   if(argc < 2)
     {

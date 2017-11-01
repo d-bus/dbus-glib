@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <dbus/dbus.h>
 #include <glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <dbus/dbus-gmain.h>
 #include "test/lib/util.h"
 
 DBusConnection *bus;

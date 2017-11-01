@@ -1,7 +1,7 @@
 #include <config.h>
 
 #include <glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <dbus/dbus-gmain.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -180,8 +180,6 @@ main (int argc, char *argv[])
   DBusServer *server;
   DBusError error;
 
-  dbus_g_thread_init ();
-  
   if (argc < 2)
     {
       fprintf (stderr, "Give the server address as an argument\n");
