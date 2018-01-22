@@ -64,7 +64,7 @@ test_thread_server_LDADD = \
 	$(DBUS_GLIB_THREADS_LIBS) \
 	$(DBUS_GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
 	$(top_builddir)/test/lib/libtest.la \
 	$(NULL)
 
@@ -75,7 +75,7 @@ test_thread_client_LDADD = \
 	$(DBUS_GLIB_THREADS_LIBS) \
 	$(DBUS_GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
 	$(top_builddir)/test/lib/libtest.la \
 	$(NULL)
 
@@ -114,7 +114,7 @@ test_30574_SOURCES = \
 test_30574_LDADD = \
 	$(DBUS_GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
 	$(top_builddir)/test/lib/libtest.la \
 	$(NULL)
 

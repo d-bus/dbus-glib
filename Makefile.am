@@ -1,8 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 GLIB_PC=dbus-glib-1.pc
 
-SUBDIRS=dbus tools test doc
-DIST_SUBDIRS=dbus tools test doc m4
+SUBDIRS = dbus-gmain dbus tools test doc
+DIST_SUBDIRS = dbus-gmain dbus tools test doc m4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(GLIB_PC)

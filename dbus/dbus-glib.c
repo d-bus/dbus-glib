@@ -24,7 +24,7 @@
 #include <config.h>
 #include "dbus/dbus-glib.h"
 #include "dbus/dbus-glib-lowlevel.h"
-#include "dbus-gmain.h"
+#include "dbus-gmain/dbus-gmain.h"
 #include "dbus-gtest.h"
 #include "dbus-gutils.h"
 #include "dbus-gvalue.h"

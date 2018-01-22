@@ -1,7 +1,7 @@
 #include <config.h>
 
 #include <glib.h>
-#include <dbus/dbus-gmain.h>
+#include <dbus-gmain/dbus-gmain.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

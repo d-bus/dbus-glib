@@ -27,7 +27,8 @@
  */
 
 #include <config.h>
-#include <dbus/dbus-gmain.h>
+
+#include <dbus-gmain/dbus-gmain.h>
 
 /*
  * DBusGMessageQueue:

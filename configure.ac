@@ -290,6 +290,7 @@ doc/reference/version.xml
 dbus/Makefile
 dbus/examples/Makefile
 dbus/examples/statemachine/Makefile
+dbus-gmain/Makefile
 test/Makefile
 test/core/Makefile
 test/interfaces/Makefile
