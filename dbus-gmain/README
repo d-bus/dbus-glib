@@ -1,0 +1,15 @@
+dbus-gmain - GLib main loop integration for libdbus
+===================================================
+
+This directory contains GLib main loop integration for libdbus, salvaged
+from dbus-glib. At the moment it is designed to be bundled in other
+projects using the `git subtree` or `git submodule` commands.
+
+Please do not use this module unless you really need it. The majority
+of GLib-based D-Bus users would be better off using GDBus, part of GLib,
+instead of the low-level APIs provided by libdbus. In particular, the
+combination of dbus-gmain and libdbus is known to have thread-safety
+issues.
+
+However, using this module is still better than using dbus-glib; the
+rest of dbus-glib mostly consists of design flaws.
