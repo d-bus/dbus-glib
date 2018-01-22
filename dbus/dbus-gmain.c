@@ -1,8 +1,12 @@
 /* -*- mode: C; c-file-style: "gnu" -*- */
 /* dbus-gmain.c GLib main loop integration
  *
- * Copyright (C) 2002, 2003 CodeFactory AB
- * Copyright (C) 2005 Red Hat, Inc.
+ * Copyright © 2002-2003 CodeFactory AB
+ * Copyright © 2002-2010 Red Hat, Inc.
+ * Copyright © 2003 James Willcox
+ * Copyright © 2006 Marc-Andre Lureau
+ * Copyright © 2006-2018 Collabora Ltd.
+ * Copyright © 2010-2012 Mike Gorse
  *
  * Licensed under the Academic Free License version 2.1
  * 
