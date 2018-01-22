@@ -278,6 +278,10 @@ DBUS_GLIB_TOOL_LIBS="$XML_LIBS"
 AC_SUBST(DBUS_GLIB_TOOL_CFLAGS)
 AC_SUBST(DBUS_GLIB_TOOL_LIBS)
 
+AC_ARG_VAR([DBUS_RUN_SESSION],
+  [The dbus-run-session tool from dbus 1.8 or later])
+AC_PATH_PROG([DBUS_RUN_SESSION], [dbus-run-session], [dbus-run-session])
+
 ### gtk-doc Documentation
 GTK_DOC_CHECK([1.14], [--flavour no-tmpl])
 
@@ -297,7 +301,6 @@ test/interfaces/Makefile
 test/data/valid-service-files/debug-glib.service
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/interfaces-test.service
-test/lib/Makefile
 tools/Makefile
 dbus-glib-1.pc
 dbus-glib-1-uninstalled.pc

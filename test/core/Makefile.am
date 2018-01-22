@@ -12,7 +12,7 @@ LDADD = \
 	$(DBUS_GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(top_builddir)/dbus/libdbus-glib-1.la \
-	$(top_builddir)/test/lib/libtest.la \
+	$(top_builddir)/dbus-gmain/tests/libtest.la \
 	$(NULL)
 
 tool_ldadd = \
@@ -55,42 +55,17 @@ EXTRA_DIST = \
 
 if DBUS_BUILD_TESTS
 
-THREAD_APPS=test-thread-server test-thread-client test-profile
-
-test_thread_server_SOURCES=				\
-	test-thread-server.c				\
-	test-thread.h
-test_thread_server_LDADD = \
-	$(DBUS_GLIB_THREADS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
-	$(DBUS_LIBS) \
-	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
-	$(top_builddir)/test/lib/libtest.la \
-	$(NULL)
-
-test_thread_client_SOURCES=				\
-	test-thread-client.c				\
-	test-thread.h
-test_thread_client_LDADD = \
-	$(DBUS_GLIB_THREADS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
-	$(DBUS_LIBS) \
-	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
-	$(top_builddir)/test/lib/libtest.la \
-	$(NULL)
-
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
 noinst_PROGRAMS = \
 	test-dbus-glib \
 	test-error-mapping \
 	test-service-glib \
-	$(THREAD_APPS) \
+	test-profile \
 	manual/test-invalid-usage \
 	peer-server \
 	peer-client \
 	test-types \
-	test-30574 \
 	test-private \
 	test-peer-on-bus \
 	test-proxy-noc \
@@ -107,15 +82,6 @@ manual_test_invalid_usage_SOURCES = \
 	manual/invalid-usage.c \
 	my-object.c \
 	my-object.h \
-	$(NULL)
-
-test_30574_SOURCES = \
-	30574.c
-test_30574_LDADD = \
-	$(DBUS_GLIB_LIBS) \
-	$(DBUS_LIBS) \
-	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
-	$(top_builddir)/test/lib/libtest.la \
 	$(NULL)
 
 test_private_SOURCES = \

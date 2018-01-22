@@ -38,7 +38,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "my-object.h"
-#include "test/lib/util.h"
+#include "dbus-gmain/tests/util.h"
 
 GMainLoop *loop = NULL;
 

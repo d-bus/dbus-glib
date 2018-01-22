@@ -11,7 +11,7 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include "test/lib/util.h"
+#include "dbus-gmain/tests/util.h"
 
 static gboolean
 make_recursive_stringify_call (int recursion_depth, 

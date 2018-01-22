@@ -5,7 +5,7 @@
 #include <dbus/dbus.h>
 #include <glib.h>
 #include <dbus-gmain/dbus-gmain.h>
-#include "test/lib/util.h"
+#include "util.h"
 
 DBusConnection *bus;
 GMainContext *main_context;

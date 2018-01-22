@@ -13,7 +13,7 @@
 #include "test-dup-prop-a-bindings.h"
 #include "test-dup-prop-b-bindings.h"
 
-#include "test/lib/util.h"
+#include "dbus-gmain/tests/util.h"
 
 #define TEST_NAMESPACE "org.freedesktop.DBus.GLib.Test.Interfaces"
 #define TEST_OBJECT_PATH "/org/freedesktop/DBus/GLib/Test/Interfaces"
