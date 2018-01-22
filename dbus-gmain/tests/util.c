@@ -1,6 +1,6 @@
 /* Regression test utilities
  *
- * Copyright © 2009 Collabora Ltd. <http://www.collabora.co.uk/>
+ * Copyright © 2009-2018 Collabora Ltd. <http://www.collabora.co.uk/>
  * Copyright © 2009-2011 Nokia Corporation
  *
  * Licensed under the Academic Free License version 2.1
