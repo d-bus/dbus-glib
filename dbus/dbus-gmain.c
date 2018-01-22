@@ -508,7 +508,7 @@ connection_setup_new_from_old (GMainContext    *context,
 }
 
 /**
- * dbus_connection_setup_with_g_main:
+ * dbus_gmain_set_up_connection:
  * @connection: the connection
  * @context: the #GMainContext or %NULL for default context
  *
@@ -521,12 +521,10 @@ connection_setup_new_from_old (GMainContext    *context,
  * time. If called once with context A and once with context B,
  * context B replaces context A as the context monitoring the
  * connection.
- *
- * Deprecated: New code should use GDBus instead.
  */
 void
-dbus_connection_setup_with_g_main (DBusConnection *connection,
-				   GMainContext   *context)
+dbus_gmain_set_up_connection (DBusConnection *connection,
+                              GMainContext   *context)
 {
   ConnectionSetup *old_setup;
   ConnectionSetup *cs;
@@ -588,7 +586,7 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
 }
 
 /**
- * dbus_server_setup_with_g_main:
+ * dbus_gmain_set_up_server:
  * @server: the server
  * @context: the #GMainContext or %NULL for default
  *
@@ -600,12 +598,10 @@ dbus_connection_setup_with_g_main (DBusConnection *connection,
  * time. If called once with context A and once with context B,
  * context B replaces context A as the context monitoring the
  * connection.
- *
- * Deprecated: New code should use GDBus instead.
  */
 void
-dbus_server_setup_with_g_main (DBusServer   *server,
-                               GMainContext *context)
+dbus_gmain_set_up_server (DBusServer   *server,
+                          GMainContext *context)
 {
   ConnectionSetup *old_setup;
   ConnectionSetup *cs;

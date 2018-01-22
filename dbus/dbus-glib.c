@@ -24,6 +24,7 @@
 #include <config.h>
 #include "dbus/dbus-glib.h"
 #include "dbus/dbus-glib-lowlevel.h"
+#include "dbus-gmain.h"
 #include "dbus-gtest.h"
 #include "dbus-gutils.h"
 #include "dbus-gvalue.h"
@@ -588,4 +589,51 @@ dbus_g_bus_get_private (DBusBusType     type,
   dbus_connection_setup_with_g_main (connection, context);
 
   return DBUS_G_CONNECTION_FROM_CONNECTION (connection);
+}
+
+/**
+ * dbus_connection_setup_with_g_main:
+ * @connection: the connection
+ * @context: the #GMainContext or %NULL for default context
+ *
+ * Sets the watch and timeout functions of a #DBusConnection
+ * to integrate the connection with the GLib main loop.
+ * Pass in %NULL for the #GMainContext unless you're
+ * doing something specialized.
+ *
+ * If called twice for the same context, does nothing the second
+ * time. If called once with context A and once with context B,
+ * context B replaces context A as the context monitoring the
+ * connection.
+ *
+ * Deprecated: New code should use GDBus instead.
+ */
+void
+dbus_connection_setup_with_g_main (DBusConnection  *connection,
+                                   GMainContext    *context)
+{
+  dbus_gmain_set_up_connection (connection, context);
+}
+
+/**
+ * dbus_server_setup_with_g_main:
+ * @server: the server
+ * @context: the #GMainContext or %NULL for default
+ *
+ * Sets the watch and timeout functions of a #DBusServer
+ * to integrate the server with the GLib main loop.
+ * In most cases the context argument should be %NULL.
+ *
+ * If called twice for the same context, does nothing the second
+ * time. If called once with context A and once with context B,
+ * context B replaces context A as the context monitoring the
+ * connection.
+ *
+ * Deprecated: New code should use GDBus instead.
+ */
+void
+dbus_server_setup_with_g_main     (DBusServer      *server,
+                                   GMainContext    *context)
+{
+  dbus_gmain_set_up_server (server, context);
 }

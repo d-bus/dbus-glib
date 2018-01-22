@@ -82,7 +82,7 @@ main (int argc, char *argv[])
       return 1;
     }
 
-  dbus_connection_setup_with_g_main (connection, NULL);
+  dbus_gmain_set_up_connection (connection, NULL);
 
   for (i = 0; i < N_TEST_THREADS; i++)
     {

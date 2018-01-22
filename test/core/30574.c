@@ -22,7 +22,7 @@ set_reply (DBusPendingCall * pending, void *user_data)
   SpiReentrantCallClosure* closure = (SpiReentrantCallClosure *) user_data;
 
   closure->reply = dbus_pending_call_steal_reply (pending);
-  dbus_connection_setup_with_g_main (bus, NULL);
+  dbus_gmain_set_up_connection (bus, NULL);
 
   g_main_loop_quit (closure->loop);
 }
@@ -35,17 +35,17 @@ send_and_allow_reentry (DBusConnection * bus, DBusMessage * message,
   SpiReentrantCallClosure closure;
 
   closure.loop = g_main_loop_new (main_context, FALSE);
-  dbus_connection_setup_with_g_main (bus, (switch_after_send ? NULL :
+  dbus_gmain_set_up_connection (bus, (switch_after_send ? NULL :
                                                                main_context));
 
   if (!dbus_connection_send_with_reply (bus, message, &pending, 3000))
     {
-  dbus_connection_setup_with_g_main (bus, NULL);
+  dbus_gmain_set_up_connection (bus, NULL);
       return NULL;
     }
   dbus_pending_call_set_notify (pending, set_reply, (void *) &closure, NULL);
   if (switch_after_send)
-    dbus_connection_setup_with_g_main (bus, main_context);
+    dbus_gmain_set_up_connection (bus, main_context);
   g_main_loop_run  (closure.loop);
 
   g_main_loop_unref (closure.loop);
@@ -99,7 +99,7 @@ main(int argc, const char *argv[])
     fprintf(stderr, "Couldn't connect to bus: %s\n", error.name);
     return 1;
   }
-  dbus_connection_setup_with_g_main (bus, NULL);
+  dbus_gmain_set_up_connection (bus, NULL);
   send_test_message (FALSE);
   send_test_message (FALSE);
   send_test_message (TRUE);

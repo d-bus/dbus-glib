@@ -27,6 +27,7 @@ DBUS_GLIB_INTERNALS = \
 libdbus_glib_1_la_SOURCES = 			\
 	dbus-glib.c				\
 	dbus-gmain.c				\
+	dbus-gmain.h				\
 	dbus-gmarshal.c				\
 	dbus-gmarshal.h				\
 	dbus-gobject.c				\
@@ -45,7 +46,6 @@ libdbus_glib_HEADERS =                  \
         dbus-gvalue-parse-variant.h	\
 	dbus-glib.h			\
 	dbus-glib-lowlevel.h		\
-	dbus-gmain.h			\
 	$(NULL)
 
 libdbus_glibdir = $(includedir)/dbus-1.0/dbus

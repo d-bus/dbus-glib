@@ -154,7 +154,7 @@ new_connection_callback (DBusServer     *server,
   g_print ("new_connection_callback\n");
   
   dbus_connection_ref (new_connection);
-  dbus_connection_setup_with_g_main (new_connection, NULL);
+  dbus_gmain_set_up_connection (new_connection, NULL);
 
   data = thread_test_data_new ();
   
@@ -200,7 +200,7 @@ main (int argc, char *argv[])
                                            new_connection_callback,
                                            NULL, NULL);
 
-  dbus_server_setup_with_g_main (server, NULL);
+  dbus_gmain_set_up_server (server, NULL);
   
   loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);  

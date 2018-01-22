@@ -25,7 +25,6 @@
 #define DBUS_GLIB_LOWLEVEL_H
 
 #include <dbus/dbus-glib.h>
-#include <dbus/dbus-gmain.h>
 #include <dbus/dbus.h>
 
 G_BEGIN_DECLS
@@ -37,6 +36,11 @@ void dbus_set_g_error (GError   **gerror,
 #define DBUS_TYPE_MESSAGE         (dbus_message_get_g_type ())
 GType dbus_connection_get_g_type   (void) G_GNUC_CONST;
 GType dbus_message_get_g_type      (void) G_GNUC_CONST;
+
+void            dbus_connection_setup_with_g_main (DBusConnection  *connection,
+                                                   GMainContext    *context);
+void            dbus_server_setup_with_g_main     (DBusServer      *server,
+                                                   GMainContext    *context);
 
 void dbus_g_proxy_send (DBusGProxy    *proxy,
                         DBusMessage   *message,

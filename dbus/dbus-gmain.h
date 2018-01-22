@@ -29,14 +29,17 @@
 
 G_BEGIN_DECLS
 
-void            dbus_connection_setup_with_g_main (DBusConnection  *connection,
-                                                   GMainContext    *context);
-void            dbus_server_setup_with_g_main     (DBusServer      *server,
-                                                   GMainContext    *context);
+G_GNUC_INTERNAL
+void            dbus_gmain_set_up_connection (DBusConnection  *connection,
+                                              GMainContext    *context);
+
+G_GNUC_INTERNAL
+void            dbus_gmain_set_up_server     (DBusServer      *server,
+                                              GMainContext    *context);
 
 G_END_DECLS
 
-#endif /* DBUS_GLIB_LOWLEVEL_H */
+#endif /* DBUS_GMAIN_H */
 
 
 
