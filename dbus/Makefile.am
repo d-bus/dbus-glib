@@ -10,6 +10,7 @@ AM_CPPFLAGS = \
 	-DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\" 
 
 lib_LTLIBRARIES=libdbus-glib-1.la
+noinst_LTLIBRARIES = libdbus-gmain.la
 
 CLEANFILES = $(BUILT_SOURCES)
 
@@ -23,6 +24,11 @@ DBUS_GLIB_INTERNALS = \
 	dbus-gvalue.h				\
 	dbus-gvalue-utils.c			\
 	dbus-gvalue-utils.h
+
+libdbus_gmain_la_SOURCES = 			\
+	dbus-gmain.c				\
+	dbus-gmain.h				\
+	$(NULL)
 
 libdbus_glib_1_la_SOURCES = 			\
 	dbus-glib.c				\
@@ -55,8 +61,11 @@ libdbus_glib_1_la_LIBADD= $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
 ## convention for internal symbols)
 libdbus_glib_1_la_LDFLAGS= -export-symbols-regex "^[^_].*" -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -no-undefined
 
+libdbus_gmain_la_LIBADD = $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
+libdbus_gmain_la_LDFLAGS = -no-undefined
+
 # convenience lib used here and by dbus-viewer
-noinst_LTLIBRARIES=libdbus-gtool.la
+noinst_LTLIBRARIES += libdbus-gtool.la
 
 libdbus_gtool_la_SOURCES = $(DBUS_GLIB_INTERNALS) \
 	dbus-gidl.c				\

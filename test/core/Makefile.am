@@ -60,10 +60,24 @@ THREAD_APPS=test-thread-server test-thread-client test-profile
 test_thread_server_SOURCES=				\
 	test-thread-server.c				\
 	test-thread.h
+test_thread_server_LDADD = \
+	$(DBUS_GLIB_THREADS_LIBS) \
+	$(DBUS_GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/test/lib/libtest.la \
+	$(NULL)
 
 test_thread_client_SOURCES=				\
 	test-thread-client.c				\
 	test-thread.h
+test_thread_client_LDADD = \
+	$(DBUS_GLIB_THREADS_LIBS) \
+	$(DBUS_GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/test/lib/libtest.la \
+	$(NULL)
 
 ## we use noinst_PROGRAMS not check_PROGRAMS for TESTS so that we
 ## build even when not doing "make check"
@@ -97,6 +111,12 @@ manual_test_invalid_usage_SOURCES = \
 
 test_30574_SOURCES = \
 	30574.c
+test_30574_LDADD = \
+	$(DBUS_GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_builddir)/dbus/libdbus-gmain.la \
+	$(top_builddir)/test/lib/libtest.la \
+	$(NULL)
 
 test_private_SOURCES = \
 	my-object.c \
