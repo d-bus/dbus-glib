@@ -4,12 +4,12 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)			\
 	-I$(top_builddir)/dbus			\
 	$(DBUS_CFLAGS)				\
-	$(DBUS_GLIB_CFLAGS)			\
+	$(GLIB_CFLAGS)				\
 	-DDBUS_COMPILATION
 
 LDADD = \
-	$(DBUS_GLIB_THREADS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_THREADS_LIBS) \
+	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(top_builddir)/dbus/libdbus-glib-1.la \
 	$(top_builddir)/dbus-gmain/tests/libtest.la \

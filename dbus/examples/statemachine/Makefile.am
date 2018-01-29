@@ -3,12 +3,12 @@ AM_CPPFLAGS = \
 	-I$(top_builddir)			\
 	-I$(top_builddir)/dbus			\
 	$(DBUS_CFLAGS)				\
-	$(DBUS_GLIB_CFLAGS)			\
+	$(GLIB_CFLAGS)				\
 	$(DBUS_GTK_THREADS_CFLAGS)		\
 	-DDBUS_COMPILATION
 
 LDADD = $(top_builddir)/dbus/libdbus-glib-1.la \
-	$(DBUS_GLIB_LIBS)
+	$(GLIB_LIBS)
 
 ## Makefile.am bits for sample client/server pair
 

@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)						\
 	-I$(top_builddir)					\
 	$(DBUS_CFLAGS)						\
-	$(DBUS_GLIB_CFLAGS)					\
+	$(GLIB_CFLAGS)					\
 	$(DBUS_GLIB_TOOL_CFLAGS)				\
 	-DDBUS_COMPILATION=1					\
 	-DDBUS_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\" 
@@ -51,7 +51,7 @@ libdbus_glibdir = $(includedir)/dbus-1.0/dbus
 libdbus_glib_1_la_LIBADD = \
 	$(top_builddir)/dbus-gmain/libdbus-gmain.la \
 	$(DBUS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 ## don't export symbols that start with "_" (we use this 
 ## convention for internal symbols)
@@ -70,7 +70,7 @@ libdbus_gtool_la_SOURCES = $(DBUS_GLIB_INTERNALS) \
 libdbus_gtool_la_LIBADD = \
 	-lexpat \
 	$(DBUS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_LIBS) \
 	libdbus-glib-1.la \
 	$(NULL)
 
@@ -82,7 +82,7 @@ dbus_binding_tool_SOURCES =			\
 	dbus-glib-tool.h			\
 	dbus-glib-tool.c
 
-dbus_binding_tool_LDADD= $(builddir)/libdbus-gtool.la $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS) -lexpat
+dbus_binding_tool_LDADD= $(builddir)/libdbus-gtool.la $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(GLIB_LIBS) -lexpat
 
 ## we just rebuilt these manually and check them into cvs; easier than
 ## convincing automake/make to do this properly
@@ -105,7 +105,7 @@ CLEANFILES += dbus-bash-completion.sh
 
 dbus_bash_completion_helper_SOURCES =                 	\
 	dbus-bash-completion-helper.c
-dbus_bash_completion_helper_LDADD=$(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
+dbus_bash_completion_helper_LDADD=$(builddir)/libdbus-gtool.la -lexpat $(builddir)/libdbus-glib-1.la $(DBUS_LIBS) $(GLIB_LIBS)
 
 
 EXTRA_DIST=dbus-gmarshal.list dbus-bash-completion.sh.in
