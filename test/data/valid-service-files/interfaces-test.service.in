@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.freedesktop.DBus.GLib.Test.Interfaces
-Exec=@abs_top_builddir@/test/interfaces/test-service@EXEEXT@

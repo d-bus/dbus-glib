@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.freedesktop.DBus.GLib.TestEchoService
-Exec=@abs_top_builddir@/test/test-service@EXEEXT@
