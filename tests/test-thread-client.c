@@ -110,7 +110,7 @@ main (int argc, char *argv[])
 
   for (i = 0; i < N_TEST_THREADS; i++)
     {
-      g_thread_create (thread_func, GINT_TO_POINTER (i), FALSE, NULL);
+      g_thread_new ("client thread", thread_func, GINT_TO_POINTER (i));
     }
 
   loop = g_main_loop_new (NULL, FALSE);
