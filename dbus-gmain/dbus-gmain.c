@@ -525,9 +525,9 @@ connection_setup_new_from_old (GMainContext    *context,
  * context B replaces context A as the context monitoring the
  * connection.
  */
-void
-dbus_gmain_set_up_connection (DBusConnection *connection,
-                              GMainContext   *context)
+DBUS_GMAIN_FUNCTION (void,
+set_up_connection, DBusConnection *connection,
+                   GMainContext   *context)
 {
   ConnectionSetup *old_setup;
   ConnectionSetup *cs;
@@ -602,9 +602,9 @@ dbus_gmain_set_up_connection (DBusConnection *connection,
  * context B replaces context A as the context monitoring the
  * connection.
  */
-void
-dbus_gmain_set_up_server (DBusServer   *server,
-                          GMainContext *context)
+DBUS_GMAIN_FUNCTION (void,
+set_up_server, DBusServer   *server,
+               GMainContext *context)
 {
   ConnectionSetup *old_setup;
   ConnectionSetup *cs;

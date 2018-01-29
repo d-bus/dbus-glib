@@ -612,7 +612,7 @@ void
 dbus_connection_setup_with_g_main (DBusConnection  *connection,
                                    GMainContext    *context)
 {
-  dbus_gmain_set_up_connection (connection, context);
+  _dbus_g_set_up_connection (connection, context);
 }
 
 /**
@@ -635,5 +635,5 @@ void
 dbus_server_setup_with_g_main     (DBusServer      *server,
                                    GMainContext    *context)
 {
-  dbus_gmain_set_up_server (server, context);
+  _dbus_g_set_up_server (server, context);
 }

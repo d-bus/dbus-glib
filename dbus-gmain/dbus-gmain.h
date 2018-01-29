@@ -24,18 +24,30 @@
 #ifndef DBUS_GMAIN_H
 #define DBUS_GMAIN_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <dbus/dbus.h>
 #include <glib.h>
 
+#ifndef DBUS_GMAIN_FUNCTION_NAME
+# define DBUS_GMAIN_FUNCTION_NAME(name) dbus_gmain_ ## name
+#endif
+
+#ifndef DBUS_GMAIN_FUNCTION
+# define DBUS_GMAIN_FUNCTION(ret, name, ...) \
+  G_GNUC_INTERNAL ret DBUS_GMAIN_FUNCTION_NAME (name) (__VA_ARGS__)
+#endif
+
 G_BEGIN_DECLS
 
-G_GNUC_INTERNAL
-void            dbus_gmain_set_up_connection (DBusConnection  *connection,
-                                              GMainContext    *context);
-
-G_GNUC_INTERNAL
-void            dbus_gmain_set_up_server     (DBusServer      *server,
-                                              GMainContext    *context);
+DBUS_GMAIN_FUNCTION (void, set_up_connection,
+                     DBusConnection *connection,
+                     GMainContext *context);
+DBUS_GMAIN_FUNCTION (void, set_up_server,
+                     DBusServer *server,
+                     GMainContext *context);
 
 G_END_DECLS
 

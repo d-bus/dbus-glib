@@ -285,6 +285,11 @@ AC_PATH_PROG([DBUS_RUN_SESSION], [dbus-run-session], [dbus-run-session])
 ### gtk-doc Documentation
 GTK_DOC_CHECK([1.14], [--flavour no-tmpl])
 
+# Make dbus-gmain submodule part of dbus-glib's namespace
+AH_BOTTOM([
+#define DBUS_GMAIN_FUNCTION_NAME(name) _dbus_g_ ## name
+])
+
 AC_CONFIG_FILES([
 Makefile
 m4/Makefile

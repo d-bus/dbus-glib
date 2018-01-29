@@ -106,7 +106,7 @@ main (int argc, char *argv[])
       return 1;
     }
 
-  dbus_gmain_set_up_connection (connection, NULL);
+  DBUS_GMAIN_FUNCTION_NAME (set_up_connection) (connection, NULL);
 
   for (i = 0; i < N_TEST_THREADS; i++)
     {
