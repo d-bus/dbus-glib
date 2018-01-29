@@ -20,6 +20,14 @@ test, test-dbus-glib.c.
 
 Run "make check" to run the test suite.
 
+= dbus-gmain =
+
+dbus-gmain is maintained via `git subtree`. To update, assuming you have
+a checkout of the dbus-gmain branch of the dbus-glib repository in
+../dbus-gmain:
+
+    git subtree pull -P dbus-gmain ../dbus-gmain HEAD
+
 = Committing =
 
 If applying a patch from someone else that created them via 
