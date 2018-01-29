@@ -9,7 +9,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_builddir) \
 	$(DBUS_CFLAGS) \
-	$(DBUS_GLIB_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 noinst_LTLIBRARIES = \
@@ -22,7 +22,7 @@ libdbus_gmain_la_SOURCES = \
 	dbus-gmain.h \
 	$(NULL)
 
-libdbus_gmain_la_LIBADD = $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
+libdbus_gmain_la_LIBADD = $(DBUS_LIBS) $(GLIB_LIBS)
 libdbus_gmain_la_LDFLAGS = -no-undefined
 
 tests_libtest_la_SOURCES = \
@@ -30,7 +30,7 @@ tests_libtest_la_SOURCES = \
 	tests/util.h \
 	$(NULL)
 
-tests_libtest_la_LIBADD = $(DBUS_LIBS) $(DBUS_GLIB_LIBS)
+tests_libtest_la_LIBADD = $(DBUS_LIBS) $(GLIB_LIBS)
 tests_libtest_la_LDFLAGS = -no-undefined
 
 TESTS = \
@@ -50,8 +50,8 @@ tests_test_thread_server_SOURCES = \
 tests_test_thread_server_LDADD = \
 	libdbus-gmain.la \
 	tests/libtest.la \
-	$(DBUS_GLIB_THREADS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_THREADS_LIBS) \
+	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(NULL)
 
@@ -62,8 +62,8 @@ tests_test_thread_client_SOURCES = \
 tests_test_thread_client_LDADD = \
 	libdbus-gmain.la \
 	tests/libtest.la \
-	$(DBUS_GLIB_THREADS_LIBS) \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_THREADS_LIBS) \
+	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(NULL)
 
@@ -73,7 +73,7 @@ tests_test_30574_SOURCES = \
 tests_test_30574_LDADD = \
 	libdbus-gmain.la \
 	tests/libtest.la \
-	$(DBUS_GLIB_LIBS) \
+	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(NULL)
 
