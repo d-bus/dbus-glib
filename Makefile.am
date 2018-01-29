@@ -1,3 +1,10 @@
+EXTRA_DIST = \
+	AUTHORS \
+	CONTRIBUTING \
+	COPYING \
+	README \
+	$(NULL)
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_builddir) \
