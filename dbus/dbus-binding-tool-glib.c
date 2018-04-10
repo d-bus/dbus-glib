@@ -870,11 +870,13 @@ dbus_binding_tool_output_glib_server (BaseInfo *info, GIOChannel *channel, const
       ret = FALSE;
       g_io_channel_shutdown (data.channel, TRUE, error);
       g_io_channel_unref (data.channel);
+      data.channel = NULL;
       goto io_lose;
     }
 
   g_io_channel_shutdown (data.channel, TRUE, error);
   g_io_channel_unref (data.channel);
+  data.channel = NULL;
   
   /* Now spawn glib-genmarshal to insert all our required marshallers */
   argv = g_ptr_array_new ();
