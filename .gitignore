@@ -7,10 +7,13 @@
 *~
 .deps/
 .libs/
+/Makefile
+/Makefile.in
 /libdbus-gmain.la
+/test-suite.log
+/tests/*.log
+/tests/*.trs
 /tests/libtest.la
 /tests/test-30574
 /tests/test-thread-client
 /tests/test-thread-server
-/Makefile
-/Makefile.in
