@@ -6,7 +6,7 @@ AC_INIT([dbus-glib], [0.111],
 
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([1.9 subdir-objects])
+AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 
 AC_CONFIG_HEADERS(config.h)
 

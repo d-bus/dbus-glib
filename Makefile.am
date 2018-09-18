@@ -18,25 +18,7 @@ EXTRA_DIST =			\
 
 # Creating ChangeLog from git log:
 
-MAINTAINERCLEANFILES = ChangeLog
-
 DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-checks --enable-tests
-EXTRA_DIST += ChangeLog
-
-ChangeLog:
-$(srcdir)/ChangeLog:
-	@if test -d "$(srcdir)/.git"; then \
-	  (cd "$(srcdir)" && \
-	  ./missing --run git log --stat) | fmt --split-only > $@.tmp \
-	  && mv -f $@.tmp $@ \
-	  || ($(RM) $@.tmp; \
-	      echo Failed to generate ChangeLog, your ChangeLog may be outdated >&2; \
-	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
-	else \
-	  test -f $@ || \
-	  (echo A git checkout and git log are required to generate ChangeLog >&2 && \
-	  echo A git checkout and git-log are required to generate this file >> $@); \
-	fi
 
 %.tar.gz.asc: %.tar.gz
 	$(AM_V_GEN)gpg --detach-sign --armor $@
