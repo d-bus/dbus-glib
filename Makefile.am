@@ -11,7 +11,7 @@ DISTCLEANFILES = 		\
 	$(GLIB_PC)
 
 EXTRA_DIST =			\
-	HACKING			\
+	CONTRIBUTING.md		\
 	NEWS			\
 	dbus-bus-introspect.xml \
 	dbus-glib-1.pc.in
