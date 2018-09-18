@@ -2602,6 +2602,8 @@ dbus_g_error_info_free (gpointer p)
  * @stability: Stable
  *
  * FIXME
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**

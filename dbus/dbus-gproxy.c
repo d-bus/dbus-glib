@@ -1500,7 +1500,7 @@ dbus_g_proxy_class_init (DBusGProxyClass *klass)
  * DBusGProxy::destroy:
  * @dbusgproxy: the object which received the signal.
  *
- *
+ * Deprecated: New code should use #GDBusProxy instead.
  */
   signals[DESTROY] =
     g_signal_new ("destroy",
@@ -1515,7 +1515,7 @@ dbus_g_proxy_class_init (DBusGProxyClass *klass)
  * DBusGProxy::received:
  * @dbusgproxy: the object which received the signal.
  *
- *
+ * Deprecated: New code should use #GDBusProxy instead.
  */
   signals[RECEIVED] =
     g_signal_new ("received",
@@ -1942,6 +1942,8 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  *
  * A #DBusGProxy is a #GObject representing a remote object in a D-Bus
  * service.
+ *
+ * Deprecated: New code should use #GDBusProxy instead.
  */
 
 /**
@@ -1968,6 +1970,8 @@ manager_begin_bus_call (DBusGProxyManager    *manager,
  * Standard GObject get_type() function for DBusGProxy.
  *
  * Returns: type ID for DBusGProxy class
+ *
+ * Deprecated: New code should use #GDBusProxy instead.
  */
 GType
 dbus_g_proxy_get_type (void)

@@ -39,6 +39,9 @@
  * @stability: Stable
  *
  * A #DBusGConnection is a boxed type abstracting a DBusConnection.
+ *
+ * Deprecated: New code should use #GDBusConnection from the GIO library,
+ *  which is not based on libdbus or dbus-glib.
  */
 
 /**
@@ -113,6 +116,8 @@ dbus_g_connection_unref (DBusGConnection *connection)
  * @stability: Stable
  *
  * A #DBusGMessage is a boxed type abstracting a DBusMessage.
+ *
+ * Deprecated: New code should use #GDBusMessage instead.
  */
 
 /**
@@ -169,6 +174,8 @@ dbus_g_message_unref (DBusGMessage *message)
  * @stability: Stable
  *
  * #DBusGError is the #GError used by DBus.
+ *
+ * Deprecated: New code should use GDBus and its #GDBusError enum instead.
  */
 
 /**
@@ -352,6 +359,8 @@ dbus_g_message_get_g_type (void)
  * @stability: Unstable
  *
  * These functions can be used to access lower level of DBus.
+ *
+ * Deprecated: New code should use GDBus instead.
  */
 
 /**
@@ -607,6 +616,8 @@ dbus_g_bus_get_private (DBusBusType     type,
  * connection.
  *
  * Deprecated: New code should use GDBus instead.
+ *  Modules that need to connect `libdbus` to a GLib main loop should
+ *  use the dbus-gmain submodule via `git subtree` or `git submodule`.
  */
 void
 dbus_connection_setup_with_g_main (DBusConnection  *connection,
@@ -630,6 +641,8 @@ dbus_connection_setup_with_g_main (DBusConnection  *connection,
  * connection.
  *
  * Deprecated: New code should use GDBus instead.
+ *  Modules that need to connect `libdbus` to a GLib main loop should
+ *  use the dbus-gmain submodule via `git subtree` or `git submodule`.
  */
 void
 dbus_server_setup_with_g_main     (DBusServer      *server,
