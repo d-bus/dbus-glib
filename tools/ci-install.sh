@@ -112,10 +112,11 @@ case "$ci_distro" in
         case "$ci_suite" in
             (trusty|jessie)
                 # Ubuntu 14.04's autoconf-archive is too old, and older
-                # gnome-common has files in common with it
+                # gnome-common has files in common with it. These are
+                # from Debian 9 'stretch'.
                 wget http://deb.debian.org/debian/pool/main/a/autoconf-archive/autoconf-archive_20160916-1_all.deb
                 wget http://deb.debian.org/debian/pool/main/g/gnome-common/gnome-common_3.18.0-3_all.deb
-                $sudo dpkg -i --auto-deconfigure autoconf-archive_*_all.deb gnome-common_*_all.deb
+                $sudo dpkg -i --auto-deconfigure gnome-common_*_all.deb autoconf-archive_*_all.deb
                 rm autoconf-archive_*_all.deb gnome-common_*_all.deb
                 ;;
         esac
