@@ -133,9 +133,6 @@ case "$ci_buildsys" in
                 set _ "$@"
                 set "$@" --enable-tests
                 shift
-                # The test coverage for OOM-safety is too
-                # verbose to be useful on travis-ci.
-                export DBUS_TEST_MALLOC_FAILURES=0
                 ;;
 
             (*)
