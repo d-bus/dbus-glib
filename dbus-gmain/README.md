@@ -24,26 +24,28 @@ dbus-gmain requires GLib >= 2.40. This can be reduced to 2.32, or
 probably older, if you don't build the tests.
 
 If you use the included Makefile.am (which requires building the tests),
-you must check for libdbus via pkg-config using the prefix "DBUS", check
+you must check for libdbus via pkg-config using the prefix `DBUS`, check
 for GLib (and optionally gobject and gio) via pkg-config using the prefix
-"GLIB", and check for DBUS_RUN_SESSION for the tests:
+`GLIB`, and check for `DBUS_RUN_SESSION` for the tests:
 
+```
 PKG_CHECK_MODULES([DBUS], [dbus-1 >= 1.8])
 PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.40])
 AC_ARG_VAR([DBUS_RUN_SESSION],
   [The dbus-run-session tool from dbus 1.8 or later])
 AC_PATH_PROG([DBUS_RUN_SESSION], [dbus-run-session], [dbus-run-session])
+```
 
 Alternatively, you can include dbus-gmain.[ch] among the source files for
 some executable or library.
 
-By default, dbus-gmain declares its functions in the dbus_gmain_*
-namespace. To change this, define DBUS_GMAIN_FUNCTION_NAME(name) to
+By default, dbus-gmain declares its functions in the `dbus_gmain_`\*
+namespace. To change this, define `DBUS_GMAIN_FUNCTION_NAME(name)` to
 a suitably prefixed or suffixed version of name. The default is
-"dbus_gmain_ ## name".
+`dbus_gmain_ ## name`.
 
-By default, dbus-gmain declares its functions G_GNUC_INTERNAL, so they
+By default, dbus-gmain declares its functions `G_GNUC_INTERNAL`, so they
 will not be part of your library's ABI on supported compilers. To change
-this (not recommended), define DBUS_GMAIN_FUNCTION(ret, name, ...) to
+this (not recommended), define `DBUS_GMAIN_FUNCTION(ret, name, ...)` to
 a form that includes suitable decorators. The default is
-"G_GNUC_INTERNAL ret DBUS_GMAIN_FUNCTION_NAME (name) (__VA_ARGS__)".
+`G_GNUC_INTERNAL ret DBUS_GMAIN_FUNCTION_NAME (name) (__VA_ARGS__)`.
