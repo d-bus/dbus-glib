@@ -18,7 +18,7 @@ EXTRA_DIST =			\
 
 # Creating ChangeLog from git log:
 
-DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-checks --enable-tests
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-checks --enable-tests --enable-asserts
 
 %.tar.gz.asc: %.tar.gz
 	$(AM_V_GEN)gpg --detach-sign --armor $@
