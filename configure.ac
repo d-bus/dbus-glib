@@ -4,6 +4,8 @@ AC_PREREQ(2.52)
 AC_INIT([dbus-glib], [0.111],
   [https://bugs.freedesktop.org/enter_bug.cgi?product=dbus&component=GLib])
 
+AC_CONFIG_AUX_DIR([build-aux])
+
 AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
