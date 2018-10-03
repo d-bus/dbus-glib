@@ -90,7 +90,7 @@ maybe_fail_tests () {
 # standalone.
 if ! command -v dbus-run-session >/dev/null; then
 	drsdir="$(mktemp -d -t "d-r-s.XXXXXX")"
-	curl -o "$drsdir/dbus-run-session.c" \
+	wget -O "$drsdir/dbus-run-session.c" \
 		"https://cgit.freedesktop.org/dbus/dbus/plain/tools/dbus-run-session.c?h=dbus-1.10.0"
 	sed -e 's/^	//' > "$drsdir/config.h" <<EOF
 	#include <stdlib.h>
