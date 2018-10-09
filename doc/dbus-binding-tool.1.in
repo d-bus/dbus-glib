@@ -1,13 +1,14 @@
 '\" te
 .TH dbus-binding-tool 1 "8 Oct 2018" "@PACKAGE_STRING@" "User Commands"
 .SH "NAME"
-dbus-binding-tool \- C language GLib bindings generation utility\&.
+dbus-binding-tool \- C language dbus-glib bindings generation utility\&.
 .SH "SYNOPSIS"
 .PP
 \fBdbus-binding-tool\fR [-\fB-force\fR] [-\fB-help\fR] [-\fB-ignore-unsupported\fR] [-\fB-mode=\fIpretty|glib-client|glib-server\fR\fR] [-\fB-output=\fIfile\fR\fR] [-\fB-prefix=\fIsymbol-prefix\fR\fR] [-\fB-version\fR] [\fB\fIfile\fR\fR\&...]
 .SH "DESCRIPTION"
 .PP
-\fBdbus-binding-tool\fR is used to expose a GObject via D\-Bus\&.  As input, 
+\fBdbus-binding-tool\fR is used to expose a GObject via D\-Bus\&, using
+the deprecated \fBdbus-glib\fR binding for GLib.  As input,
 \fBdbus-binding-tool\fR uses a D\-Bus Introspection XML file\&.  As output,
 the client-side or server-side bindings is generated\&.  This output is a header
 file which eases the use of a remote D\-Bus object\&.  Output is sent to standard
@@ -266,6 +267,7 @@ Executable for the D\-Bus Binding Tool application\&.
 .in -32n
 .SH "SEE ALSO"
 .PP
+\fBgdbus-codegen\fR(1),
 \fBdbus-cleanup-sockets\fR(1),
 \fBdbus-daemon\fR(1),
 \fBdbus-monitor\fR(1),
@@ -273,5 +275,16 @@ Executable for the D\-Bus Binding Tool application\&.
 \fBdbus-uuidgen\fR(1)
 .SH "NOTES"
 .PP
-Written by Brian Cameron, Sun Microsystems Inc\&., 2009\&.
+\fBdbus-binding-tool\fR is part of \fBdbus-glib\fR, which is a deprecated D-Bus
+binding for GLib.
+.PP
+dbus-glib receives minimal maintenance and security fixes for the benefit
+of projects like Telepathy and NetworkManager that still rely on it, but
+should not be used in new projects (and existing projects should try
+to move away from it, too). Please use GDBus, part of GLib since 2.26.
+.PP
+\fBgdbus-codegen\fR(1) is the GDBus replacement for \fBdbus-binding-tool\fR.
+.SH "AUTHORS"
+.PP
+Man page written by Brian Cameron, Sun Microsystems Inc\&., 2009\&.
 ...\" created by instant / solbook-to-man, Thu 26 Feb 2009, 19:15
