@@ -296,6 +296,7 @@ AC_CONFIG_FILES([
 Makefile
 m4/Makefile
 doc/Makefile
+doc/dbus-binding-tool.1
 doc/reference/Makefile
 doc/reference/version.xml
 dbus/Makefile
