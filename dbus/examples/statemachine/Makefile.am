@@ -35,11 +35,11 @@ statemachine-glue.h: statemachine.xml
 
 sm-marshal.c: Makefile sm-marshal.list
 	echo "#include <config.h>" > $@.tmp
-	@GLIB_GENMARSHAL@ --prefix=sm_marshal $(srcdir)/sm-marshal.list --header --body >> $@.tmp
+	$(GLIB_GENMARSHAL) --prefix=sm_marshal $(srcdir)/sm-marshal.list --header --body >> $@.tmp
 	mv $@.tmp $@
 
 sm-marshal.h: Makefile sm-marshal.list
-	@GLIB_GENMARSHAL@ --prefix=sm_marshal $(srcdir)/sm-marshal.list --header > $@.tmp && mv $@.tmp $@
+	$(GLIB_GENMARSHAL) --prefix=sm_marshal $(srcdir)/sm-marshal.list --header > $@.tmp && mv $@.tmp $@
 
 BUILT_SOURCES += sm-marshal.c sm-marshal.h
 

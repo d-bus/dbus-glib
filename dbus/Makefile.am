@@ -87,10 +87,10 @@ dbus_binding_tool_LDADD= $(builddir)/libdbus-gtool.la $(builddir)/libdbus-glib-1
 ## we just rebuilt these manually and check them into cvs; easier than
 ## convincing automake/make to do this properly
 regenerate-built-sources:
-	@GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --header > dbus-gmarshal.h && \
+	$(GLIB_GENMARSHAL) --prefix=_dbus_g_marshal dbus-gmarshal.list --header > dbus-gmarshal.h && \
 	echo '#include <config.h>' > dbus-gmarshal.c &&						    \
 	echo '#include "dbus-gmarshal.h"' >> dbus-gmarshal.c &&					    \
-        @GLIB_GENMARSHAL@ --prefix=_dbus_g_marshal dbus-gmarshal.list --body >> dbus-gmarshal.c
+        $(GLIB_GENMARSHAL) --prefix=_dbus_g_marshal dbus-gmarshal.list --body >> dbus-gmarshal.c
 
 
 completiondir = $(sysconfdir)/bash_completion.d
