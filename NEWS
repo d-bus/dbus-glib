@@ -1,9 +1,54 @@
 dbus-glib is deprecated, please use GDBus in new GLib-based projects.
 
-dbus-glib 0.111 (UNRELEASED)
+dbus-glib 0.112 (UNRELEASED)
 ============================
 
-...
+dbus-glib version control is now hosted on freedesktop.org's Gitlab
+installation, and bug reports and feature requests have switched from
+Bugzilla bugs (indicated by "fd.o #nnn") to Gitlab issues
+("dbus-glib#nnn") and merge requests ("dbus-glib!nnn"). See README and
+CONTRIBUTING.md for more details.
+
+Enhancements:
+
+• Rewrite CONTRIBUTING.md document, based on Wayland's equivalent
+  (Simon McVittie, with thanks to Ander Conselvan de Oliveira,
+  Bryce Harrington, Eric Engestrom, Pekka Paalanen and Daniel Stone
+  for their contributions to the equivalent file in Wayland)
+
+• A generated ChangeLog file, which made up a significant proportion of
+  the size of source tarball releases, is no longer included. Please
+  refer to the git repository at
+  https://gitlab.freedesktop.org/dbus/dbus-glib for detailed change
+  history. (Simon McVittie)
+
+• Improve man page (dbus-glib!1, Alan Coopersmith)
+
+• Add test coverage for fd.o#80557 (dbus-glib#1, Simon McVittie)
+
+• Improve continuous integration to be run by GitLab in addition to
+  Travis-CI (Simon McVittie)
+
+Fixes:
+
+• Allow glib-genmarshal to be overridden with
+  `./configure GLIB_GENMARSHAL=/path/to/glib-genmarshal`, for
+  cross-compilation (dbus-glib!2, Yann E. MORIN)
+
+• Avoid a double-free in dbus-binding-tool for certain inputs, possibly
+  involving nested introspection data structures (dbus-glib#9, Zhipeng Xie)
+
+• Report a better error for excessive recursion depth or unsupported
+  data types (dbus-glib#1, Simon McVittie)
+
+• Map the 15 most-recently-added DBusGError members to their corresponding
+  D-Bus error names (dbus-glib#1, Simon McVittie)
+
+• Mark all documented symbols as deprecated
+  (Simon McVittie)
+
+• Fix unit test failures during distcheck by enabling assertions
+  (Simon McVittie)
 
 dbus-glib 0.110 (2018-01-29)
 ============================
