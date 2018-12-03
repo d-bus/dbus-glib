@@ -269,7 +269,7 @@ AC_DEFINE([GLIB_VERSION_MIN_REQUIRED], [GLIB_VERSION_2_32],
   [Warn on use of APIs deprecated before GLib 2.32])
 PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.40, gobject-2.0 >= 2.40, gio-2.0 >= 2.40])
 
-PKG_CHECK_VAR([GLIB_GENMARSHAL], [glib-2.0], [glib_genmarshal],,
+PKG_CHECK_VAR([GLIB_GENMARSHAL], [glib-2.0], [glib_genmarshal], [],
     [AC_MSG_ERROR([cannot find glib-genmarshal])])
 
 dnl GLib flags
