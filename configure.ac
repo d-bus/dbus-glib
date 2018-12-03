@@ -42,6 +42,8 @@ AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
+m4_ifndef([PKG_PROG_PKG_CONFIG],
+          [pkg.m4 version 0.28 or later is required])
 
 AC_PROG_CC
 AC_ISC_POSIX

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 sudo: required
-dist: trusty
+dist: xenial
 language: c
 script:
   - ./tools/ci-install.sh
@@ -30,7 +30,6 @@ script:
 env:
   - ci_variant=production
   - ci_variant=debug
-  - ci_docker=ubuntu:xenial ci_distro=ubuntu ci_suite=xenial
   - ci_docker=debian:jessie-slim ci_distro=debian ci_suite=jessie
   - ci_docker=debian:stretch-slim ci_distro=debian ci_suite=stretch
 

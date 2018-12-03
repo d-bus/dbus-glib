@@ -9,6 +9,10 @@ Bugzilla bugs (indicated by "fd.o #nnn") to Gitlab issues
 ("dbus-glib#nnn") and merge requests ("dbus-glib!nnn"). See README and
 CONTRIBUTING.md for more details.
 
+Dependencies:
+
+• pkg-config 0.28 is required when building from git
+
 Enhancements:
 
 • Rewrite CONTRIBUTING.md document, based on Wayland's equivalent
