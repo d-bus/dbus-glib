@@ -31,6 +31,11 @@ NULL=
 # Build system under test: autotools is the only option right now
 : "${ci_buildsys:=autotools}"
 
+# ci_distro:
+# OS distribution in which we are testing
+# Typical values: ubuntu, debian; maybe fedora in future
+: "${ci_distro:=ubuntu}"
+
 # ci_docker:
 # If non-empty, this is the name of a Docker image. ci-install.sh will
 # fetch it with "docker pull" and use it as a base for a new Docker image
@@ -51,6 +56,12 @@ NULL=
 # ci_sudo:
 # If yes, assume we can get root using sudo; if no, only use current user
 : "${ci_sudo:=no}"
+
+# ci_suite:
+# OS suite (release, branch) in which we are testing.
+# Typical values for ci_distro=debian: sid, jessie
+# Typical values for ci_distro=fedora might be 25, rawhide
+: "${ci_suite:=xenial}"
 
 # ci_test:
 # If yes, run tests; if no, just build
@@ -117,7 +128,7 @@ case "$ci_buildsys" in
         [ "$ci_test" = no ] || ${make} distcheck || maybe_fail_tests
 
         ${make} install DESTDIR=$(pwd)/DESTDIR
-        ( cd DESTDIR && find . )
+        ( cd DESTDIR && find . -ls )
 
         if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
             sudo ${make} install

@@ -82,32 +82,37 @@ case "$ci_distro" in
         $sudo apt-get -qq -y update
 
         $sudo apt-get -qq -y install \
+            autoconf \
             autoconf-archive \
             automake \
             autotools-dev \
-            build-essential \
+            ccache \
+            cmake \
             dbus \
             debhelper \
             dh-autoreconf \
+            g++ \
+            gcc \
             gnome-desktop-testing \
             gtk-doc-tools \
             libdbus-1-dev \
             libexpat-dev \
             libglib2.0-dev \
+            make \
+            sudo \
             wget \
             ${NULL}
 
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
             # Docker container, and let them use sudo
-            adduser --disabled-password user </dev/null
-            apt-get -y install sudo
+            adduser --disabled-password --gecos "" user
             echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
 
         case "$ci_suite" in
-            (jessie)
+            (jessie|xenial)
                 # Debian 9's autoconf-archive is too old, and older
                 # gnome-common has files in common with it.
                 wget http://deb.debian.org/debian/pool/main/a/autoconf-archive/autoconf-archive_20160916-1_all.deb
