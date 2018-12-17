@@ -52,7 +52,7 @@ NULL=
 # OS suite (release, branch) in which we are testing.
 # Typical values for ci_distro=debian: sid, jessie
 # Typical values for ci_distro=fedora might be 25, rawhide
-: "${ci_suite:=trusty}"
+: "${ci_suite:=xenial}"
 
 if [ $(id -u) = 0 ]; then
     sudo=
@@ -78,9 +78,6 @@ case "$ci_distro" in
         # unreliable; use a CDN instead
         $sudo sed -i -e 's/httpredir\.debian\.org/deb.debian.org/g' \
             /etc/apt/sources.list
-
-        # travis-ci has a sources list for Chrome which doesn't support i386
-        : | $sudo tee /etc/apt/sources.list.d/google-chrome.list
 
         $sudo apt-get -qq -y update
 
@@ -110,10 +107,9 @@ case "$ci_distro" in
         fi
 
         case "$ci_suite" in
-            (trusty|jessie)
-                # Ubuntu 14.04's autoconf-archive is too old, and older
-                # gnome-common has files in common with it. These are
-                # from Debian 9 'stretch'.
+            (jessie)
+                # Debian 9's autoconf-archive is too old, and older
+                # gnome-common has files in common with it.
                 wget http://deb.debian.org/debian/pool/main/a/autoconf-archive/autoconf-archive_20160916-1_all.deb
                 wget http://deb.debian.org/debian/pool/main/g/gnome-common/gnome-common_3.18.0-3_all.deb
                 $sudo dpkg -i --auto-deconfigure gnome-common_*_all.deb autoconf-archive_*_all.deb

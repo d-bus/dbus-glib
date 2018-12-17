@@ -11,6 +11,12 @@ CONTRIBUTING.md for more details.
 
 Dependencies:
 
+• dbus 1.8 was already required, but is more strongly required now:
+  the workarounds that were used to run continuous integration with dbus
+  1.6 on Ubuntu 14.04 'trusty' have been removed. (Note that dbus 1.8
+  has already reached end-of-life for security support, and newer dbus
+  stable branches are strongly recommended.)
+
 • pkg-config 0.28 is required when building from git
 
 Enhancements:
