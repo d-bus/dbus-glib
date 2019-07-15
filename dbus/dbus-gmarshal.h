@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later */
 
 #ifndef ___dbus_g_marshal_MARSHAL_H__
 #define ___dbus_g_marshal_MARSHAL_H__

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later */
+
 #ifndef __TEST_DUP_PROP_H__
 #define __TEST_DUP_PROP_H__
 

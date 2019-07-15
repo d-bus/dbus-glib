@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later */
+
 #ifndef __MY_OBJECT_SUBCLASS_H__
 #define __MY_OBJECT_SUBCLASS_H__
 

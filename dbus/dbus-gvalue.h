@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later */
+
 #ifndef DBUS_GOBJECT_VALUE_H
 #define DBUS_GOBJECT_VALUE_H
 

@@ -3,6 +3,8 @@
  * Copyright © 2009 Collabora Ltd. <http://www.collabora.co.uk/>
  * Copyright © 2009-2011 Nokia Corporation
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later OR MIT
+ *
  * In preparation for dbus-glib relicensing (if it ever happens), this file is
  * licensed under (at your option) either the AFL v2.1, the GPL v2 or later,
  * or an MIT/X11-style license:
