@@ -22,7 +22,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-image: debian:stretch-slim
+image: debian:buster-slim
 
 stages:
   - build
@@ -35,11 +35,11 @@ variables:
   ci_parallel: "2"
   ci_sudo: "yes"
   ci_distro: "debian"
-  ci_suite: "stretch"
+  ci_suite: "buster"
 
 build:production:
   stage: build
-  image: "debian:stretch-slim"
+  image: "debian:buster-slim"
   variables:
     ci_variant: "production"
   script: &script
@@ -48,9 +48,16 @@ build:production:
 
 build:debug:
   stage: build
-  image: "debian:stretch-slim"
+  image: "debian:buster-slim"
   variables:
     ci_variant: "debug"
+  script: *script
+
+build:stretch:
+  stage: build
+  image: "debian:stretch-slim"
+  variables:
+    ci_suite: "stretch"
   script: *script
 
 build:jessie:
