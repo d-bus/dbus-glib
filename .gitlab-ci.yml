@@ -60,13 +60,6 @@ build:stretch:
     ci_suite: "stretch"
   script: *script
 
-build:jessie:
-  stage: build
-  image: "debian:jessie-slim"
-  variables:
-    ci_suite: "jessie"
-  script: *script
-
 build:xenial:
   stage: build
   image: "ubuntu:xenial"
