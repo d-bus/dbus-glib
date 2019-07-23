@@ -39,6 +39,9 @@ Enhancements:
 • Improve continuous integration to be run by GitLab in addition to
   Travis-CI (Simon McVittie)
 
+• Add clearer license information using SPDX-License-Identifier
+  (Simon McVittie)
+
 Fixes:
 
 • Allow glib-genmarshal to be overridden with
@@ -59,6 +62,9 @@ Fixes:
 
 • Fix unit test failures during distcheck by enabling assertions
   (Simon McVittie)
+
+• Fix a core dump during installed-tests by not attempting to close a
+  shared DBusConnection (Simon McVittie)
 
 dbus-glib 0.110 (2018-01-29)
 ============================
