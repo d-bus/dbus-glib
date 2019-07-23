@@ -6,6 +6,7 @@
 *.gcda
 *.libs
 *.lineno
+.dirstamp
 Android.mk
 dbus-glib-*.tar.gz
 Makefile
@@ -48,6 +49,7 @@ dbus/libdbus-glib-1.la
 dbus/libdbus-gtool.la
 doc/Makefile
 doc/Makefile.in
+/doc/dbus-binding-tool.1
 doc/reference/Makefile
 doc/reference/Makefile.in
 doc/reference/dbus-glib-decl-list.txt
@@ -66,6 +68,7 @@ doc/reference/html-build.stamp
 doc/reference/html.stamp
 doc/reference/html/
 doc/reference/scan-build.stamp
+doc/reference/setup-build.stamp
 doc/reference/sgml-build.stamp
 doc/reference/sgml.stamp
 doc/reference/tmpl-build.stamp
@@ -93,12 +96,14 @@ test/core/Makefile
 test/core/Makefile.in
 /test/core/test-5688
 /test/core/test-30574
+/test/core/manual/test-invalid-usage
 test/core/my-object-marshal.c
 test/core/my-object-marshal.h
 test/core/run-with-tmp-session-bus.conf
 test/core/test-dbus-glib
 /test/core/test-gvariant
 /test/core/test-private
+/test/core/test-proxy-noc
 test/core/test-profile
 test/core/test-service-glib
 test/core/test-service-glib-bindings.h
@@ -107,6 +112,7 @@ test/core/test-service-glib-glue.h
 test/core/test-thread-client
 test/core/test-thread-server
 /test/core/test-registrations
+/test/core/test-unsupported-type
 /test/core/test-variant-recursion
 test/data/valid-service-files/debug-echo.service
 test/data/valid-service-files/debug-glib.service
