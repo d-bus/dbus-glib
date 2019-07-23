@@ -9,6 +9,7 @@
 
 static dbus_bool_t already_quit = FALSE;
 static dbus_bool_t hello_from_self_reply_recived = FALSE;
+static DBusConnection *connection = NULL;
 
 static void
 quit (void)
@@ -31,22 +32,11 @@ check_hello_from_self_reply (DBusPendingCall *pcall,
   DBusMessage *reply;
   DBusMessage *echo_message, *echo_reply;
   DBusError error;
-  DBusConnection *connection;
   
   int type;
   
   dbus_error_init (&error);
  
-  connection = dbus_bus_get (DBUS_BUS_STARTER, &error);
-  if (connection == NULL)
-    {
-      fprintf (stderr, "*** Failed to open connection to activating message bus: %s\n",
-               error.message);
-      dbus_error_free (&error);
-      die("no memory");
-    }
-
-  
   echo_message = (DBusMessage *)user_data;
     
   reply = dbus_pending_call_steal_reply (pcall);
@@ -325,10 +315,9 @@ main (int    argc,
       char **argv)
 {
   DBusError error;
-  DBusConnection *connection;
   
   dbus_error_init (&error);
-  connection = dbus_bus_get (DBUS_BUS_STARTER, &error);
+  connection = dbus_bus_get_private (DBUS_BUS_STARTER, &error);
   if (connection == NULL)
     {
       fprintf (stderr, "*** Failed to open connection to activating message bus: %s\n",
